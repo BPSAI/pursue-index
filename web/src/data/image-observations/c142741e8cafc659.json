@@ -12,9 +12,10 @@
     "quarantined": true
   },
   "our_pass": {
-    "model": "claude-opus-4-7",
-    "method": "direct-examination-via-claude-code",
-    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+    "model": "claude-opus-4-8",
+    "method": "vision-run",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding",
+    "described_at": "2026-11-22T01:05:31.581821+00:00"
   },
   "cluster_label": "helicopter-case-2025-imagery-a-series",
   "cross_card_refs": [
@@ -24,53 +25,99 @@
   "sensor_system_note": "A-series \u2014 different sensor system from B-series. Small '+' reticle with horizontal tick row, NO timestamp visible, '5' scale mark only. A001-A006 are aerial terrain views (sensor pointed down at ground). A007 is the polarity-anomaly frame (sky background, bright specular target). A008 is sky background with normal dark-on-light polarity. Treat as adjacent-not-paired with B-series.",
   "pages": [
     {
-      "page": 1,
-      "timestamp_visible": null,
-      "reticle_style": "small '+' reticle with horizontal tick row (numbered '5' mark on right). Does NOT match B-series large full-frame crosshair.",
-      "scale_markings": "'5' mark on horizontal axis only",
-      "tracked_object": {
-        "position_reticle_units": [
-          0,
-          -2
-        ],
-        "shape": "bright specular point with halo (suggests intense point source, possibly sun reflection or active emitter)",
-        "brightness": "LIGHT/WHITE-on-gray-blue (\u2605 polarity anomaly within A-series)"
-      },
-      "other_frame_features": {
-        "background": "SKY-like atmospheric background (\u2605 NOT terrain \u2014 significant departure from A001-A006)",
-        "other_objects": null
-      },
-      "redaction_pattern": "6+ bars",
-      "zhang_disagreements": [
-        {
-          "zhang_text": "(treated as part of the A-series ground-target group)",
-          "our_text": "polarity anomaly: A007 is the only A-frame with bright-on-dark target AND sky background instead of terrain. Possible explanations include WHOT/BHOT polarity inversion, different sensor mode, sun-illuminated reflective object, or different sensor entirely.",
-          "load_bearing": true
-        }
-      ],
+      "image_type": "grayscale targeting/reticle display image with redaction bars",
+      "description": "A grayscale image resembling a thermal or optical targeting display showing a smooth, hazy gray field with subtle gradient variations. At the center is a white crosshair reticle consisting of a vertical and horizontal line with tick marks (hash marks) extending along both axes. A small bright circular spot appears just below and slightly left of the crosshair center. Several solid black rectangular bars of varying sizes are overlaid across the image, appearing at the top, left, right, and bottom edges, consistent with redactions. A small numeral marking appears near the right side of the horizontal reticle line.",
+      "visible_text": "5",
       "observations": [
         {
-          "claim": "A-series reticle style: small '+' with horizontal tick row; does not match B-series large crosshair",
+          "claim": "A white crosshair reticle with tick marks is centered in the image",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "No timestamp visible on this frame",
+          "claim": "Multiple solid black rectangular bars overlay portions of the image",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Tracked object at reticle position [0, -2]: bright specular point with halo (suggests intense point source, possibly sun reflection or active emitter)",
+          "claim": "A small bright circular spot appears below the crosshair center",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Background: SKY-like atmospheric background (\u2605 NOT terrain \u2014 significant departure from A001-A006)",
+          "claim": "The background is a smooth gray gradient field",
           "kind": "observation",
           "confidence": "high"
+        },
+        {
+          "claim": "A numeral '5' is visible near the right side of the horizontal reticle line",
+          "kind": "observation",
+          "confidence": "medium"
         }
       ],
-      "narrative_grounding": null
+      "page": 1,
+      "row_key": ""
+    }
+  ],
+  "superseded_passes": [
+    {
+      "our_pass": {
+        "model": "claude-opus-4-7",
+        "method": "direct-examination-via-claude-code",
+        "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+      },
+      "pages": [
+        {
+          "page": 1,
+          "timestamp_visible": null,
+          "reticle_style": "small '+' reticle with horizontal tick row (numbered '5' mark on right). Does NOT match B-series large full-frame crosshair.",
+          "scale_markings": "'5' mark on horizontal axis only",
+          "tracked_object": {
+            "position_reticle_units": [
+              0,
+              -2
+            ],
+            "shape": "bright specular point with halo (suggests intense point source, possibly sun reflection or active emitter)",
+            "brightness": "LIGHT/WHITE-on-gray-blue (\u2605 polarity anomaly within A-series)"
+          },
+          "other_frame_features": {
+            "background": "SKY-like atmospheric background (\u2605 NOT terrain \u2014 significant departure from A001-A006)",
+            "other_objects": null
+          },
+          "redaction_pattern": "6+ bars",
+          "zhang_disagreements": [
+            {
+              "zhang_text": "(treated as part of the A-series ground-target group)",
+              "our_text": "polarity anomaly: A007 is the only A-frame with bright-on-dark target AND sky background instead of terrain. Possible explanations include WHOT/BHOT polarity inversion, different sensor mode, sun-illuminated reflective object, or different sensor entirely.",
+              "load_bearing": true
+            }
+          ],
+          "observations": [
+            {
+              "claim": "A-series reticle style: small '+' with horizontal tick row; does not match B-series large crosshair",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "No timestamp visible on this frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Tracked object at reticle position [0, -2]: bright specular point with halo (suggests intense point source, possibly sun reflection or active emitter)",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Background: SKY-like atmospheric background (\u2605 NOT terrain \u2014 significant departure from A001-A006)",
+              "kind": "observation",
+              "confidence": "high"
+            }
+          ],
+          "narrative_grounding": null
+        }
+      ],
+      "superseded_at": "2026-11-22T01:05:31.581821+00:00"
     }
   ]
 }

@@ -12,9 +12,10 @@
     "quarantined": true
   },
   "our_pass": {
-    "model": "claude-opus-4-7",
-    "method": "direct-examination-via-claude-code",
-    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+    "model": "claude-opus-4-8",
+    "method": "vision-run",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding",
+    "described_at": "2026-11-22T01:05:31.581821+00:00"
   },
   "cluster_label": "helicopter-case-2025-imagery-b-series",
   "cross_card_refs": [
@@ -24,61 +25,112 @@
   "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
   "pages": [
     {
-      "page": 1,
-      "timestamp_visible": "12/31/99 18:12:20",
-      "reticle_style": "large full-frame crosshair with white tick marks",
-      "scale_markings": "15 10 5 | 5 10 15",
-      "tracked_object": null,
-      "other_frame_features": {
-        "helicopter_visible": false,
-        "helicopter_position": null,
-        "mountains_visible": true,
-        "mountains_description": "clear ridge silhouette at bottom center; most prominent terrain of any burst-1 frame",
-        "other_objects": null,
-        "artifacts": null
-      },
-      "redaction_pattern": "6 bars + top + upper-left artifact",
-      "zhang_disagreements": [
-        {
-          "zhang_text": "gray uniform background",
-          "our_text": "mountain ridge is clearly visible; background NOT uniform",
-          "load_bearing": true
-        },
-        {
-          "zhang_text": "(implied tracked object visible)",
-          "our_text": "no trackable object in this frame",
-          "load_bearing": true
-        }
-      ],
+      "image_type": "black-and-white video or targeting-display frame with overlay",
+      "description": "A grainy grayscale image resembling a surveillance or targeting camera view with a graduated reticle overlay. A white crosshair with a horizontal and vertical scale crosses near the center; the horizontal axis is marked with numbers 15, 10, 5, 0, 5, 10, 15 and tick marks. The background is a noisy gray gradient, darker at the top and lighter in the middle. A solid black bar runs across the top. Several black rectangular redaction blocks are placed symmetrically on the left and right sides at multiple vertical levels, some with faint gray extensions. A faint rounded dark shape appears near the bottom center. White timestamp text appears in the lower-left corner.",
+      "visible_text": "15 10 5 5 10 15\n12/31/99 18:12:20",
       "observations": [
         {
-          "claim": "Timestamp '12/31/99 18:12:20' visible bottom-left of frame",
+          "claim": "A white crosshair/reticle is centered in the image with numbered scale markings",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Scale markings: 15 10 5 | 5 10 15",
+          "claim": "The horizontal scale reads 15, 10, 5, 0, 5, 10, 15 from left to right",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "NO tracked object clearly visible. Possibly exited field of view or operator paused tracking. Frame marks end of burst-1.",
+          "claim": "A timestamp '12/31/99 18:12:20' appears in the lower-left corner",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Helicopter not visible in this frame",
+          "claim": "Multiple black rectangular blocks obscure areas on the left and right sides",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Mountainous terrain visible: clear ridge silhouette at bottom center; most prominent terrain of any burst-1 frame",
+          "claim": "The background is grainy grayscale with noticeable noise",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A solid black horizontal bar spans across the top of the image",
           "kind": "observation",
           "confidence": "high"
         }
       ],
-      "cross_frame_notes": null,
-      "narrative_grounding": null
+      "page": 1,
+      "row_key": ""
+    }
+  ],
+  "superseded_passes": [
+    {
+      "our_pass": {
+        "model": "claude-opus-4-7",
+        "method": "direct-examination-via-claude-code",
+        "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+      },
+      "pages": [
+        {
+          "page": 1,
+          "timestamp_visible": "12/31/99 18:12:20",
+          "reticle_style": "large full-frame crosshair with white tick marks",
+          "scale_markings": "15 10 5 | 5 10 15",
+          "tracked_object": null,
+          "other_frame_features": {
+            "helicopter_visible": false,
+            "helicopter_position": null,
+            "mountains_visible": true,
+            "mountains_description": "clear ridge silhouette at bottom center; most prominent terrain of any burst-1 frame",
+            "other_objects": null,
+            "artifacts": null
+          },
+          "redaction_pattern": "6 bars + top + upper-left artifact",
+          "zhang_disagreements": [
+            {
+              "zhang_text": "gray uniform background",
+              "our_text": "mountain ridge is clearly visible; background NOT uniform",
+              "load_bearing": true
+            },
+            {
+              "zhang_text": "(implied tracked object visible)",
+              "our_text": "no trackable object in this frame",
+              "load_bearing": true
+            }
+          ],
+          "observations": [
+            {
+              "claim": "Timestamp '12/31/99 18:12:20' visible bottom-left of frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Scale markings: 15 10 5 | 5 10 15",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "NO tracked object clearly visible. Possibly exited field of view or operator paused tracking. Frame marks end of burst-1.",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Helicopter not visible in this frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Mountainous terrain visible: clear ridge silhouette at bottom center; most prominent terrain of any burst-1 frame",
+              "kind": "observation",
+              "confidence": "high"
+            }
+          ],
+          "cross_frame_notes": null,
+          "narrative_grounding": null
+        }
+      ],
+      "superseded_at": "2026-11-22T01:05:31.581821+00:00"
     }
   ]
 }

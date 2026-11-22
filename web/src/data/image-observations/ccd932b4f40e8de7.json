@@ -12,9 +12,10 @@
     "quarantined": true
   },
   "our_pass": {
-    "model": "claude-opus-4-7",
-    "method": "direct-examination-via-claude-code",
-    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+    "model": "claude-opus-4-8",
+    "method": "vision-run",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding",
+    "described_at": "2026-11-22T01:05:31.581821+00:00"
   },
   "cluster_label": "helicopter-case-2025-imagery-b-series",
   "cross_card_refs": [
@@ -24,53 +25,109 @@
   "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
   "pages": [
     {
-      "page": 1,
-      "timestamp_visible": "12/31/99 18:10:02",
-      "reticle_style": "large full-frame crosshair with white tick marks",
-      "scale_markings": "15 10 5 | 5 10 15",
-      "tracked_object": {
-        "position_reticle_units": [
-          1,
-          -7
-        ],
-        "shape": "point",
-        "brightness": "dark-on-gray",
-        "notes": "same speck position as B006 \u2014 sensor stabilized on this object"
-      },
-      "other_frame_features": {
-        "helicopter_visible": true,
-        "helicopter_position": "approximately (+5, +5); moved RIGHT and DOWN relative to B006 by ~4.5 tick units in 2 seconds; rotor/body silhouette clearer than in B006",
-        "mountains_visible": false,
-        "mountains_description": null,
-        "other_objects": null,
-        "artifacts": null
-      },
-      "redaction_pattern": "6 bars + top + upper-left artifact",
-      "zhang_disagreements": [],
+      "image_type": "simulated black-and-white targeting/surveillance screen capture",
+      "description": "A grainy grayscale image resembling a targeting or optical tracking display. At the center is a crosshair reticle with graduated tick marks forming a cross, labeled with numbers 15, 10, 5 on both the left and right sides of the horizontal axis. In the upper right-center area is a small dark shape resembling a helicopter viewed from above or at an angle. The frame contains multiple black and gray horizontal rectangular bars resembling redaction blocks arranged symmetrically on the left and right edges and across the top. A small dark dot appears in the lower center-right area. A date-time stamp reads in the lower left corner. The overall image has visible noise/grain typical of low-light imaging.",
+      "visible_text": "15 10 5 5 10 15  12/31/99 18:10:02",
       "observations": [
         {
-          "claim": "Timestamp '12/31/99 18:10:02' visible bottom-left of frame",
+          "claim": "A crosshair reticle with tick marks is centered in the image",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Scale markings: 15 10 5 | 5 10 15",
+          "claim": "Numeric labels 15, 10, 5 appear along the horizontal axis on both sides",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Tracked object at reticle position [1, -7]: point, dark-on-gray",
+          "claim": "A dark helicopter-like shape appears in the upper right-center",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A timestamp reading '12/31/99 18:10:02' is in the lower left corner",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Helicopter visible: approximately (+5, +5); moved RIGHT and DOWN relative to B006 by ~4.5 tick units in 2 seconds; rotor/body silhouette clearer than in B006",
+          "claim": "Several black rectangular bars resembling redactions are present at the top and edges",
           "kind": "observation",
           "confidence": "high"
+        },
+        {
+          "claim": "The image is grayscale with visible grain/noise",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "A small dark dot is present in the lower center-right region",
+          "kind": "observation",
+          "confidence": "medium"
         }
       ],
-      "cross_frame_notes": "Helicopter motion B006\u2192B007 confirms sensor is NOT tracking helicopter; sensor is stabilized on the speck below center (which holds position) while helicopter drifts through field of view.",
-      "narrative_grounding": null
+      "page": 1,
+      "row_key": ""
+    }
+  ],
+  "superseded_passes": [
+    {
+      "our_pass": {
+        "model": "claude-opus-4-7",
+        "method": "direct-examination-via-claude-code",
+        "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+      },
+      "pages": [
+        {
+          "page": 1,
+          "timestamp_visible": "12/31/99 18:10:02",
+          "reticle_style": "large full-frame crosshair with white tick marks",
+          "scale_markings": "15 10 5 | 5 10 15",
+          "tracked_object": {
+            "position_reticle_units": [
+              1,
+              -7
+            ],
+            "shape": "point",
+            "brightness": "dark-on-gray",
+            "notes": "same speck position as B006 \u2014 sensor stabilized on this object"
+          },
+          "other_frame_features": {
+            "helicopter_visible": true,
+            "helicopter_position": "approximately (+5, +5); moved RIGHT and DOWN relative to B006 by ~4.5 tick units in 2 seconds; rotor/body silhouette clearer than in B006",
+            "mountains_visible": false,
+            "mountains_description": null,
+            "other_objects": null,
+            "artifacts": null
+          },
+          "redaction_pattern": "6 bars + top + upper-left artifact",
+          "zhang_disagreements": [],
+          "observations": [
+            {
+              "claim": "Timestamp '12/31/99 18:10:02' visible bottom-left of frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Scale markings: 15 10 5 | 5 10 15",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Tracked object at reticle position [1, -7]: point, dark-on-gray",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Helicopter visible: approximately (+5, +5); moved RIGHT and DOWN relative to B006 by ~4.5 tick units in 2 seconds; rotor/body silhouette clearer than in B006",
+              "kind": "observation",
+              "confidence": "high"
+            }
+          ],
+          "cross_frame_notes": "Helicopter motion B006\u2192B007 confirms sensor is NOT tracking helicopter; sensor is stabilized on the speck below center (which holds position) while helicopter drifts through field of view.",
+          "narrative_grounding": null
+        }
+      ],
+      "superseded_at": "2026-11-22T01:05:31.581821+00:00"
     }
   ]
 }

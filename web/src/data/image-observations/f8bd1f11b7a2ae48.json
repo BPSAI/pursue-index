@@ -12,9 +12,10 @@
     "quarantined": true
   },
   "our_pass": {
-    "model": "claude-opus-4-7",
-    "method": "direct-examination-via-claude-code",
-    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+    "model": "claude-opus-4-8",
+    "method": "vision-run",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding",
+    "described_at": "2026-11-22T01:05:31.581821+00:00"
   },
   "cluster_label": "helicopter-case-2025-imagery-b-series",
   "cross_card_refs": [
@@ -24,52 +25,103 @@
   "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
   "pages": [
     {
-      "page": 1,
-      "timestamp_visible": "12/31/99 18:20:48",
-      "reticle_style": "large full-frame crosshair with white tick marks",
-      "scale_markings": "3",
-      "tracked_object": {
-        "position_reticle_units": [
-          0,
-          0
-        ],
-        "shape": "PAIRED \u2014 two small dark dots very close together at crosshair center",
-        "brightness": "dark-on-gray"
-      },
-      "other_frame_features": {
-        "helicopter_visible": false,
-        "helicopter_position": null,
-        "mountains_visible": false,
-        "mountains_description": null,
-        "other_objects": null,
-        "artifacts": null
-      },
-      "redaction_pattern": "6 bars + top",
-      "zhang_disagreements": [],
+      "image_type": "grayscale surveillance or targeting display with crosshair overlay",
+      "description": "A noisy gray monochrome image resembling a sensor or tracking display. A white crosshair overlay is centered, with a vertical line and a horizontal line meeting near the middle of the frame; the horizontal arm has short tick marks at each end, each labeled with the numeral '3'. Near the center, slightly below the crossing point, are two small dark spots that appear to be a tracked object or target. Several solid black redaction bars obscure portions of the image: one large bar across the top, and pairs of rectangular bars on the left and right sides at three vertical levels. A timestamp reading '12/31/99 18:20:48' appears in white text at the bottom-left corner. The background has a grainy, static-like texture.",
+      "visible_text": "3  3  12/31/99 18:20:48",
       "observations": [
         {
-          "claim": "Timestamp '12/31/99 18:20:48' visible bottom-left of frame",
+          "claim": "A white crosshair with vertical and horizontal lines is centered in the frame",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Scale markings: 3",
+          "claim": "The numeral '3' appears at both ends of the horizontal crosshair arm",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Tracked object at reticle position [0, 0]: PAIRED \u2014 two small dark dots very close together at crosshair center, dark-on-gray",
+          "claim": "Two small dark spots appear near the center of the image",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Helicopter not visible in this frame",
+          "claim": "A timestamp '12/31/99 18:20:48' is displayed in the bottom-left corner",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "Multiple black rectangular redaction bars cover parts of the image",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image background has a grainy, noisy texture",
           "kind": "observation",
           "confidence": "high"
         }
       ],
-      "cross_frame_notes": null,
-      "narrative_grounding": null
+      "page": 1,
+      "row_key": ""
+    }
+  ],
+  "superseded_passes": [
+    {
+      "our_pass": {
+        "model": "claude-opus-4-7",
+        "method": "direct-examination-via-claude-code",
+        "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+      },
+      "pages": [
+        {
+          "page": 1,
+          "timestamp_visible": "12/31/99 18:20:48",
+          "reticle_style": "large full-frame crosshair with white tick marks",
+          "scale_markings": "3",
+          "tracked_object": {
+            "position_reticle_units": [
+              0,
+              0
+            ],
+            "shape": "PAIRED \u2014 two small dark dots very close together at crosshair center",
+            "brightness": "dark-on-gray"
+          },
+          "other_frame_features": {
+            "helicopter_visible": false,
+            "helicopter_position": null,
+            "mountains_visible": false,
+            "mountains_description": null,
+            "other_objects": null,
+            "artifacts": null
+          },
+          "redaction_pattern": "6 bars + top",
+          "zhang_disagreements": [],
+          "observations": [
+            {
+              "claim": "Timestamp '12/31/99 18:20:48' visible bottom-left of frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Scale markings: 3",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Tracked object at reticle position [0, 0]: PAIRED \u2014 two small dark dots very close together at crosshair center, dark-on-gray",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Helicopter not visible in this frame",
+              "kind": "observation",
+              "confidence": "high"
+            }
+          ],
+          "cross_frame_notes": null,
+          "narrative_grounding": null
+        }
+      ],
+      "superseded_at": "2026-11-22T01:05:31.581821+00:00"
     }
   ]
 }

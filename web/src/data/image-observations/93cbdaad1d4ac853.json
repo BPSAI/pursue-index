@@ -12,9 +12,10 @@
     "quarantined": true
   },
   "our_pass": {
-    "model": "claude-opus-4-7",
-    "method": "direct-examination-via-claude-code",
-    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+    "model": "claude-opus-4-8",
+    "method": "vision-run",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding",
+    "described_at": "2026-11-22T01:05:31.581821+00:00"
   },
   "cluster_label": "helicopter-case-2025-imagery-a-series",
   "cross_card_refs": [
@@ -24,47 +25,98 @@
   "sensor_system_note": "A-series \u2014 different sensor system from B-series. Small '+' reticle with horizontal tick row, NO timestamp visible, '5' scale mark only. A001-A006 are aerial terrain views (sensor pointed down at ground). A007 is the polarity-anomaly frame (sky background, bright specular target). A008 is sky background with normal dark-on-light polarity. Treat as adjacent-not-paired with B-series.",
   "pages": [
     {
-      "page": 1,
-      "timestamp_visible": null,
-      "reticle_style": "small '+' reticle with horizontal tick row (numbered '5' mark on right). Does NOT match B-series large full-frame crosshair.",
-      "scale_markings": "'5' mark on horizontal axis only",
-      "tracked_object": {
-        "position_reticle_units": [
-          0,
-          0
-        ],
-        "shape": "dark blob, similar to A002",
-        "brightness": "dark-on-lighter-background"
-      },
-      "other_frame_features": {
-        "background": "AERIAL TERRAIN \u2014 ground view with texture",
-        "other_objects": null
-      },
-      "redaction_pattern": "7-8 bars",
-      "zhang_disagreements": [],
+      "image_type": "black-and-white thermal or infrared targeting display with reticle overlay",
+      "description": "A grayscale image resembling a thermal or infrared gunsight/targeting view showing a mottled terrain-like background in shades of gray. A crosshair reticle is centered on the frame with a vertical line marked by tick marks running top to bottom and a horizontal line marked with tick marks running left to right, meeting at a central dark circular dot. Multiple solid black rectangular bars (resembling redaction blocks) are placed along the top, left, right, and bottom edges of the image, partially covering the scene. The number '5' is faintly visible along the horizontal axis to the right of center.",
+      "visible_text": "5",
       "observations": [
         {
-          "claim": "A-series reticle style: small '+' with horizontal tick row; does not match B-series large crosshair",
+          "claim": "The image is grayscale/monochrome",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "No timestamp visible on this frame",
+          "claim": "A crosshair reticle with tick marks is centered in the frame",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Tracked object at reticle position [0, 0]: dark blob, similar to A002",
+          "claim": "A dark circular dot appears at the intersection of the crosshair lines",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Background: AERIAL TERRAIN \u2014 ground view with texture",
+          "claim": "Multiple solid black rectangular bars are positioned along the image edges",
           "kind": "observation",
           "confidence": "high"
+        },
+        {
+          "claim": "The number 5 is visible along the horizontal axis right of center",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The background shows mottled gray terrain-like texture",
+          "kind": "observation",
+          "confidence": "medium"
         }
       ],
-      "narrative_grounding": null
+      "page": 1,
+      "row_key": ""
+    }
+  ],
+  "superseded_passes": [
+    {
+      "our_pass": {
+        "model": "claude-opus-4-7",
+        "method": "direct-examination-via-claude-code",
+        "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+      },
+      "pages": [
+        {
+          "page": 1,
+          "timestamp_visible": null,
+          "reticle_style": "small '+' reticle with horizontal tick row (numbered '5' mark on right). Does NOT match B-series large full-frame crosshair.",
+          "scale_markings": "'5' mark on horizontal axis only",
+          "tracked_object": {
+            "position_reticle_units": [
+              0,
+              0
+            ],
+            "shape": "dark blob, similar to A002",
+            "brightness": "dark-on-lighter-background"
+          },
+          "other_frame_features": {
+            "background": "AERIAL TERRAIN \u2014 ground view with texture",
+            "other_objects": null
+          },
+          "redaction_pattern": "7-8 bars",
+          "zhang_disagreements": [],
+          "observations": [
+            {
+              "claim": "A-series reticle style: small '+' with horizontal tick row; does not match B-series large crosshair",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "No timestamp visible on this frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Tracked object at reticle position [0, 0]: dark blob, similar to A002",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Background: AERIAL TERRAIN \u2014 ground view with texture",
+              "kind": "observation",
+              "confidence": "high"
+            }
+          ],
+          "narrative_grounding": null
+        }
+      ],
+      "superseded_at": "2026-11-22T01:05:31.581821+00:00"
     }
   ]
 }

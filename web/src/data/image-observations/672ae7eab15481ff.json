@@ -12,9 +12,10 @@
     "quarantined": true
   },
   "our_pass": {
-    "model": "claude-opus-4-7",
-    "method": "direct-examination-via-claude-code",
-    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+    "model": "claude-opus-4-8",
+    "method": "vision-run",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding",
+    "described_at": "2026-11-22T01:05:31.581821+00:00"
   },
   "cluster_label": "helicopter-case-2025-imagery-b-series",
   "cross_card_refs": [
@@ -24,57 +25,108 @@
   "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
   "pages": [
     {
-      "page": 1,
-      "timestamp_visible": "12/31/99 18:12:16",
-      "reticle_style": "large full-frame crosshair with white tick marks",
-      "scale_markings": "15 10 5 | 5 10 15",
-      "tracked_object": {
-        "position_reticle_units": [
-          1,
-          4
-        ],
-        "shape": "point",
-        "brightness": "dark-on-gray"
-      },
-      "other_frame_features": {
-        "helicopter_visible": false,
-        "helicopter_position": null,
-        "mountains_visible": true,
-        "mountains_description": "marginal at bottom edge",
-        "other_objects": null,
-        "artifacts": null
-      },
-      "redaction_pattern": "6 bars + top + upper-left small artifact",
-      "zhang_disagreements": [],
+      "image_type": "black-and-white grayscale targeting/surveillance screen capture",
+      "description": "A grainy grayscale image resembling a targeting or surveillance display with a centered white crosshair reticle. The horizontal axis of the reticle is marked with numeric graduations reading 15, 10, 5 to the left of center and 5, 10, 15 to the right of center, with small tick marks along both axes. A large solid black rectangular bar spans the top of the frame. Several smaller black rectangular bars (resembling redaction or overlay blocks) are positioned symmetrically on the left and right sides at three vertical levels. The background is a mottled gray with visible noise. A white timestamp reading '12/31/99 18:12:16' appears in the lower-left corner.",
+      "visible_text": "15 10 5 5 10 15 12/31/99 18:12:16",
       "observations": [
         {
-          "claim": "Timestamp '12/31/99 18:12:16' visible bottom-left of frame",
+          "claim": "A white crosshair reticle is centered in the image",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Scale markings: 15 10 5 | 5 10 15",
+          "claim": "The horizontal scale shows numbers 15, 10, 5 on both sides of center",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Tracked object at reticle position [1, 4]: point, dark-on-gray",
+          "claim": "A timestamp '12/31/99 18:12:16' appears in the lower-left corner",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Helicopter not visible in this frame",
+          "claim": "A large black bar spans across the top of the frame",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Mountainous terrain visible: marginal at bottom edge",
+          "claim": "Multiple black rectangular blocks are arranged on left and right sides",
+          "kind": "observation",
+          "confidence": "high"
+        },
+        {
+          "claim": "The image has visible grain/noise throughout the gray background",
           "kind": "observation",
           "confidence": "high"
         }
       ],
-      "cross_frame_notes": null,
-      "narrative_grounding": null
+      "page": 1,
+      "row_key": ""
+    }
+  ],
+  "superseded_passes": [
+    {
+      "our_pass": {
+        "model": "claude-opus-4-7",
+        "method": "direct-examination-via-claude-code",
+        "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+      },
+      "pages": [
+        {
+          "page": 1,
+          "timestamp_visible": "12/31/99 18:12:16",
+          "reticle_style": "large full-frame crosshair with white tick marks",
+          "scale_markings": "15 10 5 | 5 10 15",
+          "tracked_object": {
+            "position_reticle_units": [
+              1,
+              4
+            ],
+            "shape": "point",
+            "brightness": "dark-on-gray"
+          },
+          "other_frame_features": {
+            "helicopter_visible": false,
+            "helicopter_position": null,
+            "mountains_visible": true,
+            "mountains_description": "marginal at bottom edge",
+            "other_objects": null,
+            "artifacts": null
+          },
+          "redaction_pattern": "6 bars + top + upper-left small artifact",
+          "zhang_disagreements": [],
+          "observations": [
+            {
+              "claim": "Timestamp '12/31/99 18:12:16' visible bottom-left of frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Scale markings: 15 10 5 | 5 10 15",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Tracked object at reticle position [1, 4]: point, dark-on-gray",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Helicopter not visible in this frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Mountainous terrain visible: marginal at bottom edge",
+              "kind": "observation",
+              "confidence": "high"
+            }
+          ],
+          "cross_frame_notes": null,
+          "narrative_grounding": null
+        }
+      ],
+      "superseded_at": "2026-11-22T01:05:31.581821+00:00"
     }
   ]
 }

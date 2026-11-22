@@ -12,9 +12,10 @@
     "quarantined": true
   },
   "our_pass": {
-    "model": "claude-opus-4-7",
-    "method": "direct-examination-via-claude-code",
-    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+    "model": "claude-opus-4-8",
+    "method": "vision-run",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding",
+    "described_at": "2026-11-22T01:05:31.581821+00:00"
   },
   "cluster_label": "helicopter-case-2025-imagery-a-series",
   "cross_card_refs": [
@@ -24,47 +25,98 @@
   "sensor_system_note": "A-series \u2014 different sensor system from B-series. Small '+' reticle with horizontal tick row, NO timestamp visible, '5' scale mark only. A001-A006 are aerial terrain views (sensor pointed down at ground). A007 is the polarity-anomaly frame (sky background, bright specular target). A008 is sky background with normal dark-on-light polarity. Treat as adjacent-not-paired with B-series.",
   "pages": [
     {
-      "page": 1,
-      "timestamp_visible": null,
-      "reticle_style": "small '+' reticle with horizontal tick row (numbered '5' mark on right). Does NOT match B-series large full-frame crosshair.",
-      "scale_markings": "'5' mark on horizontal axis only",
-      "tracked_object": {
-        "position_reticle_units": [
-          5,
-          1
-        ],
-        "shape": "small dark dot",
-        "brightness": "DARK-on-light/gray-sky-background"
-      },
-      "other_frame_features": {
-        "background": "SKY-like (similar to A007's atmospheric background but with normal dark-on-light polarity)",
-        "other_objects": null
-      },
-      "redaction_pattern": "7-8 bars",
-      "zhang_disagreements": [],
+      "image_type": "grayscale targeting or surveillance display screenshot",
+      "description": "A monochrome image resembling a thermal or electro-optical targeting display with a crosshair/reticle centered in the frame. The central crosshair consists of vertical and horizontal lines with graduated tick marks (a scale reticle), and a small dark dot appears just right of the center. The background shows a grainy gray field with faint diagonal streaks or terrain-like texture. Numerous black rectangular redaction or overlay bars are placed around the edges\u2014across the top, left side, right side, and bottom\u2014obscuring portions of the display. A small number '5' is visible on the right portion of the horizontal reticle scale.",
+      "visible_text": "5",
       "observations": [
         {
-          "claim": "A-series reticle style: small '+' with horizontal tick row; does not match B-series large crosshair",
+          "claim": "A crosshair reticle with tick marks is centered in the image",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "No timestamp visible on this frame",
+          "claim": "The image is grayscale/monochrome",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Tracked object at reticle position [5, 1]: small dark dot",
+          "claim": "Multiple black rectangular bars obscure areas near the edges",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Background: SKY-like (similar to A007's atmospheric background but with normal dark-on-light polarity)",
+          "claim": "The numeral '5' appears on the right side of the horizontal reticle",
           "kind": "observation",
-          "confidence": "high"
+          "confidence": "medium"
+        },
+        {
+          "claim": "A small dark dot is visible just right of the crosshair center",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "The background has a grainy texture with faint diagonal streaks",
+          "kind": "observation",
+          "confidence": "medium"
         }
       ],
-      "narrative_grounding": null
+      "page": 1,
+      "row_key": ""
+    }
+  ],
+  "superseded_passes": [
+    {
+      "our_pass": {
+        "model": "claude-opus-4-7",
+        "method": "direct-examination-via-claude-code",
+        "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+      },
+      "pages": [
+        {
+          "page": 1,
+          "timestamp_visible": null,
+          "reticle_style": "small '+' reticle with horizontal tick row (numbered '5' mark on right). Does NOT match B-series large full-frame crosshair.",
+          "scale_markings": "'5' mark on horizontal axis only",
+          "tracked_object": {
+            "position_reticle_units": [
+              5,
+              1
+            ],
+            "shape": "small dark dot",
+            "brightness": "DARK-on-light/gray-sky-background"
+          },
+          "other_frame_features": {
+            "background": "SKY-like (similar to A007's atmospheric background but with normal dark-on-light polarity)",
+            "other_objects": null
+          },
+          "redaction_pattern": "7-8 bars",
+          "zhang_disagreements": [],
+          "observations": [
+            {
+              "claim": "A-series reticle style: small '+' with horizontal tick row; does not match B-series large crosshair",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "No timestamp visible on this frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Tracked object at reticle position [5, 1]: small dark dot",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Background: SKY-like (similar to A007's atmospheric background but with normal dark-on-light polarity)",
+              "kind": "observation",
+              "confidence": "high"
+            }
+          ],
+          "narrative_grounding": null
+        }
+      ],
+      "superseded_at": "2026-11-22T01:05:31.581821+00:00"
     }
   ]
 }

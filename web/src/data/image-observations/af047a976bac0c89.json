@@ -12,9 +12,10 @@
     "quarantined": true
   },
   "our_pass": {
-    "model": "claude-opus-4-7",
-    "method": "direct-examination-via-claude-code",
-    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+    "model": "claude-opus-4-8",
+    "method": "vision-run",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding",
+    "described_at": "2026-11-22T01:05:31.581821+00:00"
   },
   "cluster_label": "helicopter-case-2025-imagery-b-series",
   "cross_card_refs": [
@@ -24,57 +25,118 @@
   "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
   "pages": [
     {
-      "page": 1,
-      "timestamp_visible": "12/31/99 18:10:50",
-      "reticle_style": "large full-frame crosshair with white tick marks",
-      "scale_markings": "15 10 5 | 5 10 15",
-      "tracked_object": {
-        "position_reticle_units": [
-          2,
-          2.5
-        ],
-        "shape": "point",
-        "brightness": "dark-on-gray"
-      },
-      "other_frame_features": {
-        "helicopter_visible": false,
-        "helicopter_position": null,
-        "mountains_visible": true,
-        "mountains_description": "faint at lower right",
-        "other_objects": null,
-        "artifacts": null
-      },
-      "redaction_pattern": "6 bars + top",
-      "zhang_disagreements": [],
+      "image_type": "grayscale surveillance/targeting display screenshot with overlay",
+      "description": "A grainy black-and-white display showing a grayscale field with a central white crosshair reticle featuring tick marks and numeric scale markings (15, 10, 5, 0, 5, 10, 15) along the horizontal axis. The upper portion of the image is covered by a large black rectangular band. Several black rectangular blocks, appearing to be redactions or obscured regions, are arranged symmetrically on the left and right sides of the frame at multiple vertical levels. Some blocks have adjacent lighter gray patches. In the lower portion of the image, a faint textured dark area resembling terrain or hills is visible. A small dark spot appears near the center-right of the frame. A white timestamp overlay reads in the lower-left corner. The overall texture is noisy, consistent with a low-light or infrared-style sensor image.",
+      "visible_text": "15 10 5 5 10 15\n12/31/99 18:10:50",
       "observations": [
         {
-          "claim": "Timestamp '12/31/99 18:10:50' visible bottom-left of frame",
+          "claim": "A white crosshair reticle with tick marks is centered in the image",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Scale markings: 15 10 5 | 5 10 15",
+          "claim": "A horizontal numeric scale reads 15, 10, 5, then 5, 10, 15",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Tracked object at reticle position [2, 2.5]: point, dark-on-gray",
+          "claim": "A timestamp '12/31/99 18:10:50' appears in the lower-left corner",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Helicopter not visible in this frame",
+          "claim": "Multiple black rectangular blocks are positioned symmetrically on left and right sides",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Mountainous terrain visible: faint at lower right",
+          "claim": "A large black band covers the top portion of the image",
           "kind": "observation",
           "confidence": "high"
+        },
+        {
+          "claim": "The image has a grainy, noisy texture consistent with low-light imaging",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A faint dark terrain-like texture appears in the lower portion of the frame",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "A small dark spot is visible near the center-right of the frame",
+          "kind": "observation",
+          "confidence": "medium"
         }
       ],
-      "cross_frame_notes": null,
-      "narrative_grounding": null
+      "page": 1,
+      "row_key": ""
+    }
+  ],
+  "superseded_passes": [
+    {
+      "our_pass": {
+        "model": "claude-opus-4-7",
+        "method": "direct-examination-via-claude-code",
+        "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+      },
+      "pages": [
+        {
+          "page": 1,
+          "timestamp_visible": "12/31/99 18:10:50",
+          "reticle_style": "large full-frame crosshair with white tick marks",
+          "scale_markings": "15 10 5 | 5 10 15",
+          "tracked_object": {
+            "position_reticle_units": [
+              2,
+              2.5
+            ],
+            "shape": "point",
+            "brightness": "dark-on-gray"
+          },
+          "other_frame_features": {
+            "helicopter_visible": false,
+            "helicopter_position": null,
+            "mountains_visible": true,
+            "mountains_description": "faint at lower right",
+            "other_objects": null,
+            "artifacts": null
+          },
+          "redaction_pattern": "6 bars + top",
+          "zhang_disagreements": [],
+          "observations": [
+            {
+              "claim": "Timestamp '12/31/99 18:10:50' visible bottom-left of frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Scale markings: 15 10 5 | 5 10 15",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Tracked object at reticle position [2, 2.5]: point, dark-on-gray",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Helicopter not visible in this frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Mountainous terrain visible: faint at lower right",
+              "kind": "observation",
+              "confidence": "high"
+            }
+          ],
+          "cross_frame_notes": null,
+          "narrative_grounding": null
+        }
+      ],
+      "superseded_at": "2026-11-22T01:05:31.581821+00:00"
     }
   ]
 }

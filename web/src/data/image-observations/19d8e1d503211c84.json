@@ -12,9 +12,10 @@
     "quarantined": true
   },
   "our_pass": {
-    "model": "claude-opus-4-7",
-    "method": "direct-examination-via-claude-code",
-    "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+    "model": "claude-opus-4-8",
+    "method": "vision-run",
+    "context": "phase2-multi-frame-cluster-with-narrative-grounding",
+    "described_at": "2026-11-22T01:05:31.581821+00:00"
   },
   "cluster_label": "helicopter-case-2025-imagery-b-series",
   "cross_card_refs": [
@@ -24,64 +25,120 @@
   "sensor_system_note": "B-series \u2014 large full-frame crosshair reticle, '12/31/99 HH:MM:SS' factory-reset sensor clock visible bottom-left, scale markings '15 10 5 | 5 10 15' in burst-1 / early burst-2 and '3' after the high-mag zoom at B022. Sky/atmosphere background throughout (no terrain in burst 2). Different sensor system from A-series.",
   "pages": [
     {
-      "page": 1,
-      "timestamp_visible": "12/31/99 18:11:06",
-      "reticle_style": "large full-frame crosshair with white tick marks",
-      "scale_markings": "15 10 5 | 5 10 15",
-      "tracked_object": {
-        "position_reticle_units": [
-          3,
-          2
-        ],
-        "shape": "point",
-        "brightness": "DARK-on-gray",
-        "notes": "Object is DARK on gray background, consistent with all other burst-1 frames"
-      },
-      "other_frame_features": {
-        "helicopter_visible": false,
-        "helicopter_position": null,
-        "mountains_visible": true,
-        "mountains_description": "lower right silhouette",
-        "other_objects": null,
-        "artifacts": null
-      },
-      "redaction_pattern": "6 bars + top",
-      "zhang_disagreements": [
-        {
-          "zhang_text": "small BRIGHT dot upper center-right",
-          "our_text": "object is DARK, not bright. Zhang misread polarity.",
-          "load_bearing": true
-        }
-      ],
+      "image_type": "black-and-white video or targeting surveillance frame with overlay",
+      "description": "A grainy grayscale image resembling a targeting or surveillance display. A white crosshair reticle is centered, with a vertical and horizontal axis marked by tick marks and numeric scale labels reading 15, 10, 5 on both sides of center. The background is a noisy gray gradient with faint darker shapes resembling terrain or mountains along the lower portion. Several black rectangular blocks (appearing to be redactions or overlay bars) are positioned on the left and right sides at three vertical levels. A small dark dot appears just right of center. A white timestamp overlay is in the lower-left corner.",
+      "visible_text": "15 10 5 5 10 15 12/31/99 18:11:06",
       "observations": [
         {
-          "claim": "Timestamp '12/31/99 18:11:06' visible bottom-left of frame",
+          "claim": "A white crosshair reticle is centered in the frame",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Scale markings: 15 10 5 | 5 10 15",
+          "claim": "Numeric scale markings read 15, 10, 5 on both sides of the horizontal axis",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Tracked object at reticle position [3, 2]: point, DARK-on-gray",
+          "claim": "A timestamp '12/31/99 18:11:06' appears in the lower-left corner",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Helicopter not visible in this frame",
+          "claim": "Multiple black rectangular blocks appear on the left and right sides",
           "kind": "observation",
           "confidence": "high"
         },
         {
-          "claim": "Mountainous terrain visible: lower right silhouette",
+          "claim": "The image has a grainy, noisy grayscale texture",
           "kind": "observation",
           "confidence": "high"
+        },
+        {
+          "claim": "A small dark dot is visible right of the center crosshair",
+          "kind": "observation",
+          "confidence": "medium"
+        },
+        {
+          "claim": "Faint darker shapes resembling terrain appear along the lower portion",
+          "kind": "observation",
+          "confidence": "medium"
         }
       ],
-      "cross_frame_notes": null,
-      "narrative_grounding": null
+      "page": 1,
+      "row_key": ""
+    }
+  ],
+  "superseded_passes": [
+    {
+      "our_pass": {
+        "model": "claude-opus-4-7",
+        "method": "direct-examination-via-claude-code",
+        "context": "phase2-multi-frame-cluster-with-narrative-grounding"
+      },
+      "pages": [
+        {
+          "page": 1,
+          "timestamp_visible": "12/31/99 18:11:06",
+          "reticle_style": "large full-frame crosshair with white tick marks",
+          "scale_markings": "15 10 5 | 5 10 15",
+          "tracked_object": {
+            "position_reticle_units": [
+              3,
+              2
+            ],
+            "shape": "point",
+            "brightness": "DARK-on-gray",
+            "notes": "Object is DARK on gray background, consistent with all other burst-1 frames"
+          },
+          "other_frame_features": {
+            "helicopter_visible": false,
+            "helicopter_position": null,
+            "mountains_visible": true,
+            "mountains_description": "lower right silhouette",
+            "other_objects": null,
+            "artifacts": null
+          },
+          "redaction_pattern": "6 bars + top",
+          "zhang_disagreements": [
+            {
+              "zhang_text": "small BRIGHT dot upper center-right",
+              "our_text": "object is DARK, not bright. Zhang misread polarity.",
+              "load_bearing": true
+            }
+          ],
+          "observations": [
+            {
+              "claim": "Timestamp '12/31/99 18:11:06' visible bottom-left of frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Scale markings: 15 10 5 | 5 10 15",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Tracked object at reticle position [3, 2]: point, DARK-on-gray",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Helicopter not visible in this frame",
+              "kind": "observation",
+              "confidence": "high"
+            },
+            {
+              "claim": "Mountainous terrain visible: lower right silhouette",
+              "kind": "observation",
+              "confidence": "high"
+            }
+          ],
+          "cross_frame_notes": null,
+          "narrative_grounding": null
+        }
+      ],
+      "superseded_at": "2026-11-22T01:05:31.581821+00:00"
     }
   ]
 }
