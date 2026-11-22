@@ -128,6 +128,16 @@ _OPT_CONFIRM_LIVE = typer.Option(
     help="Required with --live and --redescribe: the explicit statement that this invocation "
     "means to spend, so a stray or scheduled command line cannot.",
 )
+_OPT_OVERRIDE_EXCEPTION = typer.Option(
+    False, "--override-method-exception",
+    help="With --redescribe: also re-describe cards listed in "
+    "data/vision-method-exceptions.json (curated passes). Needs --reason.",
+)
+_OPT_REASON = typer.Option(
+    None, "--reason",
+    help="Why a method exception is being overridden. Only valid with "
+    "--override-method-exception.",
+)
 _OPT_BUDGET = typer.Option(
     None, "--budget-usd",
     help="Hard cost cap for --live. Required with --live. Spend is metered "
@@ -147,6 +157,8 @@ def vision_run(
     budget_usd: float = _OPT_BUDGET,
     confirm_live: bool = _OPT_CONFIRM_LIVE,
     redescribe: bool = _OPT_REDESCRIBE,
+    override_method_exception: bool = _OPT_OVERRIDE_EXCEPTION,
+    reason: str = _OPT_REASON,
 ) -> None:
     """Preview coverage by default; examine images only with --run, --live-smoke,
     or --live.
@@ -157,14 +169,11 @@ def vision_run(
     _check_live_preconditions(
         run, live_smoke, live, budget_usd, confirm_live, redescribe, worklist
     )
-    m = load_manifest(manifest)
-    try:
-        ids = worklist_card_ids(worklist, promoted_sha=m.csv_sha256)
-    except WorklistTrancheError as exc:
-        exit_on_tranche_error(exc)
+    m, ids = _load_scope(manifest, worklist)
     out = out or default_observations_dir()
     if redescribe:
-        return _run_redescribe(m, ids or set(), out, budget_usd, confirm_live)
+        return _run_redescribe(m, ids or set(), out, budget_usd, confirm_live,
+                               (override_method_exception, reason))
     items = select_eligible(m, ids, settings.ocr_dir)
     if live_smoke:
         return _run_live_smoke(items, out, live_smoke)
@@ -173,6 +182,15 @@ def vision_run(
     if live:
         return _run_live(items, out, budget_usd)
     _preview(items, out)
+
+
+def _load_scope(manifest: Path, worklist: Path | None):
+    """The manifest and the worklist's card ids, exiting on a stale worklist."""
+    m = load_manifest(manifest)
+    try:
+        return m, worklist_card_ids(worklist, promoted_sha=m.csv_sha256)
+    except WorklistTrancheError as exc:
+        exit_on_tranche_error(exc)
 
 
 def _preview(items: list[EligibleItem], out: Path) -> None:

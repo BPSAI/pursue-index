@@ -13,6 +13,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
+from pursue_index.cli.vision_exceptions import check_method_exceptions
 from pursue_index.scrape.types import Manifest
 from pursue_index.vision import client, render
 from pursue_index.vision.eligibility import EligibleItem
@@ -60,10 +61,32 @@ def _unit_label(card_id: str, row_key: str, page: int) -> str:
     return f"{card_id}{f' [{row_key}]' if row_key else ''} p{page}"
 
 
+def _require_client() -> None:
+    """Build the vision client before any reservation; refuse the run if it cannot be."""
+    try:
+        client.require_client()
+    except client.VisionClientError as exc:
+        console.print(f"[red]error:[/red] vision client unavailable: {exc}")
+        raise typer.Exit(code=1) from exc
+
+
+def _spend_line(report: VisionRunReport, budget_usd: float) -> str:
+    """The cap's ceiling-metered figure, with the list-price estimate beside it."""
+    listed = (
+        f" (≈ ${report.spent_list_usd:.4f} at list)"
+        if report.spent_list_usd is not None else ""
+    )
+    return (
+        f"[cyan]vision spend:[/cyan] ${report.spent_usd:.4f} metered at ceiling "
+        f"rates{listed} of ${budget_usd:.2f}"
+    )
+
+
 def _examine(
     items: list[EligibleItem], out: Path, *, budget_usd: float | None = None
 ) -> VisionRunReport:
     """Drive the live vision client over ``items``, writing their sidecars."""
+    _require_client()
     return run_vision(
         items, out,
         examine_fn=client.examine_image,
@@ -114,10 +137,7 @@ def _run_live(items: list[EligibleItem], out: Path, budget_usd: float) -> None:
         f"item(s) under a ${budget_usd:.2f} budget"
     )
     report = _examine(items, out, budget_usd=budget_usd)
-    console.print(
-        f"[cyan]vision spend:[/cyan] ${report.spent_usd:.4f} metered of "
-        f"${budget_usd:.2f}"
-    )
+    console.print(_spend_line(report, budget_usd))
     _print_report(report)
     if not report.ok:
         raise typer.Exit(code=1)
@@ -175,9 +195,10 @@ def _check_live_preconditions(
 
 def _run_redescribe(
     manifest: Manifest, ids: set[str], out: Path, budget_usd: float,
-    confirm_live: bool,
+    confirm_live: bool, exception_override: tuple[bool, str | None] = (False, None),
 ) -> None:
     """Plan a re-describe; refuse what cannot run; preflight or spend."""
+    check_method_exceptions(ids, *exception_override)
     plan = plan_redescribe(manifest, ids, out)
     if plan.refusals:
         console.print(
@@ -203,14 +224,13 @@ def _run_redescribe(
     if not confirm_live:
         console.print("[yellow]preflight only:[/yellow] no calls made; add --confirm-live to spend.")
         return
+    _require_client()
     report = redescribe_vision(
         plan, out,
         examine_fn=client.examine_image, load_image_fn=render.load_image_for,
         budget_usd=budget_usd,
     )
-    console.print(
-        f"[cyan]vision spend:[/cyan] ${report.spent_usd:.4f} metered of ${budget_usd:.2f}"
-    )
+    console.print(_spend_line(report, budget_usd))
     console.print(
         f"[cyan]redescribed:[/cyan] {len(report.produced)} / {len(report.eligible)} page(s)"
     )

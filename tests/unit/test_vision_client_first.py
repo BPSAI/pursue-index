@@ -19,7 +19,11 @@ from pursue_index.vision import client, spend
 from pursue_index.vision.eligibility import EligibleItem
 from pursue_index.vision.run import ESTIMATED_COST_PER_CALL_USD, run_vision
 from tests.unit.test_vision_cli import _examination, _img_card, _write_manifest
-from tests.unit.test_vision_redescribe import _write_sidecar, _worklist
+from tests.unit.test_vision_redescribe import (  # noqa: F401  (autouse fixture)
+    _assets_resolve,
+    _worklist,
+    _write_sidecar,
+)
 
 runner = CliRunner()
 CARD = "a1a1a1a1a1a1a1a1"

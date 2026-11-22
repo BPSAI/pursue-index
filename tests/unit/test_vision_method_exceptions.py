@@ -16,7 +16,12 @@ import pytest
 from pursue_index.vision import method_exceptions
 from pursue_index.vision.method_exceptions import MethodExceptionsError, load_method_exceptions
 from tests.unit.test_vision_cli import _img_card
-from tests.unit.test_vision_redescribe import _invoke, _read, _write_sidecar
+from tests.unit.test_vision_redescribe import (  # noqa: F401  (autouse fixture)
+    _assets_resolve,
+    _invoke,
+    _read,
+    _write_sidecar,
+)
 
 CARD = "a1a1a1a1a1a1a1a1"
 OTHER = "b2b2b2b2b2b2b2b2"

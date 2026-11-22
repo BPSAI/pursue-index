@@ -45,8 +45,24 @@ _OPUS_CEILING = ModelRates(input=15.00, output=75.00)
 RATES_BY_MODEL: dict[str, ModelRates] = {"claude-opus-4-8": _OPUS_CEILING}
 
 
+# What the same tokens cost at the published list price. For information only:
+# the cap is enforced on the ceiling figure above and never reads this table,
+# so a stale list rate can misstate a report line but cannot loosen the cap.
+LIST_RATES_BY_MODEL: dict[str, ModelRates] = {
+    "claude-opus-4-8": ModelRates(input=5.00, output=25.00),
+}
+
+
 def rates_for(model: str) -> ModelRates:
     return RATES_BY_MODEL.get(model, _OPUS_CEILING)
+
+
+def _list_ratio(model: str) -> float | None:
+    """List price as a fraction of the ceiling price; None for an unlisted model."""
+    listed = LIST_RATES_BY_MODEL.get(model)
+    if listed is None:
+        return None
+    return listed.output / rates_for(model).output
 
 
 def worst_case_call_usd(model: str) -> float:
@@ -65,9 +81,18 @@ def _tokens(usage: Mapping[str, object], key: str) -> int:
 
 def usage_cost_usd(model: str, usage: Mapping[str, object] | None) -> float | None:
     """Real cost of one response from its reported usage; None when absent."""
+    return _usage_cost(rates_for(model), usage)
+
+
+def list_usage_cost_usd(model: str, usage: Mapping[str, object] | None) -> float | None:
+    """The same usage at list rates; None when absent or the model has no list rate."""
+    listed = LIST_RATES_BY_MODEL.get(model)
+    return None if listed is None else _usage_cost(listed, usage)
+
+
+def _usage_cost(r: ModelRates, usage: Mapping[str, object] | None) -> float | None:
     if not usage:
         return None
-    r = rates_for(model)
     plain = _tokens(usage, "input_tokens")
     write = _tokens(usage, "cache_creation_input_tokens")
     read = _tokens(usage, "cache_read_input_tokens")
@@ -91,6 +116,7 @@ class SpendBudget:
     reservation_usd: float = 0.02
     worst_case_usd: float | None = None
     spent_usd: float = 0.0
+    spent_list_usd: float = 0.0  # the same spend at list rates; reporting only
     max_call_usd: float = 0.0
 
     def _worst(self) -> float:
@@ -112,6 +138,7 @@ class SpendBudget:
     def reserve(self) -> None:
         """Charge the flat estimate before the call is made."""
         self.spent_usd += self.reservation_usd
+        self.spent_list_usd += self.reservation_usd * (_list_ratio(self.model) or 0.0)
 
     def settle(self, usage: Mapping[str, object] | None) -> None:
         """Replace the reservation with the response's real cost."""
@@ -119,3 +146,13 @@ class SpendBudget:
         cost = self._worst() if actual is None else actual
         self.max_call_usd = max(self.max_call_usd, cost)
         self.spent_usd += cost - self.reservation_usd
+        ratio = _list_ratio(self.model)
+        if ratio is not None:
+            listed = list_usage_cost_usd(self.model, usage)
+            list_cost = cost * ratio if listed is None else listed
+            self.spent_list_usd += list_cost - self.reservation_usd * ratio
+
+    @property
+    def list_priced(self) -> bool:
+        """Whether ``spent_list_usd`` means anything (the model has a list rate)."""
+        return _list_ratio(self.model) is not None

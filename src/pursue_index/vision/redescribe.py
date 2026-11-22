@@ -34,13 +34,16 @@ from pursue_index.vision.client import VISION_MODEL
 from pursue_index.vision.eligibility import CoverageKey, EligibleItem, keyed_rows
 from pursue_index.vision.img_source import load_registry, resolve_img_path
 from pursue_index.vision.run import ESTIMATED_COST_PER_CALL_USD, VisionRunReport, _examine_one
-from pursue_index.vision.sidecar import page_has_content, validate_sidecar
+from pursue_index.vision.sidecar import is_card_id, page_has_content
 from pursue_index.vision.spend import SpendBudget, rates_for, worst_case_call_usd
+from pursue_index.vision.supersede import (
+    dry_supersede,
+    supersede_sidecar,
+    write_atomic,
+)
 
 log = get_logger(__name__)
 
-METHOD = "vision-run"
-_DEFAULT_CONTEXT = "vision-observation-generator"
 # A typical call, for the no-spend preflight's estimate only: one image
 # (<= ~1,600 input tokens) and a ~800-token description. The spend gate never
 # uses this; it enforces the worst case (``vision.spend.worst_case_call_usd``).
@@ -141,7 +144,15 @@ def plan_redescribe(manifest: Manifest, card_ids: set[str], out_dir: Path) -> Re
     plan = RedescribePlan()
     rows_by_card = keyed_rows(manifest, card_ids)
     registry = load_registry()
+    in_manifest = {c.card_id for c in manifest.cards}
     for card_id in sorted(card_ids):
+        # Before any path is built from it: the id becomes a file name.
+        if not is_card_id(card_id):
+            plan.refusals.append(f"{card_id!r}: not a card id (16 lowercase hex characters)")
+            continue
+        if card_id not in in_manifest:
+            plan.refusals.append(f"{card_id}: not in the manifest")
+            continue
         sidecar = _read_sidecar(out_dir / f"{card_id}.json")
         if isinstance(sidecar, str):
             plan.refusals.append(f"{card_id}: {sidecar}")
@@ -155,37 +166,6 @@ def plan_redescribe(manifest: Manifest, card_ids: set[str], out_dir: Path) -> Re
         if items and not problems:
             plan.items_by_card[card_id] = items
     return plan
-
-
-def supersede_sidecar(
-    existing: dict[str, Any], new_pages: list[dict[str, Any]], *,
-    model: str, now: str,
-) -> dict[str, Any]:
-    """``existing`` with a new pass in front and the old one kept, not dropped.
-
-    Key order is preserved (the new values take the old keys' places), so the
-    diff of a re-described file is the pass, the pages and one new key.
-    """
-    old_pass = existing.get("our_pass") or {}
-    superseded = list(existing.get("superseded_passes") or [])
-    superseded.append({
-        "our_pass": old_pass, "pages": existing.get("pages", []), "superseded_at": now,
-    })
-    new = dict(existing)
-    new["our_pass"] = {
-        "model": model, "method": METHOD,
-        "context": old_pass.get("context", _DEFAULT_CONTEXT), "described_at": now,
-    }
-    new["pages"] = new_pages
-    new["superseded_passes"] = superseded
-    validate_sidecar(new)
-    return new
-
-
-def _write_atomic(path: Path, doc: dict[str, Any]) -> None:
-    tmp = path.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(doc, indent=2), encoding="utf-8")
-    tmp.replace(path)
 
 
 def _examine_card(
@@ -235,22 +215,36 @@ def redescribe_vision(
     budget_usd: float,
     cost_per_item_usd: float = ESTIMATED_COST_PER_CALL_USD,
     worst_case_item_usd: float | None = None,
+    clock: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> VisionRunReport:
-    """Re-examine every planned page and supersede each fully-described card."""
+    """Re-examine every planned page and supersede each fully-described card.
+
+    Each card is stamped with the time its own examination finished (``clock``),
+    and is refused for free, by name, if its sidecar can no longer be superseded.
+    """
     budget = SpendBudget(budget_usd, model, cost_per_item_usd, worst_case_item_usd)
     failures: list[tuple[CoverageKey, str]] = []
     empty: list[CoverageKey] = []
     produced: list[CoverageKey] = []
-    now = datetime.now(UTC).isoformat()
     for card_id, card_items in plan.items_by_card.items():
+        path = out_dir / f"{card_id}.json"
+        existing = _read_sidecar(path)
+        refusal = existing if isinstance(existing, str) else dry_supersede(existing, card_items, model)
+        if refusal is not None:
+            failures.extend(
+                (i.coverage_key, f"{card_id}: refused before any call: {refusal}")
+                for i in card_items
+            )
+            log.warning("vision.redescribe.refused", card_id=card_id, error=refusal)
+            continue
         pages, exhausted = _examine_card(
             card_items, examine_fn, load_image_fn, budget, failures, empty
         )
         if pages is not None:
-            path = out_dir / f"{card_id}.json"
+            now = clock().isoformat()
             try:
                 existing = json.loads(path.read_text(encoding="utf-8"))
-                _write_atomic(path, supersede_sidecar(existing, pages, model=model, now=now))
+                write_atomic(path, supersede_sidecar(existing, pages, model=model, now=now))
             except Exception as exc:  # one card's trouble is its own
                 reason = f"{type(exc).__name__}: {exc}"
                 failures.extend((i.coverage_key, reason) for i in card_items)
@@ -263,4 +257,5 @@ def redescribe_vision(
     return VisionRunReport(
         eligible=plan.keys, produced=produced, failures=failures, empty=empty,
         spent_usd=budget.spent_usd,
+        spent_list_usd=budget.spent_list_usd if budget.list_priced else None,
     )

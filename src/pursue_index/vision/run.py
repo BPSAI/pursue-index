@@ -70,6 +70,7 @@ class VisionRunReport:
     failures: list[tuple[CoverageKey, str]] = field(default_factory=list)
     empty: list[CoverageKey] = field(default_factory=list)
     spent_usd: float = 0.0  # metered spend, set only for a budgeted run
+    spent_list_usd: float | None = None  # the same at list rates, if the model has one
 
     @property
     def missing(self) -> list[CoverageKey]:
@@ -223,7 +224,7 @@ def _write_card_sidecar(
             card_id=card_id, title=title, model=model,
             pages=new_pages, session_id=session_id,
         )
-    path.write_text(json.dumps(sidecar, indent=2), encoding="utf-8")
+    path.write_text(json.dumps(sidecar, indent=2) + "\n", encoding="utf-8")
 
 
 def _persist_card(
@@ -317,4 +318,6 @@ def run_vision(
     report.failures = failures
     report.empty = empty
     report.spent_usd = budget.spent_usd if budget is not None else 0.0
+    if budget is not None and budget.list_priced:
+        report.spent_list_usd = budget.spent_list_usd
     return report
