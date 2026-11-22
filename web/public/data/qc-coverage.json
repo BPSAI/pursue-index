@@ -5,7 +5,7 @@
     "manifest_fetched_at": "2026-11-21T00:48:48.520889Z",
     "clean_qc_bundle": {
       "bundle_schema_version": 1,
-      "generated_at": "2026-11-21T09:05:52+00:00",
+      "generated_at": "2026-11-22T03:43:38+00:00",
       "runner_version": "0.2.0",
       "judge_model": "claude-sonnet-4-6"
     }
