@@ -72,8 +72,10 @@ def _fallback_runs(fetch, repo_path: str, sha: str) -> list[dict]:
     return fetch(url).get("workflow_runs") or []
 
 
-def _deploy_step_succeeded(fetch, repo_path: str, run_id) -> bool:
-    """True when the run's ``wrangler deploy`` step completed with success.
+def _deploy_step_verdict(fetch, repo_path: str, run_id) -> bool | None:
+    """The run's ``wrangler deploy`` step verdict: ``True`` (succeeded), ``False``
+    (completed without success: failed, skipped, ...) or ``None`` (not known yet:
+    the step is absent or still running).
 
     The deploy step is ``continue-on-error`` in the workflow, so a failed or
     skipped deploy can still leave the job and run green: read the step itself.
@@ -81,30 +83,40 @@ def _deploy_step_succeeded(fetch, repo_path: str, run_id) -> bool:
     url = f"{repo_path}/actions/runs/{run_id}/jobs?per_page={PER_PAGE}"
     for job in fetch(url).get("jobs") or []:
         for step in job.get("steps") or []:
-            if (step.get("name") == DEPLOY_STEP and step.get("status") == "completed"
-                    and step.get("conclusion") == "success"):
-                return True
-    return False
+            if step.get("name") == DEPLOY_STEP and step.get("status") == "completed":
+                return step.get("conclusion") == "success"
+    return None
 
 
-def _check_fallback(fetch, repo_path: str, sha: str) -> tuple[bool, bool, str]:
+def _check_fallback(fetch, repo_path: str, sha: str,
+                    verdicts: dict | None = None) -> tuple[bool, bool, str]:
     """Evaluate the fallback runs: ``(deployed, unknown, description)``.
 
     A green run counts only when its deploy step succeeded; any lookup error
-    makes the answer "unknown" (the caller retries), never a pass.
+    makes the answer "unknown" (the caller retries), never a pass. ``verdicts``
+    caches each run's terminal deploy-step verdict by run id, so a run decided
+    once is not re-read on later polls; undecided runs are read again.
     """
+    verdicts = {} if verdicts is None else verdicts
     try:
         fb = _fallback_runs(fetch, repo_path, sha)
     except Exception as exc:
         return False, True, f"fallback status unknown ({exc})"
     green = [r for r in fb if r.get("status") == "completed" and r.get("conclusion") == "success"]
     for r in sorted(green, key=lambda r: r.get("id", 0), reverse=True):
-        try:
-            if _deploy_step_succeeded(fetch, repo_path, r.get("id")):
-                return True, False, (f"fallback {FALLBACK_WORKFLOW} run {r.get('id')} deployed "
-                                     f"({DEPLOY_STEP!r} succeeded) on {sha}")
-        except Exception as exc:
-            return False, True, f"fallback status unknown (jobs lookup failed: {exc})"
+        run_id = r.get("id")
+        if run_id not in verdicts:
+            try:
+                verdict = _deploy_step_verdict(fetch, repo_path, run_id)
+            except Exception as exc:
+                return False, True, f"fallback status unknown (jobs lookup failed: {exc})"
+            if verdict is not None:
+                verdicts[run_id] = verdict
+        else:
+            verdict = verdicts[run_id]
+        if verdict:
+            return True, False, (f"fallback {FALLBACK_WORKFLOW} run {run_id} deployed "
+                                 f"({DEPLOY_STEP!r} succeeded) on {sha}")
     if green:
         return False, False, (f"fallback {FALLBACK_WORKFLOW} run green but its deploy step "
                               f"({DEPLOY_STEP!r}) did not succeed")
@@ -153,6 +165,7 @@ def wait(fetch, *, sha: str, name: str, timeout_secs: float, interval_secs: floa
     app_id = default_app_id() if app_id is None else app_id
     deadline = clock() + timeout_secs
     last = f"{_describe_wb(name, sha, None)}; fallback not consulted"
+    verdicts: dict = {}  # fallback run id -> terminal deploy-step verdict
     while True:
         fb_unknown = False
         try:
@@ -164,7 +177,7 @@ def wait(fetch, *, sha: str, name: str, timeout_secs: float, interval_secs: floa
             wb_desc = _describe_wb(name, sha, wb)
             wb_done = wb and wb.get("status") == "completed"
             if wb is None or wb_done:  # absent or failed: the fallback may still cover the deploy
-                fb_ok, fb_unknown, fb_desc = _check_fallback(fetch, repo_path, sha)
+                fb_ok, fb_unknown, fb_desc = _check_fallback(fetch, repo_path, sha, verdicts)
                 if fb_ok:
                     return "ok", fb_desc
             else:
