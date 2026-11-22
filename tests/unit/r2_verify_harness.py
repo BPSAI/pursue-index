@@ -53,12 +53,12 @@ class World:
         monkeypatch.setattr(r2, "make_r2_client", lambda: object() if self.creds else None)
         monkeypatch.setattr(r2, "put_archive_and_current", lambda *a, **k: False)
 
-    def _head(self, u):
+    def _head(self, u, allowed_hosts=None):
         self.headed.append(str(u))
         got = tuple(self.head.get(str(u), (None, None)))
         return (*got, None)[:3]  # (content_length, etag, last_modified)
 
-    def _fetch(self, u, dest):
+    def _fetch(self, u, dest, **_limits):
         """The streaming seam: write the body to ``dest``; return ``(sha256, size)``."""
         self.fetched.append(str(u))
         body = self.bodies[str(u)]

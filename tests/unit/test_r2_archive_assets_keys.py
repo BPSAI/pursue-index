@@ -92,7 +92,7 @@ class _FakeClient:
 
 
 def _stub_fetch(body: bytes):
-    def fetch(_url, dest):
+    def fetch(_url, dest, **_limits):
         dest.write_bytes(body)
         return hashlib.sha256(body).hexdigest(), len(body)
 
@@ -122,7 +122,7 @@ def test_process_card_refuses_before_any_fetch_or_put(card, monkeypatch, tmp_pat
 
 
 def test_process_card_uploads_with_mapped_content_type(monkeypatch, tmp_path):
-    monkeypatch.setattr(r2_archive_assets, "head_asset", lambda _url: (None, None, None))
+    monkeypatch.setattr(r2_archive_assets, "head_asset", lambda _url, *_a: (None, None, None))
     monkeypatch.setattr(r2_archive_assets, "fetch_asset", _stub_fetch(b"jpeg-bytes"))
     client = _FakeClient()
     registry_path = tmp_path / "registry.jsonl"

@@ -44,7 +44,9 @@ def _disposition(w: World, cid: str) -> None:
 
 
 def _complete_run(w: World, days_ago: float) -> None:
-    w.record.write_text(json.dumps({"completed_at": _ago(days_ago)}) + "\n")
+    w.record.write_text(
+        json.dumps({"started_at": _ago(days_ago + 0.01), "completed_at": _ago(days_ago)}) + "\n"
+    )
 
 
 def test_a_poll_written_drift_row_fails_the_gate(w, capsys):
