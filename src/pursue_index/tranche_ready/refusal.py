@@ -13,19 +13,13 @@ import hashlib
 import json
 from typing import Any
 
+from pursue_index.text_safety import neutralize
+
 __all__ = ["MAX_BODY_BYTES", "cap", "changed_paths", "describe_conflict", "full_diff", "neutralize"]
 
 MAX_BODY_BYTES = 8 * 1024
 _MAX_PATHS = 40
 _MAX_PATH_CHARS = 120
-_STRIP: dict[int, str | None] = {ord(c): None for c in "`<>"}
-_STRIP[ord("@")] = "\uff20"
-_STRIP.update({c: " " for c in [*range(32), 127] if c not in (9, 10)})
-
-
-def neutralize(text: str) -> str:
-    """No backticks or angle brackets; ``@`` becomes its fullwidth form (U+FF20); no controls."""
-    return text.translate(_STRIP)
 
 
 def cap(text: str, limit: int = MAX_BODY_BYTES) -> str:

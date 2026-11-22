@@ -30,7 +30,7 @@ from typing import Any
 from pursue_index.scrape.year_normalize import DateReport
 from pursue_index.scrape.year_normalize_md import cell as _cell
 from pursue_index.scrape.year_normalize_md import date_md_parts
-from pursue_index.tranche_ready.refusal import neutralize
+from pursue_index.text_safety import neutralize
 
 __all__ = ["attach_date_report", "date_md_parts", "date_summary_lines", "verdict_date_lines"]
 
@@ -113,5 +113,5 @@ def _inert(value: Any, limit: int = 80) -> str:
 
 
 def _row_lines(rows: list[dict[str, Any]]) -> list[str]:
-    return [f"  * `{_inert(r['card_id'])}` {_inert(r.get('title'), 120)} — {r['field']} "
+    return [f"  * `{_inert(r['card_id'])}` {_inert(r.get('title'), 120)} — {_inert(r['field'], 40)} "
             f"`{_inert(r['raw'])}` ({_inert(r['reason'], 120)})" for r in rows]
