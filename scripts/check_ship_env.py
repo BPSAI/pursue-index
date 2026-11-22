@@ -2,8 +2,10 @@
 
 First step of ``make ship-ready``. Three refusals, all reported before exit 2:
 
-* ``PYTHONPATH`` is set and non-empty. A relative ``src`` leaks into every
-  child pytest and picks up the stub packages some tests build.
+* ``PYTHONPATH``, ``PYTHONHOME``, ``PYTHONSTARTUP`` or ``PYTHONUSERBASE`` is
+  set and non-empty. A relative ``src`` leaks into every child pytest and
+  picks up the stub packages some tests build; the others can likewise make
+  the gates import code that is not this checkout's own.
 * ``pursue_index`` imports from somewhere other than this checkout's
   ``src/pursue_index`` (a virtualenv whose editable install points at another
   checkout), so the gates would run another checkout's code.
@@ -25,6 +27,8 @@ from pathlib import Path
 
 _LABEL_RE = re.compile(r"v[0-9]+\.[0-9]+\.[0-9]+")
 _PLACEHOLDER = "vX.Y.Z"
+# Each can make the interpreter import code that is not this checkout's own.
+_IMPORT_VARS = ("PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "PYTHONUSERBASE")
 
 
 def _venv_fix() -> list[str]:
@@ -39,12 +43,13 @@ def _venv_fix() -> list[str]:
 def check(root: Path, environ: dict[str, str]) -> list[str]:
     problems: list[str] = []
 
-    if environ.get("PYTHONPATH"):
-        problems += [
-            f"PYTHONPATH is set ({environ['PYTHONPATH']!r}); ship-ready refuses it.",
-            "  fix: unset PYTHONPATH and use a worktree virtualenv instead",
-            "    (see 'fresh worktree setup' in docs/runbooks/ship-tranche.md).",
-        ]
+    for var in _IMPORT_VARS:
+        if environ.get(var):
+            problems += [
+                f"{var} is set ({environ[var]!r}); ship-ready refuses it.",
+                f"  fix: unset {var} and use a worktree virtualenv instead",
+                "    (see 'fresh worktree setup' in docs/runbooks/ship-tranche.md).",
+            ]
 
     want = (root / "src" / "pursue_index").resolve()
     try:

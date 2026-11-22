@@ -113,3 +113,36 @@ def test_the_guard_still_leads_with_a_label() -> None:
     assert out.returncode == 0, out.stderr
     lines = [ln for ln in out.stdout.replace("\\\n", " ").splitlines() if ln.strip() and not ln.startswith("make:")]
     assert "check_ship_env.py" in lines[0], lines[:3]
+
+
+def _load_guard():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("check_ship_env_under_test", SCRIPT)
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _env_problems(environ: dict[str, str]) -> list[str]:
+    """Only the env-variable refusals: the import check is not under test here."""
+    guard = _load_guard()
+    return [p for p in guard.check(ROOT, environ) if "ship-ready refuses it" in p]
+
+
+def test_refuses_each_import_altering_variable_by_name() -> None:
+    for var in ("PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "PYTHONUSERBASE"):
+        problems = _load_guard().check(ROOT, {var: "/somewhere"})
+        head = [p for p in problems if "ship-ready refuses it" in p]
+        assert len(head) == 1, (var, problems)
+        assert var in head[0] and "'/somewhere'" in head[0]
+        assert any(f"unset {var}" in p for p in problems), (var, problems)
+
+
+def test_empty_import_altering_variables_are_fine() -> None:
+    env = {v: "" for v in ("PYTHONPATH", "PYTHONHOME", "PYTHONSTARTUP", "PYTHONUSERBASE")}
+    assert _env_problems(env) == []
+
+
+def test_all_unset_passes_the_env_checks() -> None:
+    assert _env_problems({}) == []

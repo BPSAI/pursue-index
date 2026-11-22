@@ -33,6 +33,7 @@ if str(REPO_ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import tranche_diff
+from tests.conftest import empty_overlay  # noqa: E402
 
 
 def _run_main(monkeypatch, tmp_path: Path, shas: dict, *extra: str) -> Path:
@@ -42,7 +43,7 @@ def _run_main(monkeypatch, tmp_path: Path, shas: dict, *extra: str) -> Path:
     monkeypatch.setattr(sys, "argv", [
         "tranche_diff.py", "--old-manifest", str(OLD_MANIFEST),
         "--new-manifest", str(NEW_MANIFEST), "--registry", str(registry),
-        "--out-dir", str(out_dir), *extra,
+        "--out-dir", str(out_dir), "--date-resolutions", str(empty_overlay(tmp_path)), *extra,
     ])
     assert tranche_diff.main() == 0
     return out_dir / "tranche-diff-096ef2c0058a"

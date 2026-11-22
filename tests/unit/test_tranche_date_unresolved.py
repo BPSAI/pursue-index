@@ -19,6 +19,7 @@ from pursue_index.release import rates  # noqa: E402
 from pursue_index.tranche_ready.record import RecordInputs, build_record  # noqa: E402
 from pursue_index.tranche_ready.schema import load_schema, validate  # noqa: E402
 from pursue_index.tranche_report import render_markdown  # noqa: E402
+from tests.conftest import empty_overlay  # noqa: E402
 
 SHA_OLD, SHA_NEW = "b" * 64, "a" * 64
 _UNRESOLVED = {"card_id": "2" * 16, "title": "Report on lights", "field": "incident_date",
@@ -93,7 +94,8 @@ def test_passthrough_count_is_on_stdout_never_in_the_receipt(
     monkeypatch.setattr(sys, "argv", [
         "tranche_diff.py", "--old-manifest", str(paths["old"]), "--new-manifest",
         str(paths["new"]), "--registry", str(tmp_path / "registry.jsonl"),
-        "--out-dir", str(tmp_path / "out")])
+        "--out-dir", str(tmp_path / "out"),
+        "--date-resolutions", str(empty_overlay(tmp_path))])
     assert tranche_diff.main() == 0
     assert "[tranche-diff] two_digit_priors_passed_through=2" in capsys.readouterr().out
     written = tmp_path / "out" / f"tranche-diff-{SHA_NEW[:12]}"
@@ -129,13 +131,47 @@ def test_record_without_unresolved_dates_is_unchanged() -> None:
 
 
 def test_tranche_ready_job_normalizes_the_manifest_it_builds_from_raw() -> None:
+    from datetime import UTC, datetime
+
     from _tranche_ready_run import normalized_manifest
+
+    now = datetime(2026, 11, 1, tzinfo=UTC)
 
     raw = ("﻿Release Date,Title,Type,Agency,Incident Date,PDF | Image Link\r\n"
            '10/23/26,"Case 1",PDF,FBI,1/18/57,https://www.war.gov/medialink/c1.pdf\r\n'
            ).encode()
-    first = normalized_manifest(raw, "https://www.war.gov/x.csv", {"cards": []})
+    first = normalized_manifest(raw, "https://www.war.gov/x.csv", {"cards": []}, None, now)
     old = {"cards": [{**first.cards[0].model_dump(mode="json"),
                       "release_date": "10/23/2026", "incident_date": "1/18/1957"}]}
-    card = normalized_manifest(raw, "https://www.war.gov/x.csv", old).cards[0]
+    card = normalized_manifest(raw, "https://www.war.gov/x.csv", old, None, now).cards[0]
     assert (card.release_date, card.incident_date) == ("10/23/2026", "1/18/1957")
+
+
+def test_a_run_normalizes_the_manifest_once(monkeypatch, tmp_path: Path, capsys) -> None:
+    """``main`` normalizes the new manifest once and hands the result to the
+    diff, rather than normalizing again for the passthrough count."""
+    calls: list[int] = []
+    real = tranche_diff.normalize_manifest_dict
+
+    def counting(*args, **kwargs):
+        calls.append(1)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(tranche_diff, "normalize_manifest_dict", counting)
+    old = {"csv_sha256": SHA_OLD, "cards": [_card("1" * 16, release_date="5/8/26")]}
+    new = {"csv_sha256": SHA_NEW, "cards": [_card("1" * 16, release_date="5/8/26"),
+                                            _card("2" * 16, release_date="6/1/26")]}
+    paths = {}
+    for name, manifest in (("old", old), ("new", new)):
+        paths[name] = tmp_path / f"{name}.json"
+        paths[name].write_text(json.dumps(manifest), encoding="utf-8")
+    (tmp_path / "registry.jsonl").write_text("", encoding="utf-8")
+    monkeypatch.setattr(tranche_diff, "_fetch_byte_sha_via_curl", lambda _url: None)
+    monkeypatch.setattr(sys, "argv", [
+        "tranche_diff.py", "--old-manifest", str(paths["old"]), "--new-manifest",
+        str(paths["new"]), "--registry", str(tmp_path / "registry.jsonl"),
+        "--out-dir", str(tmp_path / "out"),
+        "--date-resolutions", str(empty_overlay(tmp_path))])
+    assert tranche_diff.main() == 0
+    assert "[tranche-diff] two_digit_priors_passed_through=2" in capsys.readouterr().out
+    assert len(calls) == 1

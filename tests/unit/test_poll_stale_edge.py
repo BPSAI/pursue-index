@@ -37,6 +37,7 @@ import poll_pursue  # noqa: E402
 import poll_snapshot  # noqa: E402
 
 from pursue_index.scrape import csv_fetcher  # noqa: E402
+from tests.conftest import empty_overlay  # noqa: E402
 
 _REPO = Path(__file__).resolve().parents[2]
 _CSV_DIR = _REPO / "data" / "raw" / "csv"
@@ -207,6 +208,7 @@ def _snapshot_lane(repo: _Repo, run: _Run) -> int:
         "--canonical-dir", str(repo.root / "snapshots"),
         "--public-dir", str(repo.root / "public-snapshots"),
         "--diff-out", str(repo.diffs / f"{new_sha}.json"),
+        "--date-resolutions", str(empty_overlay(repo.root)),
     ])
 
 

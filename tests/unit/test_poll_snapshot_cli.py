@@ -27,6 +27,7 @@ from pursue_index.scrape import csv_fetcher  # noqa: E402
 from pursue_index.scrape.csv_fetcher import build_manifest, parse_csv  # noqa: E402
 from pursue_index.scrape.manifest import save_manifest  # noqa: E402
 from tests.support.pdf_page_fakes import FakeHttpGet, pdf_bytes  # noqa: E402
+from tests.conftest import empty_overlay  # noqa: E402
 
 _SOURCE_URL = "https://www.war.gov/UFO/uap-data.csv"
 _HEADER = (
@@ -57,6 +58,7 @@ def _argv(tmp_path: Path, csv_path: Path, latest: Path, diff_out: Path | None) -
         "--latest", str(latest),
         "--canonical-dir", str(tmp_path / "canonical"),
         "--public-dir", str(tmp_path / "public"),
+        "--date-resolutions", str(empty_overlay(tmp_path)),
     ]
     if diff_out is not None:
         argv += ["--diff-out", str(diff_out)]

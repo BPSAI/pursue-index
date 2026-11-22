@@ -72,3 +72,38 @@ def pursue_data_root(tmp_path_factory: pytest.TempPathFactory, monkeypatch: pyte
     root = tmp_path_factory.mktemp("data-root")
     monkeypatch.setenv("PURSUE_DATA_ROOT", str(root))
     return root
+
+
+class RealOverlayReached(AssertionError):
+    """A test read the repo's real ``data/date_resolutions.json``."""
+
+
+class _RealOverlaySentinel(type(Path())):  # type: ignore[misc]
+    """Stands in for ``DEFAULT_DATE_RESOLUTIONS``: any use is a test that did
+    not pin its own overlay, so it would change behaviour once the real file
+    exists."""
+
+    def exists(self, *a: object, **k: object) -> bool:  # type: ignore[override]
+        raise RealOverlayReached(
+            "this test reached the real default date-resolutions overlay; "
+            "pass an explicit --date-resolutions (an empty temp file or a fixture)")
+
+    read_text = read_bytes = open = exists  # type: ignore[assignment]
+
+
+@pytest.fixture(autouse=True)
+def _no_real_date_resolutions(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Poison the scripts' default overlay path for every test."""
+    for name in ("poll_snapshot", "tranche_diff"):
+        mod = sys.modules.get(name)
+        if mod is not None and hasattr(mod, "DEFAULT_DATE_RESOLUTIONS"):
+            monkeypatch.setattr(mod, "DEFAULT_DATE_RESOLUTIONS",
+                                _RealOverlaySentinel("/nonexistent/real-date_resolutions.json"))
+
+
+def empty_overlay(directory: Path) -> Path:
+    """An explicit, empty date-resolutions overlay file inside ``directory``,
+    for tests that must not depend on the repo's real overlay."""
+    path = directory / "empty_date_resolutions.json"
+    path.write_text('{"entries": []}\n', encoding="utf-8")
+    return path
