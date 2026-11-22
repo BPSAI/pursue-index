@@ -27,8 +27,9 @@ def _lines(**report_kwargs) -> str:
 def _assert_inert(text: str) -> None:
     assert "@" not in text.replace("\uff20", "")
     assert "<" not in text and ">" not in text
-    assert "](http" not in text.replace("\\]", "")  # a backslash-escaped bracket is literal
-    assert "[" not in text.replace("\\[", "")
+    prose = re.sub(r"`[^`]*`", "``", text)  # link syntax inside a code span is literal
+    assert "](http" not in prose.replace("\\]", "")  # a backslash-escaped bracket is literal
+    assert "[" not in prose.replace("\\[", "")
 
 
 def test_unresolved_row_title_is_neutralized() -> None:
@@ -312,3 +313,8 @@ def test_ordinary_words_and_numbers_stay_literal() -> None:
     for kept in ("deadbeef", "1234567", "2026", "20260508", "facade", "a1b2c3", "ABCDEF12",
                  "1234567890123456789012345678901234567890123"):
         assert _inert_text(kept) == kept, kept
+
+
+def test_card_ids_in_code_spans_keep_their_hex() -> None:
+    text = _lines(unresolved=[_row(card_id="cf061838a0a88bf6", raw="deadbee1")])
+    assert "`cf061838a0a88bf6`" in text and "`deadbee1`" in text
