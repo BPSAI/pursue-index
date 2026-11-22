@@ -41,8 +41,23 @@ class SidecarPage(BaseModel):
     observations: list[Observation] = []
 
 
+class SupersededPass(BaseModel):
+    """An earlier description, kept in the file after a re-describe replaced it."""
+
+    model_config = ConfigDict(extra="allow")
+
+    our_pass: dict[str, Any]
+    pages: list[SidecarPage]
+    superseded_at: str
+
+
 class Sidecar(BaseModel):
-    """A card's image-observation sidecar."""
+    """A card's image-observation sidecar.
+
+    ``superseded_passes`` is optional and additive (so ``schema_version`` stays
+    1): a sidecar that was never re-described has none and validates exactly as
+    before. Readers that only look at ``our_pass``/``pages`` never see it.
+    """
 
     model_config = ConfigDict(extra="allow")
 
@@ -50,6 +65,7 @@ class Sidecar(BaseModel):
     schema_version: int
     our_pass: dict[str, Any]
     pages: list[SidecarPage]
+    superseded_passes: list[SupersededPass] = []
 
 
 def validate_sidecar(data: dict[str, Any]) -> Sidecar:

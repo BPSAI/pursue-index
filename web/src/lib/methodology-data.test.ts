@@ -11,7 +11,9 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { readAssetJsonSync } from "./chunked-asset.js";
 import {
   cleanupCoverage,
@@ -126,6 +128,25 @@ test("readSidecarModelBreakdown: files without an our_pass model are not sidecar
   const b = readSidecarModelBreakdown([SIDECARS]);
   assert.ok(!Object.keys(b.modelCounts).includes("undefined"));
   assert.equal(b.total, Object.values(b.modelCounts).reduce((n, c) => n + c, 0));
+});
+
+test("readSidecarModelBreakdown: a re-described sidecar counts once, under its live model", () => {
+  // `pursue vision run --redescribe` keeps the retired pass in
+  // `superseded_passes`. That nested record must not be counted as a sidecar
+  // or add its (older) model to the split.
+  const dir = mkdtempSync(join(tmpdir(), "sidecars-"));
+  try {
+    writeFileSync(join(dir, "a.json"), JSON.stringify({
+      card_id: "a", our_pass: { model: "claude-opus-4-8" },
+      superseded_passes: [{ our_pass: { model: "claude-opus-4-7" }, pages: [], superseded_at: "t" }],
+    }));
+    writeFileSync(join(dir, "b.json"), JSON.stringify({ card_id: "b", our_pass: { model: "claude-opus-4-8" } }));
+    const b = readSidecarModelBreakdown([dir]);
+    assert.deepEqual(b.modelCounts, { "claude-opus-4-8": 2 });
+    assert.equal(b.total, 2);
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
 });
 
 test("readSidecarModelBreakdown: unreadable directory throws", () => {

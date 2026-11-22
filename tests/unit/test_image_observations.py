@@ -117,3 +117,21 @@ def test_load_skips_malformed_sidecar(tmp_path: Path) -> None:
     (tmp_path / "index.json").write_text(json.dumps(_index(["cardA"])))
     (tmp_path / "cardA.json").write_text("{broken")
     assert load_observation_text(tmp_path / "index.json") == {}
+
+
+def test_superseded_passes_never_reach_the_searchable_text(tmp_path: Path) -> None:
+    """A re-described sidecar's retired pass stays in the file, not in the index."""
+    sidecar = _residual_sidecar("redone", 1)
+    sidecar["superseded_passes"] = [{
+        "our_pass": {"model": "claude-opus-4-7"},
+        "pages": [{"page": 1, "description": "RETIRED-DESCRIPTION-MARKER",
+                   "observations": [{"claim": "RETIRED-CLAIM-MARKER"}]},
+                  {"page": 9, "description": "RETIRED-ONLY-PAGE"}],
+        "superseded_at": "2026-11-21T00:00:00+00:00",
+    }]
+    (tmp_path / "index.json").write_text(json.dumps(_index(["redone"])))
+    (tmp_path / "redone.json").write_text(json.dumps(sidecar))
+    text = load_observation_text(tmp_path / "index.json")
+    assert set(text) == {("redone", 1)}
+    assert "RETIRED" not in text[("redone", 1)]
+    assert "disc-shaped" in text[("redone", 1)]

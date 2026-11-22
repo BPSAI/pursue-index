@@ -24,19 +24,33 @@ distinct:
   environment) — CI never passes it — and refuses unless ``--confirm-live``
   is also given, so the spend is always named in the invocation itself.
 
-Naming more than one of the three is ambiguous and refused. Naming none of
+* ``--redescribe`` (with a required ``--worklist``) re-examines exactly the
+  pages the listed cards' existing sidecars describe, with the pinned model,
+  bypassing the image-only filter and the already-produced skip. The old pass
+  is superseded, not overwritten (see ``vision.redescribe``). It is gated like
+  ``--live``: ``--budget-usd``, refused under CI, and without
+  ``--confirm-live`` it is a no-spend preflight that reports the card and page
+  count and the estimated cost.
+
+Naming more than one of the live paths is ambiguous and refused. Naming none of
 them means no API call is made, which is what an unattended caller gets by
 default.
 """
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import typer
-from rich.console import Console
 
+from pursue_index.cli.vision_live import (
+    _check_live_preconditions,
+    _print_report,
+    _run_bulk,
+    _run_live,
+    _run_live_smoke,
+    _run_redescribe,
+)
 from pursue_index.cli.worklist import (
     WorklistTrancheError,
     exit_on_tranche_error,
@@ -45,12 +59,10 @@ from pursue_index.cli.worklist import (
 from pursue_index.config import settings
 from pursue_index.config.project_root import resolve_relative_data_root
 from pursue_index.scrape import load_manifest
-from pursue_index.vision import client, render
 from pursue_index.vision.eligibility import EligibleItem, select_eligible
-from pursue_index.vision.run import VisionRunReport, preflight_coverage, run_vision
+from pursue_index.vision.run import preflight_coverage
 
 vision_app = typer.Typer(name="vision", help="Vision observations for image content.")
-console = Console()
 
 _OPT_MANIFEST = typer.Option(..., "--manifest", exists=True, dir_okay=False)
 _OPT_WORKLIST = typer.Option(
@@ -103,9 +115,17 @@ _OPT_LIVE = typer.Option(
     "exceed the budget. Refused under CI, and refused unless --confirm-live "
     "is also given.",
 )
+_OPT_REDESCRIBE = typer.Option(
+    False, "--redescribe",
+    help="A LIVE PATH. Re-examine exactly the pages the --worklist cards' "
+    "existing sidecars describe with the pinned model, superseding (not "
+    "overwriting) the old pass. Needs --worklist, --budget-usd and "
+    "--confirm-live; refused under CI. Without --confirm-live it is a "
+    "no-spend preflight.",
+)
 _OPT_CONFIRM_LIVE = typer.Option(
     False, "--confirm-live",
-    help="Required with --live: the explicit statement that this invocation "
+    help="Required with --live and --redescribe: the explicit statement that this invocation "
     "means to spend, so a stray or scheduled command line cannot.",
 )
 _OPT_BUDGET = typer.Option(
@@ -114,140 +134,6 @@ _OPT_BUDGET = typer.Option(
     "from each response's reported usage at the model's rates, and the run "
     "stops before any call whose worst case would not fit in what is left.",
 )
-
-
-def _print_report(report: VisionRunReport) -> None:
-    console.print(
-        f"[cyan]vision coverage:[/cyan] {len(report.produced)} produced / "
-        f"{len(report.eligible)} eligible"
-    )
-    if report.failures:
-        console.print(
-            f"[red]![/red] {len(report.failures)} item(s) could not be examined "
-            f"and were skipped:"
-        )
-        for (card_id, row_key, page), reason in report.failures:
-            console.print(f"  [red]-[/red] {_unit_label(card_id, row_key, page)}: {reason}")
-    if report.empty:
-        console.print(
-            f"[red]![/red] {len(report.empty)} item(s) were examined but described "
-            f"nothing and remain uncovered:"
-        )
-        for card_id, row_key, page in report.empty:
-            console.print(f"  [red]-[/red] {_unit_label(card_id, row_key, page)}")
-    if report.missing:
-        console.print(
-            f"[red]![/red] {len(report.missing)} eligible item(s) have no "
-            f"observation sidecar (operator-attended vision run required):"
-        )
-        for card_id, row_key, page in sorted(report.missing):
-            console.print(f"  [red]-[/red] {_unit_label(card_id, row_key, page)}")
-
-
-def _unit_label(card_id: str, row_key: str, page: int) -> str:
-    """One coverage unit, naming its row only when the card_id has more than one."""
-    return f"{card_id}{f' [{row_key}]' if row_key else ''} p{page}"
-
-
-def _examine(
-    items: list[EligibleItem], out: Path, *, budget_usd: float | None = None
-) -> VisionRunReport:
-    """Drive the live vision client over ``items``, writing their sidecars."""
-    return run_vision(
-        items, out,
-        examine_fn=client.examine_image,
-        load_image_fn=render.load_image_for,
-        budget_usd=budget_usd,
-    )
-
-
-def _run_live_smoke(items: list[EligibleItem], out: Path, card_id: str) -> None:
-    """Examine a single card (the smoke target) via the live vision client."""
-    scoped = [i for i in items if i.card_id == card_id]
-    if not scoped:
-        console.print(f"[red]error:[/red] {card_id!r} is not an eligible item.")
-        raise typer.Exit(code=2)
-    report = _examine(scoped, out)
-    console.print(
-        f"[green]✔[/green] live-smoke examined {len(scoped)} item(s) for {card_id}"
-    )
-    _print_report(report)
-    if not report.ok:
-        raise typer.Exit(code=1)
-
-
-def _run_bulk(items: list[EligibleItem], out: Path) -> None:
-    """Examine every eligible item, then gate on produced-vs-eligible.
-
-    Per-item trouble is skipped and counted rather than aborting the pass, so
-    one unreadable asset cannot cost the rest of the run. Anything skipped stays
-    outstanding in the coverage report, which is what the exit code reflects.
-    """
-    console.print(
-        f"[cyan]vision run:[/cyan] examining {len(items)} eligible item(s)"
-    )
-    report = _examine(items, out)
-    _print_report(report)
-    if not report.ok:
-        raise typer.Exit(code=1)
-
-
-def _run_live(items: list[EligibleItem], out: Path, budget_usd: float) -> None:
-    """Examine eligible items unattended, stopping before the budget is exceeded.
-
-    Sidecars land as each card is committed, so a budget stop still keeps
-    every card examined before it.
-    """
-    console.print(
-        f"[cyan]vision run (live):[/cyan] examining up to {len(items)} eligible "
-        f"item(s) under a ${budget_usd:.2f} budget"
-    )
-    report = _examine(items, out, budget_usd=budget_usd)
-    console.print(
-        f"[cyan]vision spend:[/cyan] ${report.spent_usd:.4f} metered of "
-        f"${budget_usd:.2f}"
-    )
-    _print_report(report)
-    if not report.ok:
-        raise typer.Exit(code=1)
-
-
-def _check_live_preconditions(
-    run: bool,
-    live_smoke: str | None,
-    live: bool,
-    budget_usd: float | None,
-    confirm_live: bool = False,
-) -> None:
-    """Refuse an ambiguous or unsafe live invocation before any work starts."""
-    named = [
-        flag for flag, chosen in
-        (("--run", run), ("--live-smoke", bool(live_smoke)), ("--live", live))
-        if chosen
-    ]
-    if len(named) > 1:
-        console.print(
-            f"[red]error:[/red] {' and '.join(named)} are separate live paths; "
-            "choose one."
-        )
-        raise typer.Exit(code=2)
-    if not live:
-        return
-    if os.environ.get("CI"):
-        console.print(
-            "[red]error:[/red] --live is refused under CI; it is an unattended "
-            "spend path and CI never passes it."
-        )
-        raise typer.Exit(code=2)
-    if budget_usd is None:
-        console.print("[red]error:[/red] --live requires --budget-usd.")
-        raise typer.Exit(code=2)
-    if not confirm_live:
-        console.print(
-            "[red]error:[/red] --live spends unattended; add --confirm-live "
-            "to say you mean it."
-        )
-        raise typer.Exit(code=2)
 
 
 @vision_app.command("run")
@@ -260,6 +146,7 @@ def vision_run(
     live: bool = _OPT_LIVE,
     budget_usd: float = _OPT_BUDGET,
     confirm_live: bool = _OPT_CONFIRM_LIVE,
+    redescribe: bool = _OPT_REDESCRIBE,
 ) -> None:
     """Preview coverage by default; examine images only with --run, --live-smoke,
     or --live.
@@ -267,26 +154,29 @@ def vision_run(
     Default: no spend — reports eligible-vs-produced and exits non-zero on a
     shortfall so a release gate can block on uncovered image content.
     """
-    _check_live_preconditions(run, live_smoke, live, budget_usd, confirm_live)
-
+    _check_live_preconditions(
+        run, live_smoke, live, budget_usd, confirm_live, redescribe, worklist
+    )
     m = load_manifest(manifest)
     try:
         ids = worklist_card_ids(worklist, promoted_sha=m.csv_sha256)
     except WorklistTrancheError as exc:
         exit_on_tranche_error(exc)
-    items = select_eligible(m, ids, settings.ocr_dir)
     out = out or default_observations_dir()
-
+    if redescribe:
+        return _run_redescribe(m, ids or set(), out, budget_usd, confirm_live)
+    items = select_eligible(m, ids, settings.ocr_dir)
     if live_smoke:
-        _run_live_smoke(items, out, live_smoke)
-        return
+        return _run_live_smoke(items, out, live_smoke)
     if run:
-        _run_bulk(items, out)
-        return
+        return _run_bulk(items, out)
     if live:
-        _run_live(items, out, budget_usd)
-        return
+        return _run_live(items, out, budget_usd)
+    _preview(items, out)
 
+
+def _preview(items: list[EligibleItem], out: Path) -> None:
+    """The default no-spend coverage preview; non-zero exit on a shortfall."""
     report = preflight_coverage(items, out)
     _print_report(report)
     if not report.ok:
