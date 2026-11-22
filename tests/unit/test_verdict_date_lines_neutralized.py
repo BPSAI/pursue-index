@@ -6,6 +6,7 @@ from __future__ import annotations
 from pursue_index.scrape.year_normalize import DateReport
 from pursue_index.scrape.year_normalize_report import verdict_date_lines
 
+_FW_AT = chr(0xFF20)
 _HOSTILE = "ping @someone [x](http://e) <b>bold</b>"
 
 
@@ -49,10 +50,10 @@ def test_field_name_is_neutralized() -> None:
         _assert_inert(text)
 
 
-def _inert_text(value: str) -> str:
+def _inert_text(value: str, limit: int = 80) -> str:
     from pursue_index.scrape.year_normalize_report import _inert
 
-    return _inert(value)
+    return _inert(value, limit)
 
 
 def test_entity_encoded_mentions_are_neutralized() -> None:
@@ -83,3 +84,68 @@ def test_backslash_before_bracket_cannot_unescape_it() -> None:
         for m in __import__("re").finditer(r"(\\*)\]", out):
             assert len(m.group(1)) % 2 == 1, (hostile, out)
         assert "://" not in out
+
+
+def _nest(inner: str, depth: int) -> str:
+    """``inner`` (an entity body such as ``#64``) wrapped in ``depth`` extra layers of ``&amp;``."""
+    return "&amp;" * (depth - 1) + "&" + inner + ";someone"
+
+
+def _no_live_entity(out: str) -> None:
+    import re
+
+    # Whatever "&" survives is itself escaped, so no further decode can re-form an entity.
+    assert not re.search(r"&(?!amp;)", out), out
+    assert "@" not in out.replace(_FW_AT, "")
+
+
+def test_nested_entities_of_every_depth_are_neutralized() -> None:
+    for inner in ("#64", "#x40", "commat"):
+        for depth in range(1, 7):
+            out = _inert_text(_nest(inner, depth))
+            _no_live_entity(out)
+            assert "someone" in out, (inner, depth)
+
+
+def test_four_level_nest_from_review_is_neutralized() -> None:
+    out = _inert_text("&amp;amp;amp;#64;someone")
+    _no_live_entity(out)
+    assert _FW_AT + "someone" in out
+
+
+def test_mixed_form_nests_are_neutralized() -> None:
+    for hostile in ("&amp;#x26;#64;someone", "&#38;amp;#x40;someone", "&amp;&#35;64;someone",
+                    "&#x26;amp;commat;someone"):
+        _no_live_entity(_inert_text(hostile))
+
+
+def test_nest_longer_than_the_decode_cap_is_still_inert() -> None:
+    out = _inert_text("&amp;" * 5000 + "#64;someone", limit=100000)
+    _no_live_entity(out)
+
+
+def test_lone_ampersand_survives_as_an_escaped_ampersand() -> None:
+    assert _inert_text("R&D") == "R&amp;D"
+
+
+def test_other_autolinks_are_broken() -> None:
+    for hostile in ("www.evil.example", "WWW.evil.example/x", "ftp://evil.example/x",
+                    "mailto:a@evil.example", "MAILTO:x", "a@evil.example", "&#109;ailto&colon;a",
+                    "file:///etc/passwd", "git+ssh://host/x"):
+        out = _inert_text(f"see {hostile} now")
+        assert "://" not in out, hostile
+        assert "www." not in out.lower(), hostile
+        assert "mailto:" not in out.lower(), hostile
+        assert "@" not in out.replace(_FW_AT, ""), hostile
+        assert "evil" in out or "mailto" in out.lower() or "etc" in out or "host" in out
+
+
+def test_issue_and_pr_references_are_broken() -> None:
+    import re
+
+    for hostile in ("#123", "fixes #123", "GH-123", "gh-7", "owner/repo#123", "(#99)",
+                    "&#35;123", "&amp;#35;123"):
+        out = _inert_text(hostile)
+        assert "#" not in out.replace("&#", ""), hostile
+        assert not re.search(r"(?i)\bgh-\d", out), hostile
+        assert re.search(r"\d", out), hostile  # still readable
