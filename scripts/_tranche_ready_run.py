@@ -68,8 +68,9 @@ def normalized_manifest(raw: bytes, source_url: str, old_m: dict,
     if fetched_at is None:
         raise ValueError("fetched_at is required: the tranche-ready manifest reuses the poll's clock")
     manifest = build_manifest(raw, parse_csv(raw), source_url)
-    manifest = Manifest.model_validate({**manifest.model_dump(), "fetched_at": fetched_at})
-    dumped = manifest.model_dump(mode="json")
+    manifest = Manifest.model_validate(
+        manifest.model_copy(update={"fetched_at": fetched_at}).model_dump(by_alias=True))
+    dumped = manifest.model_dump(mode="json", by_alias=True)
     rows, _ = normalize_rows(dumped["cards"], old_m.get("cards", []), manifest.fetched_at.year,
                              overlay=overlay, tranche=manifest.csv_sha256,
                              fetched_at=dumped["fetched_at"])

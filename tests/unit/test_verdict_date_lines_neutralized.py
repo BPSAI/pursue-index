@@ -21,7 +21,7 @@ def _lines(**report_kwargs) -> str:
 
 
 def _assert_inert(text: str) -> None:
-    assert "@" not in text.replace("＠", "")
+    assert "@" not in text.replace("\uff20", "")
     assert "<" not in text and ">" not in text
     assert "](http" not in text.replace("\\]", "")  # a backslash-escaped bracket is literal
     assert "[" not in text.replace("\\[", "")
@@ -58,7 +58,7 @@ def _inert_text(value: str) -> str:
 def test_entity_encoded_mentions_are_neutralized() -> None:
     for hostile in ("&#64;someone", "&commat;someone", "&#x40;someone"):
         out = _inert_text(hostile)
-        assert "@" not in out.replace("＠", ""), hostile
+        assert "@" not in out.replace("\uff20", ""), hostile
         assert "&#64" not in out and "&commat" not in out
         assert "someone" in out
 

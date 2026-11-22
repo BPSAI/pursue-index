@@ -24,6 +24,8 @@ parse does not keep it. The worklist's sections (``date_md_parts``) are in ``yea
 
 from __future__ import annotations
 
+import html
+import re
 from collections.abc import Mapping
 from typing import Any
 
@@ -105,11 +107,31 @@ def verdict_date_lines(report: DateReport) -> str:
     return "\n".join(lines) + "\n"
 
 
+_ENTITY_ROUNDS = 4
+_AUTOLINK = re.compile(r"(?i)(https?):/{2}")
+
+
+def _decoded(value: Any) -> str:
+    """``value`` with HTML entities decoded (to a fixed point, bounded), so an
+    entity-encoded ``&#64;`` or ``&colon;`` is judged as the character it renders as."""
+    text = "" if value is None else str(value)
+    for _ in range(_ENTITY_ROUNDS):
+        decoded = html.unescape(text)
+        if decoded == text:
+            break
+        text = decoded
+    return text
+
+
 def _inert(value: Any, limit: int = 80) -> str:
     """Upstream-derived text for a verdict-summary line, which is posted as an
-    issue comment: table-safe (``cell``), no backticks or angle brackets, no
-    live @-mention, and square brackets escaped so no link can form."""
-    return neutralize(_cell(value, limit)).replace("[", "\\[").replace("]", "\\]")
+    issue comment: entities decoded first, then table-safe (``cell``), no
+    backticks or angle brackets, no live @-mention, no bare ``http(s)://``
+    autolink (its ``//`` becomes fullwidth), and backslashes then square
+    brackets escaped so no link can form."""
+    text = neutralize(_cell(_decoded(value), limit))
+    text = _AUTOLINK.sub(lambda m: f"{m.group(1)}:\uff0f\uff0f", text)
+    return text.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
 
 
 def _row_lines(rows: list[dict[str, Any]]) -> list[str]:

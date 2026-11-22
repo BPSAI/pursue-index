@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -29,6 +30,9 @@ _SHA = "feedface1234" + "0" * 52
 _SENTINEL_TABLE = {"ocr": StageRate(low=1.0, high=10.0)}
 
 
+_FETCHED_AT = datetime(2026, 1, 1, tzinfo=UTC)
+
+
 @pytest.fixture
 def sentinel_rates(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(rates, "RATES_TABLE", _SENTINEL_TABLE)
@@ -37,7 +41,7 @@ def sentinel_rates(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_poll_summary_prices_from_the_rates_table(sentinel_rates) -> None:
     card = CardMetadata(card_id="aaaa000000000001", title="t", asset_type="PDF",
                         agency="FBI", asset_url="https://www.war.gov/a.pdf")
-    diff = SnapshotDiffResult(added=[card], removed=[], field_changes=[], new_columns=[])
+    diff = SnapshotDiffResult(fetched_at=_FETCHED_AT, added=[card], removed=[], field_changes=[], new_columns=[])
     text = render_verdict_summary(diff, tranche=_SHA, page_counts={card.card_id: 3})
     assert "$3.00 low to $30.00 worst case over 3 pages" in text
 
@@ -82,7 +86,7 @@ def test_poll_summary_leaves_av_cards_out_of_the_ocr_band() -> None:
         CardMetadata(card_id="aaaa000000000002", title="t", asset_type="VID",
                      agency="FBI", asset_url="https://www.war.gov/a.mp4"),
     ]
-    diff = SnapshotDiffResult(added=cards, removed=[], field_changes=[], new_columns=[])
+    diff = SnapshotDiffResult(fetched_at=_FETCHED_AT, added=cards, removed=[], field_changes=[], new_columns=[])
     text = render_verdict_summary(diff, tranche=_SHA, page_counts={cards[0].card_id: 3})
     assert "over 3 pages" in text
     assert "partial" not in text.lower()

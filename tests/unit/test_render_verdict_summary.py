@@ -15,12 +15,16 @@ needs-review fixture, and the artifact shape.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from pursue_index.scrape.classify_tranche import (
     build_verdict_artifact,
     render_verdict_summary,
 )
 from pursue_index.scrape.poll_snapshot import SnapshotDiffResult
 from pursue_index.scrape.types import CardMetadata
+
+_FETCHED_AT = datetime(2026, 1, 1, tzinfo=UTC)
 
 
 def _card(card_id: str = "c0") -> CardMetadata:
@@ -34,7 +38,7 @@ def _diff(
     field_changes: list | None = None,
     new_columns: list[str] | None = None,
 ) -> SnapshotDiffResult:
-    return SnapshotDiffResult(
+    return SnapshotDiffResult(fetched_at=_FETCHED_AT, 
         added=added or [],
         removed=removed or [],
         field_changes=field_changes or [],
