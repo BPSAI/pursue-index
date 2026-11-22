@@ -148,3 +148,88 @@ def test_replaying_the_nine_observed_fetches_against_the_real_data_reports_no_dr
         drift += state.drift
         assert result in ("unchanged", "new"), (cid, result)
     assert drift == []
+
+
+# A moved asset: same card, same file type, new URL.
+CID = "0123456789abcdef"
+OLD_PDF_URL = "https://www.war.gov/old/a.pdf"
+NEW_PDF_URL = "https://www.war.gov/new/a.pdf"
+
+
+def _moved_row(url, digest, when, name="a.pdf"):
+    return {**_row("c", url, digest, when), "asset_filename": name, "byte_size": 5,
+            "upstream_etag": None}
+
+
+def test_rows_for_a_moved_pdf_fall_back_to_the_newest_pdf_row():
+    old = _moved_row(OLD_PDF_URL, "a" * 64, "2026-05-01T00:00:00+00:00")
+    video = {**_moved_row(VIDEO_URL, "b" * 64, "2026-06-01T00:00:00+00:00", "1.mp4")}
+    got = _r2_fetch.rows_for_asset([old, video], NEW_PDF_URL, "a.pdf")
+    assert got == [old]
+
+
+def test_rows_for_a_moved_pdf_use_the_url_extension_without_a_filename():
+    old = _moved_row(OLD_PDF_URL, "a" * 64, "2026-05-01T00:00:00+00:00", None)
+    assert _r2_fetch.rows_for_asset([old], NEW_PDF_URL + "?x=1", None) == [old]
+
+
+def test_a_new_url_with_only_a_video_row_is_net_new():
+    video = _moved_row(VIDEO_URL, "b" * 64, "2026-06-01T00:00:00+00:00", "1.mp4")
+    assert _r2_fetch.rows_for_asset([video], NEW_PDF_URL, "a.pdf") == []
+
+
+def _moved_world(w: World, monkeypatch, digest):
+    old = {"card_id": CID, "asset_url": OLD_PDF_URL, "asset_filename": "a.pdf",
+           "byte_sha256": sha(OLD_BODY), "byte_size": len(OLD_BODY), "upstream_etag": None,
+           "archive_key": "k", "current_key": "k", "fetched_at": "2026-05-01T00:00:00+00:00"}
+    video = {**old, "asset_url": VIDEO_URL, "asset_filename": "1.mp4",
+             "byte_sha256": sha(VIDEO_BODY), "fetched_at": "2026-06-01T00:00:00+00:00"}
+    monkeypatch.setattr(r2, "head_asset", lambda u: (None, None, None))
+    monkeypatch.setattr(r2, "fetch_asset", lambda u, d: (digest, 9))
+    card = SimpleNamespace(card_id=CID, asset_url=NEW_PDF_URL, asset_filename="a.pdf",
+                           asset_type="PDF")
+    state = r2.RunState()
+    state.full_hash = True
+    return card, {CID: [old, video]}, state
+
+
+def test_a_moved_pdf_with_the_same_sha_is_unchanged(w, monkeypatch, tmp_path):
+    card, reg, state = _moved_world(w, monkeypatch, sha(OLD_BODY))
+    out = r2._process_card(card, reg, object(), "b", True, tmp_path / "r.jsonl", state)
+    assert out == "unchanged"
+    assert state.drift == []
+
+
+def test_a_moved_pdf_with_a_different_sha_is_drift_against_the_old_pdf_row(
+    w, monkeypatch, tmp_path
+):
+    card, reg, state = _moved_world(w, monkeypatch, sha(NEW_BODY))
+    r2._process_card(card, reg, object(), "b", True, tmp_path / "r.jsonl", state)
+    assert state.drift == [(CID, sha(OLD_BODY), sha(NEW_BODY))]
+
+
+def test_a_new_url_whose_only_prior_row_is_a_video_is_net_new(w, monkeypatch, tmp_path):
+    card, reg, state = _moved_world(w, monkeypatch, sha(NEW_BODY))
+    reg[CID] = reg[CID][1:]  # only the video row remains
+    out = r2._process_card(card, reg, object(), "b", True, tmp_path / "r.jsonl", state)
+    assert out == "new"
+    assert state.drift == []
+
+
+def test_registry_drift_since_compares_a_moved_pdf_with_the_old_pdf_row():
+    reg = {"c": [_moved_row(OLD_PDF_URL, "a" * 64, "2026-05-01T00:00:00+00:00"),
+                 _moved_row(VIDEO_URL, "b" * 64, "2026-05-15T00:00:00+00:00", "1.mp4"),
+                 _moved_row(NEW_PDF_URL, "d" * 64, "2026-06-01T00:00:00+00:00")]}
+    assert _r2_run_state.registry_drift_since(reg, SINCE) == [("c", "a" * 64, "d" * 64)]
+
+
+def test_registry_drift_since_ignores_a_moved_pdf_with_the_same_sha():
+    reg = {"c": [_moved_row(OLD_PDF_URL, "a" * 64, "2026-05-01T00:00:00+00:00"),
+                 _moved_row(NEW_PDF_URL, "a" * 64, "2026-06-01T00:00:00+00:00")]}
+    assert _r2_run_state.registry_drift_since(reg, SINCE) == []
+
+
+def test_a_video_row_after_a_pdf_row_is_still_net_new_in_the_registry_scan():
+    reg = {"c": [_moved_row(OLD_PDF_URL, "a" * 64, "2026-05-01T00:00:00+00:00"),
+                 _moved_row(VIDEO_URL, "b" * 64, "2026-06-01T00:00:00+00:00", "1.mp4")]}
+    assert _r2_run_state.registry_drift_since(reg, SINCE) == []
