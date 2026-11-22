@@ -83,6 +83,7 @@ def test_live_smoke_produces_single_sidecar(tmp_path: Path, monkeypatch) -> None
                 "visible_text": "", "observations": []}
 
     monkeypatch.setattr(client_mod, "examine_image", fake_examine)
+    monkeypatch.setattr(client_mod, "require_client", lambda: None)
     monkeypatch.setattr(render_mod, "load_image_for", lambda item, **kw: object())
 
     out = tmp_path / "obs"
@@ -117,6 +118,7 @@ def _patch_seams(monkeypatch, examine) -> None:
     import pursue_index.vision.render as render_mod
 
     monkeypatch.setattr(client_mod, "examine_image", examine)
+    monkeypatch.setattr(client_mod, "require_client", lambda: None)
     monkeypatch.setattr(render_mod, "load_image_for", lambda item, **kw: item)
     # These tests drive the operator's --live path against a fake client. The
     # CLI refuses --live whenever CI is set (GitHub Actions sets CI=true), so

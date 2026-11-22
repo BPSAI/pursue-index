@@ -193,3 +193,17 @@ def test_run_vision_with_budget_stops_before_exceeding_it(tmp_path: Path) -> Non
     assert len(calls) == 2
     assert not report.ok
     assert report.missing == [("imgC", "", 1)]
+
+
+def test_a_run_written_sidecar_ends_with_a_newline(tmp_path):
+    from pursue_index.vision.eligibility import EligibleItem
+    from pursue_index.vision.run import run_vision
+
+    item = EligibleItem(card_id="a1a1a1a1a1a1a1a1", page=1, kind="img_card",
+                        image_path=tmp_path / "x", title="T", row_key="")
+    run_vision([item], tmp_path / "o",
+               examine_fn=lambda _i: {"image_type": "p", "description": "d",
+                                      "visible_text": "", "observations": []},
+               load_image_fn=lambda i: i)
+    text = (tmp_path / "o" / "a1a1a1a1a1a1a1a1.json").read_text("utf-8")
+    assert text.endswith("}\n") and not text.endswith("\n\n")

@@ -71,17 +71,40 @@ outside the JSON object."""
 _client: Any = None
 
 
+class VisionClientError(RuntimeError):
+    """The vision client cannot be built: no SDK or no key."""
+
+
 def _get_anthropic_client() -> Any:
     """Return a cached Anthropic client. Lazy-imports the SDK."""
     global _client
     if _client is not None:
         return _client
-    import anthropic
+    try:
+        import anthropic
+    except ImportError as exc:
+        raise VisionClientError(
+            "the anthropic SDK is not installed; no call was made"
+        ) from exc
 
     from pursue_index.config.credentials import anthropic_api_key
 
-    _client = anthropic.Anthropic(api_key=anthropic_api_key())
+    try:
+        key = anthropic_api_key()
+    except Exception:  # noqa: BLE001 - never surface a lookup error; it may carry the value
+        key = None
+    if not key:
+        raise VisionClientError("ANTHROPIC_API_KEY is not set; no call was made")
+    _client = anthropic.Anthropic(api_key=key)
     return _client
+
+
+def require_client() -> None:
+    """Build the client now, so a missing SDK or key fails before anything is reserved.
+
+    ``examine_image`` reuses the cached client, so the run builds it once.
+    """
+    _get_anthropic_client()
 
 
 def _resize_for_vision(img: Image.Image) -> Image.Image:

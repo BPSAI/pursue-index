@@ -60,6 +60,25 @@ each call is metered from the response's usage and the run stops before any
 call whose worst case would pass the cap.
 Output goes to `--out-dir` (`results.json`, `report.md`).
 
+## Method exceptions
+
+Some cards stay on their curated passes on purpose. The 32 helicopter-case
+imagery cards (`helicopter-case-2025-imagery-a-series`, 8, and
+`helicopter-case-2025-imagery-b-series`, 24) came from a curated multi-frame
+study, not from an older model, so re-describing them with the pinned
+`VISION_MODEL` would replace a method with a single-image pass.
+
+`data/vision-method-exceptions.json` is the record. Each entry has `card_id`,
+`reason`, `cluster_label` and `decided_at`. The rule:
+
+- `pursue vision run --redescribe` refuses any listed card, by name, in the
+  no-spend preflight and in the live run alike.
+- `--override-method-exception` together with `--reason "<text>"` lifts the
+  refusal for that invocation. Either flag alone is refused, and the override
+  is echoed with its reason.
+- The file fails closed: a missing or malformed file refuses the run instead of
+  being read as an empty list.
+
 ## Results
 
 _Not yet run._
