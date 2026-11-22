@@ -19,6 +19,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 import _r2_fetch  # noqa: E402
+import _r2_hosts  # noqa: E402
 
 LOCAL = frozenset({"127.0.0.1"})
 BODY = (b"pursue-real-client-fixture-" * 40000)  # ~1 MB, several chunks
@@ -52,6 +53,12 @@ class _Handler(http.server.BaseHTTPRequestHandler):
         pass
 
 
+@pytest.fixture(autouse=True)
+def _loopback_http(monkeypatch):
+    """The explicit test-only seam: plain http to a loopback server."""
+    monkeypatch.setattr(_r2_hosts, "TEST_ONLY_ALLOW_LOCAL", True)
+
+
 @pytest.fixture()
 def server():
     httpd = socketserver.TCPServer(("127.0.0.1", 0), _Handler)
@@ -66,7 +73,7 @@ def server():
 
 def test_real_client_streams_the_body_into_the_file_and_hash(server, tmp_path):
     dest = tmp_path / "asset.pdf"
-    sha, size = _r2_fetch.fetch_asset(f"{server}/asset.pdf", dest, allowed_hosts=LOCAL)
+    sha, size = _r2_fetch.fetch_asset(f"{server}/asset.pdf", dest, max_bytes=10**6, allowed_hosts=LOCAL)
     assert size == len(BODY)
     assert sha == hashlib.sha256(BODY).hexdigest()
     assert dest.read_bytes() == BODY
@@ -74,20 +81,20 @@ def test_real_client_streams_the_body_into_the_file_and_hash(server, tmp_path):
 
 def test_real_client_raises_on_an_http_error(server, tmp_path):
     with pytest.raises(Exception) as exc:
-        _r2_fetch.fetch_asset(f"{server}/missing", tmp_path / "x.pdf", allowed_hosts=LOCAL)
+        _r2_fetch.fetch_asset(f"{server}/missing", tmp_path / "x.pdf", max_bytes=10**6, allowed_hosts=LOCAL)
     assert "context manager" not in str(exc.value)
 
 
 def test_real_client_follows_a_redirect_within_the_limit(server, tmp_path):
     dest = tmp_path / "asset.pdf"
-    sha, size = _r2_fetch.fetch_asset(f"{server}/hop", dest, allowed_hosts=LOCAL)
+    sha, size = _r2_fetch.fetch_asset(f"{server}/hop", dest, max_bytes=10**6, allowed_hosts=LOCAL)
     assert size == len(BODY)
     assert sha == hashlib.sha256(BODY).hexdigest()
 
 
 def test_real_client_refuses_a_redirect_loop_past_the_limit(server, tmp_path):
     with pytest.raises(_r2_fetch.FetchLimitError, match="redirects"):
-        _r2_fetch.fetch_asset(f"{server}/loop", tmp_path / "x.pdf", allowed_hosts=LOCAL)
+        _r2_fetch.fetch_asset(f"{server}/loop", tmp_path / "x.pdf", max_bytes=10**6, allowed_hosts=LOCAL)
 
 
 def test_real_client_aborts_a_body_over_max_bytes(server, tmp_path):

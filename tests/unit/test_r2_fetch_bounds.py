@@ -15,6 +15,8 @@ import _r2_fetch  # noqa: E402
 
 from tests.unit.r2_verify_harness import NEW_BODY, OLD_BODY, World, sha  # noqa: E402
 
+pytestmark = pytest.mark.usefixtures("dns")
+
 HOSTS = frozenset({"www.war.gov"})
 URL = "https://www.war.gov/a.pdf"
 
@@ -95,7 +97,7 @@ def test_five_redirects_are_followed(monkeypatch, tmp_path):
         routes[f"https://www.war.gov/r{i}"] = _redirect(f"https://www.war.gov/r{i + 1}")
     routes["https://www.war.gov/r5"] = _Resp(chunks=[b"ok"])
     log = _serve(monkeypatch, routes)
-    assert _r2_fetch.fetch_asset(URL, tmp_path / "a", allowed_hosts=HOSTS)[1] == 2
+    assert _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)[1] == 2
     assert all(kw["allow_redirects"] is False for _, kw in log)
 
 
@@ -106,13 +108,13 @@ def test_a_sixth_redirect_is_refused(monkeypatch, tmp_path):
     routes["https://www.war.gov/r6"] = _Resp(chunks=[b"never"])
     log = _serve(monkeypatch, routes)
     with pytest.raises(_r2_fetch.FetchLimitError, match="redirect"):
-        _r2_fetch.fetch_asset(URL, tmp_path / "a", allowed_hosts=HOSTS)
+        _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)
     assert "https://www.war.gov/r6" not in [u for u, _ in log]
 
 
 def test_a_relative_redirect_is_resolved_against_the_current_url(monkeypatch, tmp_path):
     log = _serve(monkeypatch, {URL: _redirect("/b.pdf"), "https://www.war.gov/b.pdf": _Resp(chunks=[b"k"])})
-    assert _r2_fetch.fetch_asset(URL, tmp_path / "a", allowed_hosts=HOSTS)[1] == 1
+    assert _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)[1] == 1
     assert [u for u, _ in log][-1] == "https://www.war.gov/b.pdf"
 
 
@@ -122,7 +124,7 @@ def test_a_relative_redirect_is_resolved_against_the_current_url(monkeypatch, tm
 def test_the_original_url_must_be_on_the_allowlist(monkeypatch, tmp_path):
     log = _serve(monkeypatch, {"https://evil.example/a.pdf": _Resp(chunks=[b"x"])})
     with pytest.raises(_r2_fetch.FetchLimitError, match="host"):
-        _r2_fetch.fetch_asset("https://evil.example/a.pdf", tmp_path / "a", allowed_hosts=HOSTS)
+        _r2_fetch.fetch_asset("https://evil.example/a.pdf", tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)
     assert log == []
 
 
@@ -130,13 +132,13 @@ def test_a_redirect_to_another_host_is_refused_before_it_is_requested(monkeypatc
     log = _serve(monkeypatch, {URL: _redirect("https://evil.example/a.pdf"),
                                "https://evil.example/a.pdf": _Resp(chunks=[b"x"])})
     with pytest.raises(_r2_fetch.FetchLimitError, match="host"):
-        _r2_fetch.fetch_asset(URL, tmp_path / "a", allowed_hosts=HOSTS)
+        _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)
     assert [u for u, _ in log] == [URL]
 
 
 def test_host_comparison_ignores_case_and_port(monkeypatch, tmp_path):
     _serve(monkeypatch, {"https://WWW.War.GOV:443/a.pdf": _Resp(chunks=[b"x"])})
-    assert _r2_fetch.fetch_asset("https://WWW.War.GOV:443/a.pdf", tmp_path / "a", allowed_hosts=HOSTS)[1] == 1
+    assert _r2_fetch.fetch_asset("https://WWW.War.GOV:443/a.pdf", tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)[1] == 1
 
 
 def test_the_allowlist_is_the_hosts_of_the_manifest_urls():
@@ -214,8 +216,8 @@ def test_hard_ceiling_for_an_unknown_size_is_the_absolute_ceiling():
     assert _r2_fetch.hard_ceiling([{"byte_size": None}]) == _r2_fetch.MAX_ASSET_BYTES
 
 
-def test_hard_ceiling_never_drops_below_the_absolute_ceiling():
-    assert _r2_fetch.hard_ceiling([{"byte_size": 1000}]) == _r2_fetch.MAX_ASSET_BYTES
+def test_hard_ceiling_for_a_small_known_asset_is_ten_times_with_a_64_mib_floor():
+    assert _r2_fetch.hard_ceiling([{"byte_size": 1000}]) == 64 * 1024**2
 
 
 def test_a_known_asset_larger_than_the_absolute_ceiling_is_not_refused():
