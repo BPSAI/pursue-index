@@ -64,13 +64,16 @@ def fetch_asset(url: Any, dest: Path) -> tuple[str, int]:
     digest = hashlib.sha256()
     size = 0
     started = last = _now()
-    with cffi_requests.get(
+    # curl_cffi's streamed Response is not a context manager, so it is closed
+    # explicitly; the close releases the connection even when the read fails.
+    resp = cffi_requests.get(
         str(url),
         impersonate="chrome",
         timeout=TOTAL_CEILING_S,
         stream=True,
         curl_options={_CURLOPT_LOW_SPEED_LIMIT: 1, _CURLOPT_LOW_SPEED_TIME: IDLE_TIMEOUT_S},
-    ) as resp:
+    )
+    try:
         resp.raise_for_status()
         with Path(dest).open("wb") as fh:
             for chunk in resp.iter_content(chunk_size=CHUNK_SIZE):
@@ -87,6 +90,8 @@ def fetch_asset(url: Any, dest: Path) -> tuple[str, int]:
                 digest.update(chunk)
                 fh.write(chunk)
                 size += len(chunk)
+    finally:
+        resp.close()
     return digest.hexdigest(), size
 
 
