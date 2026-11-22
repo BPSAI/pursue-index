@@ -16,6 +16,7 @@ cannot edit it to skip its own audit.
 
 from __future__ import annotations
 
+import re
 import sys
 
 AUDITED_PREFIXES = ("web/", "worker/")
@@ -24,18 +25,26 @@ AUDITED_FILES = {
     "scripts/web_audit_paths_changed.py",
     ".github/workflows/web-audit.yml",
     ".node-version",
+    ".npmrc",
 }
 
 
 # The gate loads its helper modules from beside itself, so an edit to any of
-# them changes the gate's decision. New helpers are covered by the pattern.
-AUDITED_HELPER_PREFIX = "scripts/_web_audit_"
+# them changes the gate's decision. The rule here is deliberately broad: ANY
+# scripts/_web_audit_*.py counts, whatever its name. The workflow's base-copy
+# loop is narrower ([a-z0-9_]+); a test keeps this set a superset of that one,
+# so a helper the workflow does not copy is still audited, never skipped.
+HELPER_RE = re.compile(r"scripts/_web_audit_[^/]*\.py")
+
+
+def is_helper(path: str) -> bool:
+    return HELPER_RE.fullmatch(path) is not None
 
 
 def needs_audit(path: str) -> bool:
     if path.startswith('"'):
         return True
-    if path.startswith(AUDITED_HELPER_PREFIX) and path.endswith(".py") and path.count("/") == 1:
+    if is_helper(path):
         return True
     return path.startswith(AUDITED_PREFIXES) or path in AUDITED_FILES
 

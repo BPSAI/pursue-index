@@ -36,6 +36,10 @@ import web_audit_paths_changed as pc  # noqa: E402
         "scripts/web_audit_paths_changed.py",
         ".github/workflows/web-audit.yml",
         ".node-version",
+        ".npmrc",
+        "web/.npmrc",
+        "worker/.npmrc",
+        "web/.nvmrc",
     ],
 )
 def test_audited_paths_need_the_audit(path):
@@ -150,3 +154,42 @@ def test_every_helper_on_disk_is_covered():
     assert helpers, "expected gate helper modules"
     for p in helpers:
         assert pc.needs_audit(f"scripts/{p.name}"), p.name
+
+
+# --- the workflow and the classifier agree on what a helper is ------------
+
+HELPER_NAMES = [
+    "scripts/_web_audit_graph.py",
+    "scripts/_web_audit_allowlist.py",
+    "scripts/_web_audit_v2.py",
+    "scripts/_web_audit_2.py",
+    "scripts/_web_audit_Upper.py",
+    "scripts/_web_audit_.py",
+    "scripts/_web_audit_x.txt",
+    "scripts/_web_audit_x-y.py",
+    "scripts/sub/_web_audit_x.py",
+    "scripts/web_audit_x.py",
+]
+
+
+def _workflow_helper_regex() -> str:
+    import re
+
+    text = WORKFLOW.read_text(encoding="utf-8")
+    m = re.search(r"grep -E '([^']*_web_audit_[^']*)'", text)
+    assert m, "the helper copy loop's grep pattern is missing"
+    return m.group(1)
+
+
+def test_the_classifier_audits_a_superset_of_what_the_workflow_copies():
+    import re
+
+    pattern = re.compile(_workflow_helper_regex())
+    for name in HELPER_NAMES:
+        # Anything the workflow would copy from the base must be audited; the
+        # classifier may audit more (the broad rule), never less.
+        if pattern.search(name):
+            assert pc.needs_audit(name), name
+    assert pc.is_helper("scripts/_web_audit_v2.py")
+    assert pc.needs_audit("scripts/_web_audit_Upper.py")
+    assert pc.needs_audit("scripts/_web_audit_x-y.py")

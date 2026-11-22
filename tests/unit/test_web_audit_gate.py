@@ -107,15 +107,14 @@ def test_package_absent_from_the_lockfile_is_not_exempt():
     assert not d.ok
 
 
-def test_a_bare_name_build_only_key_loads_only_as_the_previous_shape():
-    allow = gate.load_allowlist_data({"build_only": {"postcss": "reason"}})
-    assert any("'postcss'] is a bare package name" in n for n in allow["legacy"])
+def test_a_bare_name_build_only_key_is_refused_as_the_old_shape():
+    with pytest.raises(ValueError, match="exact name@version"):
+        gate.load_allowlist_data({"build_only": {"postcss": "reason"}})
     with pytest.raises(ValueError):
         gate.load_allowlist_data({"build_only": {"postcss@": "reason"}})
     with pytest.raises(ValueError):
         gate.load_allowlist_data({"build_only": {"@scope/pkg/x": "reason"}})
-    assert gate.load_allowlist_data({"build_only": {"@scope/pkg@1.2.3": "reason"}})["legacy"] == []
-
+    assert "legacy" not in gate.load_allowlist_data({"build_only": {"@scope/pkg@1.2.3": "reason"}})
 
 
 # --- the Worker is runtime: any high or critical fails, nothing is exempt.
@@ -168,16 +167,14 @@ def test_cli_runtime_mode(tmp_path):
 
 def test_workflow_audits_the_worker_with_the_runtime_gate():
     steps = [st for st in _wf()["jobs"]["audit"]["steps"] if "run" in st]
-    worker = [st for st in steps if st.get("working-directory") == "worker"]
+    worker = [st for st in steps if "worker/package.json" in st["run"]]
     assert worker and "npm audit --omit=dev --json" in worker[0]["run"]
     assert any("--runtime" in st["run"] and "worker-audit.json" in st["run"] for st in steps)
-    # No exemptions: the runtime step never takes the build-only allowlist. Only
-    # a gate that predates --runtime gets an allowlist, and that one is empty.
+    # No exemptions: the runtime step never takes an allowlist.
     runtime_step = next(st for st in steps if "--runtime" in st["run"])
     run = runtime_step["run"]
     assert "ALLOWLIST" not in run and "audit-build-only" not in run
-    assert "--runtime" in run.split("else")[0] and "--allowlist" not in run.split("else")[0]
-    assert "echo '{}'" in run
+    assert "--runtime" in run and "--allowlist" not in run
 
 
 def test_the_worker_has_a_lockfile_for_the_audit():
