@@ -33,6 +33,9 @@ def latest_per_page(rows: Iterable[dict[str, Any]], card_id: str = "") -> list[d
                   file=sys.stderr)
             continue
         try:
+            # A boolean is not a page number, although int(True) == 1.
+            if isinstance(raw_page, bool):
+                raise TypeError("boolean page")
             page = int(raw_page)
         except (ValueError, TypeError):
             print(f"warning clean.build.skip_corrupt_row card_id={card_id} row_index={idx} "

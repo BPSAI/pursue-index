@@ -32,16 +32,57 @@ ROOT = settings.ocr_dir
 def find_row(path: pathlib.Path, page: int) -> dict | None:
     """The newest row for ``page`` (the sidecar is append-only)."""
     for row in read_latest_pages(path):
-        if int(row["page"]) == page:
+        # read_latest_pages already drops rows whose page is missing or not a
+        # number; this keeps find_row safe even if handed rows from elsewhere.
+        raw = row.get("page")
+        if isinstance(raw, bool):
+            continue
+        try:
+            row_page = int(raw)
+        except (TypeError, ValueError):
+            continue
+        if row_page == page:
             return row
     return None
 
 
-def main() -> int:
-    if len(sys.argv) != 3:
+def _parse_args(args: list[str]) -> tuple[str, int] | None:
+    """``(card_id, page)``, or None after printing a usage or page error."""
+    if len(args) != 2:
         print(__doc__, file=sys.stderr)
+        return None
+    try:
+        page = int(args[1])
+    except ValueError:
+        page = 0
+    if page < 1:
+        print(f"error: page must be a positive integer, got {args[1]!r}", file=sys.stderr)
+        return None
+    return args[0], page
+
+
+def _print_cleaned(clean: dict, raw_text: str, wrap) -> None:
+    skipped_reason = clean.get("cleanup_skipped")
+    cleaned_text = clean.get("text_cleaned") or ""
+    print("CLEANED:")
+    print("-" * 92)
+    if skipped_reason:
+        print(f"  [SKIP ROW — reason: {skipped_reason}]")
+        print(f"  cleaned text length: {len(cleaned_text)}")
+    else:
+        ratio = len(cleaned_text) / max(len(raw_text), 1)
+        passthrough = clean.get("input_sha256") == clean.get("output_sha256")
+        tag = "  [PASS-THROUGH: output identical to raw]" if passthrough else ""
+        print(f"  ({len(cleaned_text)} chars, ratio={ratio:.2f}){tag}")
+        print(wrap(cleaned_text))
+    print()
+
+
+def main() -> int:
+    parsed = _parse_args(sys.argv[1:])
+    if parsed is None:
         return 2
-    card, page = sys.argv[1], int(sys.argv[2])
+    card, page = parsed
     card_dir = ROOT / card
     if not card_dir.exists():
         print(f"error: card dir not found: {card_dir}", file=sys.stderr)
@@ -66,20 +107,7 @@ def main() -> int:
     if clean is None:
         print("CLEANED: <not present in sidecar>")
         return 0
-    skipped_reason = clean.get("cleanup_skipped")
-    cleaned_text = clean.get("text_cleaned") or ""
-    print("CLEANED:")
-    print("-" * 92)
-    if skipped_reason:
-        print(f"  [SKIP ROW — reason: {skipped_reason}]")
-        print(f"  cleaned text length: {len(cleaned_text)}")
-    else:
-        ratio = len(cleaned_text) / max(len(raw_text), 1)
-        passthrough = clean.get("input_sha256") == clean.get("output_sha256")
-        tag = "  [PASS-THROUGH: output identical to raw]" if passthrough else ""
-        print(f"  ({len(cleaned_text)} chars, ratio={ratio:.2f}){tag}")
-        print(wrap(cleaned_text))
-    print()
+    _print_cleaned(clean, raw_text, wrap)
     print("PROVENANCE:")
     print("-" * 92)
     for k in ("model_id", "prompt_sha256", "input_sha256", "output_sha256",

@@ -89,3 +89,36 @@ def test_photo_card_index_reads_newest_row(tmp_path: Path) -> None:
         {"page": 1, "text": "", "generated_at": NEW},
     ])
     assert build_photo_card_index._read_first_page_text(path) == ""
+
+
+# --- spotcheck_view: a bad page never produces a traceback ------------------
+
+
+def test_spotcheck_find_row_ignores_rows_with_missing_or_bad_page(tmp_path: Path) -> None:
+    path = tmp_path / "pages_cleaned.jsonl"
+    _write(path, [{"text_cleaned": "no page"}, {"page": "x", "text_cleaned": "bad"},
+                  {"page": True, "text_cleaned": "bool"},
+                  {"page": 1, "text_cleaned": "good", "generated_at": "2026-11-22T00:00:00Z"}])
+    row = spotcheck_view.find_row(path, 1)
+    assert row is not None and row["text_cleaned"] == "good"
+
+
+def test_spotcheck_main_rejects_a_non_integer_page_argument(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(sys, "argv", ["spotcheck_view.py", "0123456789abcdef", "two"])
+    assert spotcheck_view.main() == 2
+    err = capsys.readouterr().err
+    assert "page must be a positive integer" in err and "Traceback" not in err
+
+
+def test_spotcheck_main_rejects_a_non_positive_page_argument(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(sys, "argv", ["spotcheck_view.py", "0123456789abcdef", "0"])
+    assert spotcheck_view.main() == 2
+    assert "page must be a positive integer" in capsys.readouterr().err
+
+
+def test_a_boolean_page_is_corrupt_not_page_one(tmp_path: Path) -> None:
+    from pursue_index.page_rows import latest_per_page
+    rows = [{"page": 1, "text": "real", "generated_at": "2026-11-21T00:00:00Z"},
+            {"page": True, "text": "bool", "generated_at": "2026-11-22T00:00:00Z"}]
+    kept = latest_per_page(rows, "c")
+    assert [r["text"] for r in kept] == ["real"]
