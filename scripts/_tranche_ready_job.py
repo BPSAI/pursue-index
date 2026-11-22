@@ -33,7 +33,6 @@ from _tranche_ready_supersedes import derive_supersedes
 from r2_archive_assets import load_registry
 from tranche_diff import diff_tranches
 
-from pursue_index.asset_rows import rows_of_asset
 from pursue_index.config import settings
 from pursue_index.release.rates import JudgeRate
 from pursue_index.scrape.date_resolutions import load_date_resolutions
@@ -42,7 +41,7 @@ from pursue_index.tranche_manifest import display_rows_by_card_id
 from pursue_index.tranche_ready import candidates as cands
 from pursue_index.tranche_ready.old_bytes import StagedBytes, stage_new, stage_old
 from pursue_index.tranche_ready.record import RecordInputs, build_record
-from pursue_index.tranche_resave import bytes_dir_check
+from pursue_index.tranche_resave import bytes_dir_check, old_asset_sha
 
 TOOL, VERSION = "poll_snapshot.py", "r7c31"
 
@@ -83,11 +82,9 @@ def _stage(diff: dict, old_by_id: dict, registry: dict, fetched: FetchedPdfs,
            for r in cands.candidate_rows(diff)}
     old = {}
     for oid in dict.fromkeys(old_ids):
-        card = old_by_id.get(oid) or {}
-        # The old asset's own rows: the card's newest row may be another asset's.
-        rows = rows_of_asset(registry.get(oid), card.get("asset_url"), card.get("asset_filename"))
-        old[oid] = stage_old(card.get("asset_url"),
-                             rows[-1].get("byte_sha256") if rows else None, bytes_dir)
+        # The same selection as the re-save check: the old asset's own rows.
+        old[oid] = stage_old((old_by_id.get(oid) or {}).get("asset_url"),
+                             old_asset_sha(old_by_id, registry, oid), bytes_dir)
     return old, new
 
 
