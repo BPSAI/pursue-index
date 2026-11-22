@@ -21,6 +21,7 @@ import argparse
 import json
 import sys
 import tempfile
+from datetime import datetime
 from pathlib import Path
 
 from _tranche_ready_job import JobConfig, build
@@ -57,11 +58,15 @@ def config_from_args(args: argparse.Namespace) -> JobConfig:
 
 
 def normalized_manifest(raw: bytes, source_url: str, old_m: dict,
-                        overlay: Overlay | None = None) -> Manifest:
+                        overlay: Overlay | None = None,
+                        fetched_at: datetime | None = None) -> Manifest:
     """The new manifest as ``generate_snapshot_diff`` writes its snapshot:
     parsed from ``raw`` with 2-digit years restored against ``old_m`` and
-    the manual resolutions ``overlay``."""
+    the manual resolutions ``overlay``. ``fetched_at`` is the poll's one fetch
+    timestamp (the snapshot's), so both manifests agree on it."""
     manifest = build_manifest(raw, parse_csv(raw), source_url)
+    if fetched_at is not None:
+        manifest = manifest.model_copy(update={"fetched_at": fetched_at})
     dumped = manifest.model_dump(mode="json")
     rows, _ = normalize_rows(dumped["cards"], old_m.get("cards", []), manifest.fetched_at.year,
                              overlay=overlay, tranche=manifest.csv_sha256,
@@ -120,14 +125,15 @@ def _fail(code: int, message: str, sha12: str, error_out: Path | None,
 
 
 def run_job(raw: bytes, latest: Path, source_url: str, cfg: JobConfig, fetched: FetchedPdfs,
-            judge: JudgeRate | None, *, error_out: Path | None = None) -> int:
+            judge: JudgeRate | None, *, error_out: Path | None = None,
+            fetched_at: datetime | None = None) -> int:
     """Build, validate and publish the diff receipt + record; 0, 3 or 4."""
     if not latest.exists():
         print("poll-snapshot.tranche-ready skipped: no prior manifest (bootstrap)", flush=True)
         return 0
     old_m = json.loads(latest.read_text(encoding="utf-8"))
     overlay = load_date_resolutions(cfg.date_resolutions) if cfg.date_resolutions else {}
-    manifest = normalized_manifest(raw, source_url, old_m, overlay)
+    manifest = normalized_manifest(raw, source_url, old_m, overlay, fetched_at)
     new_m = json.loads(manifest.model_dump_json(by_alias=True))
     sha12 = manifest.csv_sha256[:12]
     with tempfile.TemporaryDirectory(prefix="pursue-tranche-manifest-") as tmp:

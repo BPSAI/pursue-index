@@ -241,7 +241,8 @@ def _fetched_outputs(args: argparse.Namespace, raw: bytes, result, new_sha: str)
         from _tranche_ready_run import config_from_args, run_job
 
         return run_job(raw, args.latest, args.source_url, config_from_args(args),
-                       fetched, judge, error_out=args.error_out)
+                       fetched, judge, error_out=args.error_out,
+                       fetched_at=result.fetched_at)
 
 
 def _write_summary(path: Path, result, new_sha: str, fetched, judge) -> None:

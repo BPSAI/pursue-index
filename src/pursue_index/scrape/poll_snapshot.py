@@ -31,6 +31,7 @@ from __future__ import annotations
 import csv
 import io
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -61,6 +62,9 @@ class SnapshotDiffResult:
     date_report: DateReport = field(default_factory=DateReport)
     # Digest of the applicable date-resolution entries (``variants``), or None.
     resolutions_digest: str | None = None
+    # The one fetch timestamp this poll's manifest carries; later steps that
+    # rebuild a manifest from the same CSV reuse it.
+    fetched_at: datetime | None = None
 
     @property
     def date_unresolved(self) -> list[dict[str, Any]]:
@@ -112,6 +116,7 @@ def generate_snapshot_diff(
             new_columns=_new_columns(raw_csv, prior_cards=[]),
             date_report=dates,
             resolutions_digest=digest,
+            fetched_at=new_manifest.fetched_at,
         )
 
     diff: ManifestDiff = new_manifest.diff(prior)
@@ -122,6 +127,7 @@ def generate_snapshot_diff(
         new_columns=_new_columns(raw_csv, prior_cards=prior.cards),
         date_report=dates,
         resolutions_digest=digest,
+        fetched_at=new_manifest.fetched_at,
     )
 
 
