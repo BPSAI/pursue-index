@@ -140,8 +140,8 @@ def test_replaying_the_nine_observed_fetches_against_the_real_data_reports_no_dr
         assert m["asset_type"] == "PDF"
         card = SimpleNamespace(card_id=cid, asset_url=m["asset_url"],
                                asset_filename=m["asset_filename"], asset_type="PDF")
-        monkeypatch.setattr(r2, "head_asset", lambda u: (None, None, None))
-        monkeypatch.setattr(r2, "fetch_asset", lambda u, d, _s=digest: (_s, 1))
+        monkeypatch.setattr(r2, "head_asset", lambda u, *_a: (None, None, None))
+        monkeypatch.setattr(r2, "fetch_asset", lambda u, d, _s=digest, **_k: (_s, 1))
         state = r2.RunState()
         state.full_hash = True
         result = r2._process_card(card, registry, object(), "b", True, tmp_path / "r.jsonl", state)
@@ -184,8 +184,8 @@ def _moved_world(w: World, monkeypatch, digest):
            "archive_key": "k", "current_key": "k", "fetched_at": "2026-05-01T00:00:00+00:00"}
     video = {**old, "asset_url": VIDEO_URL, "asset_filename": "1.mp4",
              "byte_sha256": sha(VIDEO_BODY), "fetched_at": "2026-06-01T00:00:00+00:00"}
-    monkeypatch.setattr(r2, "head_asset", lambda u: (None, None, None))
-    monkeypatch.setattr(r2, "fetch_asset", lambda u, d: (digest, 9))
+    monkeypatch.setattr(r2, "head_asset", lambda u, *_a: (None, None, None))
+    monkeypatch.setattr(r2, "fetch_asset", lambda u, d, **_k: (digest, 9))
     card = SimpleNamespace(card_id=CID, asset_url=NEW_PDF_URL, asset_filename="a.pdf",
                            asset_type="PDF")
     state = r2.RunState()
