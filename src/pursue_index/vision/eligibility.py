@@ -23,7 +23,7 @@ from pathlib import Path
 from pursue_index.download.downloader import asset_path_for
 from pursue_index.scrape.types import CardMetadata, Manifest
 from pursue_index.tranche_rows import row_identity_key
-from pursue_index.vision.img_source import load_registry, resolve_img_path
+from pursue_index.vision.img_source import expected_sha_for, load_registry, resolve_img_path
 
 CoverageKey = tuple[str, str, int]
 
@@ -37,7 +37,9 @@ class EligibleItem:
     the *source PDF* for ``image_only_page`` (rendered on demand). ``kind`` is
     ``"img_card"`` or ``"image_only_page"``. ``row_key`` names which of a
     card_id's manifest rows this item came from, and is empty for the ordinary
-    case of a card_id backed by exactly one eligible row.
+    case of a card_id backed by exactly one eligible row. ``expected_sha256`` is
+    set for a mirror copy: the loader re-hashes the bytes it reads and refuses
+    the item if they differ, so a file swapped after planning is never described.
     """
 
     card_id: str
@@ -46,6 +48,7 @@ class EligibleItem:
     image_path: Path | None
     title: str
     row_key: str = ""
+    expected_sha256: str | None = None
 
     @property
     def coverage_key(self) -> CoverageKey:
@@ -121,6 +124,7 @@ def _img_card_item(
     return EligibleItem(
         card_id=card.card_id, page=1, kind="img_card",
         image_path=path, title=card.title, row_key=row_key,
+        expected_sha256=expected_sha_for(card, path, registry),
     )
 
 

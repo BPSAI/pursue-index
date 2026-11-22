@@ -60,6 +60,38 @@ def _file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+_SHA_CACHE: dict[tuple[str, int, int], str] = {}
+
+
+def _cached_file_sha256(path: Path) -> str:
+    """``_file_sha256`` memoized per ``(path, size, mtime_ns)`` for this process.
+
+    Planning and the no-spend preview call this for every mirror card; a file
+    that has not changed is hashed once. This only speeds up *planning*: the
+    bytes actually loaded are re-hashed by ``render.load_image_for``.
+    """
+    st = path.stat()
+    key = (str(path), st.st_size, st.st_mtime_ns)
+    sha = _SHA_CACHE.get(key)
+    if sha is None:
+        sha = _SHA_CACHE[key] = _file_sha256(path)
+    return sha
+
+
+def expected_sha_for(
+    card: CardMetadata, path: Path | None, registry: dict[str, str]
+) -> str | None:
+    """The sha256 ``path`` must still match at load time, or None.
+
+    Only a mirror copy needs it (an ``images/`` copy is trusted as before): a
+    path other than the card's own ``images/`` path is the verified mirror
+    file, whose registry sha is what planning verified.
+    """
+    if path is None or path == asset_path_for(card):
+        return None
+    return registry.get(card.card_id)
+
+
 def _mirror_path(
     card: CardMetadata, registry: dict[str, str]
 ) -> tuple[Path | None, str | None]:
@@ -73,7 +105,7 @@ def _mirror_path(
     mirror = settings.r2_mirror_dir / "archive" / f"{sha}{ext}"
     if not mirror.is_file():
         return None, f"no file at the mirror path {mirror}"
-    actual = _file_sha256(mirror)
+    actual = _cached_file_sha256(mirror)
     if actual != sha:
         return None, f"mirror file sha256 {actual} != registry byte_sha256 {sha}"
     return mirror, None

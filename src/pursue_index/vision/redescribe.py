@@ -32,9 +32,10 @@ from pursue_index.download.downloader import asset_path_for
 from pursue_index.scrape.types import Manifest
 from pursue_index.vision.client import VISION_MODEL
 from pursue_index.vision.eligibility import CoverageKey, EligibleItem, keyed_rows
-from pursue_index.vision.img_source import load_registry, resolve_img_path
-from pursue_index.vision.run import ESTIMATED_COST_PER_CALL_USD, VisionRunReport, _examine_one
-from pursue_index.vision.sidecar import is_card_id, page_has_content
+from pursue_index.vision.img_source import expected_sha_for, load_registry, resolve_img_path
+from pursue_index.vision.redescribe_card import examine_card
+from pursue_index.vision.run import ESTIMATED_COST_PER_CALL_USD, VisionRunReport
+from pursue_index.vision.sidecar import is_card_id
 from pursue_index.vision.spend import SpendBudget, rates_for, worst_case_call_usd
 from pursue_index.vision.supersede import (
     dry_supersede,
@@ -57,6 +58,8 @@ class RedescribePlan:
 
     items_by_card: OrderedDict[str, list[EligibleItem]] = field(default_factory=OrderedDict)
     refusals: list[str] = field(default_factory=list)
+    # The sidecar each card was planned from; the write refuses if it changed.
+    sidecars: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     @property
     def card_count(self) -> int:
@@ -102,6 +105,7 @@ def _items_for_sidecar(
     """One item per page the sidecar describes, plus any reasons one cannot be built."""
     items: list[EligibleItem] = []
     problems: list[str] = []
+    seen: dict[tuple[str, int], dict[str, Any]] = {}
     for page in sidecar.get("pages", []):
         if not isinstance(page, dict):
             continue
@@ -113,6 +117,16 @@ def _items_for_sidecar(
             problems.append(f"{card_id}: sidecar page has a malformed page number {number!r}")
             continue
         row_key = str(page.get("row_key", "") or "")
+        earlier = seen.get((row_key, number))
+        if earlier is not None:
+            # One page is examined (and paid for) once; two entries that
+            # disagree leave no telling which one the card means.
+            if earlier != page:
+                problems.append(
+                    f"{card_id} p{number}: sidecar has conflicting entries for row {row_key!r}"
+                )
+            continue
+        seen[(row_key, number)] = page
         row = rows.get(row_key)
         if row is None:
             path, why = None, "no manifest row"
@@ -128,6 +142,9 @@ def _items_for_sidecar(
             card_id=card_id, page=number,
             kind="img_card" if row.asset_type == "IMG" else "image_only_page",
             image_path=path, title=row.title, row_key=row_key,
+            expected_sha256=(
+                expected_sha_for(row, path, registry) if row.asset_type == "IMG" else None
+            ),
         ))
     if not items and not problems:
         problems.append(f"{card_id}: existing sidecar describes no pages")
@@ -165,44 +182,35 @@ def plan_redescribe(manifest: Manifest, card_ids: set[str], out_dir: Path) -> Re
         plan.refusals.extend(problems)
         if items and not problems:
             plan.items_by_card[card_id] = items
+            plan.sidecars[card_id] = sidecar
     return plan
 
 
-def _examine_card(
-    card_items: list[EligibleItem],
-    examine_fn: Callable[[Any], dict[str, Any]],
-    load_image_fn: Callable[[EligibleItem], Any],
-    budget: SpendBudget | None,
-    failures: list[tuple[CoverageKey, str]],
-    empty: list[CoverageKey],
-) -> tuple[list[dict[str, Any]] | None, bool]:
-    """Re-examine every page of one card; ``None`` pages when it is incomplete.
+def _refusal_before_calls(
+    plan: RedescribePlan, card_id: str, card_items: list[EligibleItem],
+    path: Path, model: str,
+) -> str | None:
+    """Why this card cannot be superseded, checked before its first paid call."""
+    existing = _read_sidecar(path)
+    if isinstance(existing, str):
+        return existing
+    if card_id in plan.sidecars and existing != plan.sidecars[card_id]:
+        return "sidecar changed since it was planned"
+    return dry_supersede(existing, card_items, model)
 
-    The second value is True when the budget stopped the run.
-    """
-    pages: list[dict[str, Any]] = []
-    complete = True
-    for item in card_items:
-        if budget is not None:
-            if not budget.can_start():
-                return None, True
-            budget.reserve()
-        try:
-            result = _examine_one(item, examine_fn, load_image_fn, budget)
-        except Exception as exc:  # one page's trouble is its own
-            failures.append((item.coverage_key, f"{type(exc).__name__}: {exc}"))
-            log.warning("vision.redescribe.item_failed", card_id=item.card_id,
-                        page=item.page, error=str(exc))
-            complete = False
-            continue
-        result["page"] = item.page
-        result["row_key"] = item.row_key
-        if not page_has_content(result):
-            empty.append(item.coverage_key)
-            complete = False
-            continue
-        pages.append(result)
-    return (pages if complete else None), False
+
+def _write_card(
+    plan: RedescribePlan, card_id: str, path: Path,
+    pages: list[dict[str, Any]], model: str, now: str,
+) -> None:
+    """Supersede the planned sidecar; refuse if the file is no longer that copy."""
+    planned = plan.sidecars.get(card_id)
+    current = _read_sidecar(path)
+    if planned is None and isinstance(current, dict):
+        planned = current
+    if current != planned or planned is None:
+        raise RuntimeError(f"{card_id}: sidecar changed since it was planned; not written over")
+    write_atomic(path, supersede_sidecar(planned, pages, model=model, now=now))
 
 
 def redescribe_vision(
@@ -228,8 +236,7 @@ def redescribe_vision(
     produced: list[CoverageKey] = []
     for card_id, card_items in plan.items_by_card.items():
         path = out_dir / f"{card_id}.json"
-        existing = _read_sidecar(path)
-        refusal = existing if isinstance(existing, str) else dry_supersede(existing, card_items, model)
+        refusal = _refusal_before_calls(plan, card_id, card_items, path, model)
         if refusal is not None:
             failures.extend(
                 (i.coverage_key, f"{card_id}: refused before any call: {refusal}")
@@ -237,14 +244,13 @@ def redescribe_vision(
             )
             log.warning("vision.redescribe.refused", card_id=card_id, error=refusal)
             continue
-        pages, exhausted = _examine_card(
+        pages, exhausted = examine_card(
             card_items, examine_fn, load_image_fn, budget, failures, empty
         )
         if pages is not None:
             now = clock().isoformat()
             try:
-                existing = json.loads(path.read_text(encoding="utf-8"))
-                write_atomic(path, supersede_sidecar(existing, pages, model=model, now=now))
+                _write_card(plan, card_id, path, pages, model, now)
             except Exception as exc:  # one card's trouble is its own
                 reason = f"{type(exc).__name__}: {exc}"
                 failures.extend((i.coverage_key, reason) for i in card_items)

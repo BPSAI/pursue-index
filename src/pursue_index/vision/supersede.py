@@ -7,11 +7,18 @@ rehearses it with placeholder pages, and ``write_atomic`` lands it.
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 from pathlib import Path
 from typing import Any
 
 from pursue_index.vision.eligibility import EligibleItem
-from pursue_index.vision.sidecar import DEFAULT_CONTEXT, validate_sidecar
+from pursue_index.vision.sidecar import (
+    DEFAULT_CONTEXT,
+    Observation,
+    SidecarPage,
+    validate_sidecar,
+)
 
 METHOD = "vision-run"
 
@@ -42,9 +49,21 @@ def supersede_sidecar(
 
 
 def write_atomic(path: Path, doc: dict[str, Any]) -> None:
-    tmp = path.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
-    tmp.replace(path)
+    """Write ``doc`` to ``path`` through an unpredictably named temp file beside it."""
+    text = json.dumps(doc, indent=2) + "\n"
+    tmp: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.",
+            suffix=".tmp", delete=False,
+        ) as fh:
+            tmp = Path(fh.name)
+            fh.write(text)
+        os.replace(tmp, path)
+    except BaseException:
+        if tmp is not None:
+            tmp.unlink(missing_ok=True)
+        raise
 
 
 def dry_supersede(
@@ -58,8 +77,11 @@ def dry_supersede(
     """
     try:
         validate_sidecar(existing)
+        # Built from the page model, so a schema change fails here, loudly.
         placeholders = [
-            {"page": i.page, "row_key": i.row_key, "observations": [{"claim": "placeholder"}]}
+            {**SidecarPage(
+                page=i.page, observations=[Observation(claim="placeholder")]
+            ).model_dump(), "row_key": i.row_key}
             for i in card_items
         ]
         supersede_sidecar(existing, placeholders, model=model, now="dry-run")

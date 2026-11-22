@@ -10,6 +10,7 @@ from typing import NoReturn
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 
 from pursue_index import get_logger
 from pursue_index.vision.method_exceptions import MethodExceptionsError, load_method_exceptions
@@ -36,21 +37,21 @@ def check_method_exceptions(
         listed = {e.card_id: e for e in load_method_exceptions()}
     except MethodExceptionsError as exc:
         _refuse([f"[red]error:[/red] --redescribe refused; the method exceptions cannot "
-                 f"be read, so none can be ruled out: {exc}"])
+                 f"be read, so none can be ruled out: {escape(str(exc))}"])
     hit = [listed[c] for c in sorted(ids) if c in listed]
     if not hit:
         return
     if not override:
         _refuse([f"[red]error:[/red] --redescribe refused; {len(hit)} listed card(s) are a "
                  "method exception and stay on their curated pass, nothing examined:"]
-                + [f"  [red]-[/red] {e.card_id}: {e.reason} ({e.cluster_label}, "
-                   f"decided {e.decided_at})" for e in hit]
+                + [f"  [red]-[/red] {e.card_id}: {escape(e.reason)} "
+                   f"({escape(e.cluster_label)}, decided {escape(e.decided_at)})" for e in hit]
                 + ["  add --override-method-exception --reason \"<text>\" to re-describe "
                    "them anyway."])
     console.print(
-        f"[yellow]method exception overridden[/yellow] for {len(hit)} card(s): {why}"
+        f"[yellow]method exception overridden[/yellow] for {len(hit)} card(s): {escape(why)}"
     )
     for e in hit:
-        console.print(f"  [yellow]-[/yellow] {e.card_id} ({e.reason})")
+        console.print(f"  [yellow]-[/yellow] {e.card_id} ({escape(e.reason)})")
     log.warning("vision.redescribe.exception_overridden", reason=why,
                 card_ids=[e.card_id for e in hit])
