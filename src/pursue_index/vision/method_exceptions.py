@@ -16,7 +16,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from pursue_index.config.project_root import resolve_relative_data_root
+from pursue_index.paths import repo_root
 from pursue_index.vision.sidecar import is_card_id
 
 _FIELDS = ("card_id", "reason", "cluster_label", "decided_at")
@@ -36,12 +36,8 @@ class MethodException:
 
 
 def default_exceptions_path() -> Path:
-    """The committed file, anchored to the checkout (as the sidecar directory is)."""
-    import pursue_index
-
-    return resolve_relative_data_root(
-        _FILE, package_dir=Path(pursue_index.__file__).parent, cwd=Path.cwd()
-    )
+    """The committed file, under ``repo_root()`` like the other committed ``data/`` files."""
+    return repo_root() / _FILE
 
 
 def _entry(raw: object, where: str) -> MethodException:

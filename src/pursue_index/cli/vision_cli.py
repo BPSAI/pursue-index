@@ -167,7 +167,8 @@ def vision_run(
     shortfall so a release gate can block on uncovered image content.
     """
     _check_live_preconditions(
-        run, live_smoke, live, budget_usd, confirm_live, redescribe, worklist
+        run, live_smoke, live, budget_usd, confirm_live, redescribe, worklist,
+        override_method_exception, reason,
     )
     m, ids = _load_scope(manifest, worklist)
     out = out or default_observations_dir()

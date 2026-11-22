@@ -151,6 +151,8 @@ def _check_live_preconditions(
     confirm_live: bool = False,
     redescribe: bool = False,
     worklist: Path | None = None,
+    override_method_exception: bool = False,
+    reason: str | None = None,
 ) -> None:
     """Refuse an ambiguous or unsafe live invocation before any work starts.
 
@@ -168,6 +170,12 @@ def _check_live_preconditions(
         console.print(
             f"[red]error:[/red] {' and '.join(named)} are separate live paths; "
             "choose one."
+        )
+        raise typer.Exit(code=2)
+    if (override_method_exception or reason is not None) and not redescribe:
+        console.print(
+            "[red]error:[/red] --override-method-exception and --reason apply only "
+            "with --redescribe."
         )
         raise typer.Exit(code=2)
     if not (live or redescribe):

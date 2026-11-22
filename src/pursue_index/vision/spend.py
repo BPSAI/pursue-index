@@ -17,7 +17,7 @@ request's full ``max_tokens=2048`` of output.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pursue_index.release.rates import CACHE_WRITE_MULTIPLE, WORST_CASE_IMAGE_INPUT_TOKENS
 
@@ -57,14 +57,6 @@ def rates_for(model: str) -> ModelRates:
     return RATES_BY_MODEL.get(model, _OPUS_CEILING)
 
 
-def _list_ratio(model: str) -> float | None:
-    """List price as a fraction of the ceiling price; None for an unlisted model."""
-    listed = LIST_RATES_BY_MODEL.get(model)
-    if listed is None:
-        return None
-    return listed.output / rates_for(model).output
-
-
 def worst_case_call_usd(model: str) -> float:
     """The most one vision call can cost: full output, all input at cache-write."""
     r = rates_for(model)
@@ -74,6 +66,55 @@ def worst_case_call_usd(model: str) -> float:
     ) / _M
 
 
+def worst_case_list_usd(model: str) -> float:
+    """The worst-case call's tokens priced at list rates; 0.0 for an unlisted model."""
+    listed = LIST_RATES_BY_MODEL.get(model)
+    if listed is None:
+        return 0.0
+    return _TokenTotals(
+        cache_write=_WORST_CASE_INPUT_TOKENS, output=_MAX_OUTPUT_TOKENS
+    ).cost_usd(listed)
+
+
+@dataclass
+class _TokenTotals:
+    """Metered tokens by billing class, so any rate table can price them."""
+
+    plain: int = 0
+    cache_write: int = 0
+    cache_read: int = 0
+    output: int = 0
+
+    def add(self, other: _TokenTotals) -> None:
+        self.plain += other.plain
+        self.cache_write += other.cache_write
+        self.cache_read += other.cache_read
+        self.output += other.output
+
+    def cost_usd(self, r: ModelRates) -> float:
+        return (
+            self.plain * r.input
+            + self.cache_write * r.input * _CACHE_WRITE_MULTIPLE
+            + self.cache_read * r.input * _CACHE_READ_MULTIPLE
+            + self.output * r.output
+        ) / _M
+
+
+def _usage_tokens(usage: Mapping[str, object] | None) -> _TokenTotals | None:
+    """The usage's token counts; None when absent or all zero (never a free call)."""
+    if not usage:
+        return None
+    totals = _TokenTotals(
+        plain=_tokens(usage, "input_tokens"),
+        cache_write=_tokens(usage, "cache_creation_input_tokens"),
+        cache_read=_tokens(usage, "cache_read_input_tokens"),
+        output=_tokens(usage, "output_tokens"),
+    )
+    if not (totals.plain or totals.cache_write or totals.cache_read or totals.output):
+        return None
+    return totals
+
+
 def _tokens(usage: Mapping[str, object], key: str) -> int:
     value = usage.get(key, 0)
     return value if isinstance(value, int) and value > 0 else 0
@@ -81,30 +122,15 @@ def _tokens(usage: Mapping[str, object], key: str) -> int:
 
 def usage_cost_usd(model: str, usage: Mapping[str, object] | None) -> float | None:
     """Real cost of one response from its reported usage; None when absent."""
-    return _usage_cost(rates_for(model), usage)
+    totals = _usage_tokens(usage)
+    return None if totals is None else totals.cost_usd(rates_for(model))
 
 
 def list_usage_cost_usd(model: str, usage: Mapping[str, object] | None) -> float | None:
     """The same usage at list rates; None when absent or the model has no list rate."""
     listed = LIST_RATES_BY_MODEL.get(model)
-    return None if listed is None else _usage_cost(listed, usage)
-
-
-def _usage_cost(r: ModelRates, usage: Mapping[str, object] | None) -> float | None:
-    if not usage:
-        return None
-    plain = _tokens(usage, "input_tokens")
-    write = _tokens(usage, "cache_creation_input_tokens")
-    read = _tokens(usage, "cache_read_input_tokens")
-    out = _tokens(usage, "output_tokens")
-    if not (plain or write or read or out):
-        return None  # an all-zero report is a missing one, never a free call
-    return (
-        plain * r.input
-        + write * r.input * _CACHE_WRITE_MULTIPLE
-        + read * r.input * _CACHE_READ_MULTIPLE
-        + out * r.output
-    ) / _M
+    totals = _usage_tokens(usage)
+    return None if listed is None or totals is None else totals.cost_usd(listed)
 
 
 @dataclass
@@ -116,7 +142,7 @@ class SpendBudget:
     reservation_usd: float = 0.02
     worst_case_usd: float | None = None
     spent_usd: float = 0.0
-    spent_list_usd: float = 0.0  # the same spend at list rates; reporting only
+    tokens: _TokenTotals = field(default_factory=_TokenTotals)  # metered, for list pricing
     max_call_usd: float = 0.0
 
     def _worst(self) -> float:
@@ -138,21 +164,29 @@ class SpendBudget:
     def reserve(self) -> None:
         """Charge the flat estimate before the call is made."""
         self.spent_usd += self.reservation_usd
-        self.spent_list_usd += self.reservation_usd * (_list_ratio(self.model) or 0.0)
 
     def settle(self, usage: Mapping[str, object] | None) -> None:
         """Replace the reservation with the response's real cost."""
-        actual = usage_cost_usd(self.model, usage)
-        cost = self._worst() if actual is None else actual
+        totals = _usage_tokens(usage)
+        if totals is None:
+            # No usable report: the cap charges the worst case, and so do the tokens.
+            totals = _TokenTotals(
+                cache_write=_WORST_CASE_INPUT_TOKENS, output=_MAX_OUTPUT_TOKENS
+            )
+            cost = self._worst()
+        else:
+            cost = totals.cost_usd(rates_for(self.model))
+        self.tokens.add(totals)
         self.max_call_usd = max(self.max_call_usd, cost)
         self.spent_usd += cost - self.reservation_usd
-        ratio = _list_ratio(self.model)
-        if ratio is not None:
-            listed = list_usage_cost_usd(self.model, usage)
-            list_cost = cost * ratio if listed is None else listed
-            self.spent_list_usd += list_cost - self.reservation_usd * ratio
+
+    @property
+    def spent_list_usd(self) -> float:
+        """The settled tokens priced at list rates; reporting only, never the cap."""
+        listed = LIST_RATES_BY_MODEL.get(self.model)
+        return 0.0 if listed is None else self.tokens.cost_usd(listed)
 
     @property
     def list_priced(self) -> bool:
         """Whether ``spent_list_usd`` means anything (the model has a list rate)."""
-        return _list_ratio(self.model) is not None
+        return self.model in LIST_RATES_BY_MODEL

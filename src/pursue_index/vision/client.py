@@ -89,7 +89,10 @@ def _get_anthropic_client() -> Any:
 
     from pursue_index.config.credentials import anthropic_api_key
 
-    key = anthropic_api_key()
+    try:
+        key = anthropic_api_key()
+    except Exception:  # noqa: BLE001 - never surface a lookup error; it may carry the value
+        key = None
     if not key:
         raise VisionClientError("ANTHROPIC_API_KEY is not set; no call was made")
     _client = anthropic.Anthropic(api_key=key)
