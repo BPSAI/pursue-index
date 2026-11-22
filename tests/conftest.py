@@ -99,3 +99,11 @@ def _no_real_date_resolutions(monkeypatch: pytest.MonkeyPatch) -> None:
         if mod is not None and hasattr(mod, "DEFAULT_DATE_RESOLUTIONS"):
             monkeypatch.setattr(mod, "DEFAULT_DATE_RESOLUTIONS",
                                 _RealOverlaySentinel("/nonexistent/real-date_resolutions.json"))
+
+
+def empty_overlay(directory: Path) -> Path:
+    """An explicit, empty date-resolutions overlay file inside ``directory``,
+    for tests that must not depend on the repo's real overlay."""
+    path = directory / "empty_date_resolutions.json"
+    path.write_text('{"entries": []}\n', encoding="utf-8")
+    return path

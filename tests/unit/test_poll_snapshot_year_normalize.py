@@ -10,6 +10,7 @@ from pursue_index.scrape.classify_tranche import build_verdict_artifact, render_
 from pursue_index.scrape.csv_fetcher import build_manifest, parse_csv
 from pursue_index.scrape.manifest import save_manifest
 from pursue_index.scrape.poll_snapshot import generate_snapshot_diff
+from tests.conftest import empty_overlay  # noqa: E402
 
 _SOURCE_URL = "https://www.war.gov/UFO/uap-data.csv"
 _HEADER = "Release Date,Title,Type,Agency,Incident Date,PDF | Image Link"
@@ -94,7 +95,8 @@ def test_passthrough_count_on_the_poll_stdout_line(tmp_path: Path, capsys) -> No
     csv_path.write_bytes(_csv([("5/8/26", "Case 1", "1/18/57", _URL1)]))
     assert poll_snapshot.main(["--csv", str(csv_path), "--latest", str(latest),
                                "--canonical-dir", str(tmp_path / "c"),
-                               "--public-dir", str(tmp_path / "p")]) == 0
+                               "--public-dir", str(tmp_path / "p"),
+                               "--date-resolutions", str(empty_overlay(tmp_path))]) == 0
     line = [ln for ln in capsys.readouterr().out.splitlines()
             if ln.startswith("poll-snapshot.ok")]
     assert line and line[0].endswith(" two_digit_priors_passed_through=1")

@@ -26,6 +26,7 @@ if str(_SCRIPTS) not in sys.path:
 
 import _tranche_ready_run  # noqa: E402
 import poll_snapshot  # noqa: E402
+from tests.conftest import empty_overlay  # noqa: E402
 
 _SOURCE_URL = "https://www.war.gov/UFO/uap-data.csv"
 _HEADER = ("Redaction,Release Date,Title,Type,Agency,Incident Date,"
@@ -55,6 +56,7 @@ def _run(tmp: Path, out: Path, pages: int, monkeypatch: pytest.MonkeyPatch) -> i
         "--registry", str(tmp / "absent-registry.jsonl"),
         "--poll-state", str(tmp / "absent-state.json"), "--csv-archive", str(tmp / "csv"),
         "--error-out", str(tmp / "error.md"),
+        "--date-resolutions", str(empty_overlay(tmp)),
     ])
 
 

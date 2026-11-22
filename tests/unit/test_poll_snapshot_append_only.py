@@ -24,6 +24,7 @@ import poll_snapshot  # noqa: E402
 
 from pursue_index.scrape.csv_fetcher import build_manifest, parse_csv  # noqa: E402
 from pursue_index.scrape.manifest import save_manifest  # noqa: E402
+from tests.conftest import empty_overlay  # noqa: E402
 
 _REPO = Path(__file__).resolve().parents[2]
 _SOURCE_URL = "https://www.war.gov/UFO/uap-data.csv"
@@ -60,6 +61,7 @@ def _run(tmp_path: Path, raw: bytes, prior: bytes, diff_out: Path) -> int:
         "--canonical-dir", str(tmp_path / "canonical"),
         "--public-dir", str(tmp_path / "public"),
         "--diff-out", str(diff_out),
+        "--date-resolutions", str(empty_overlay(tmp_path)),
     ])
 
 

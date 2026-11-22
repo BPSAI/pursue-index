@@ -19,6 +19,7 @@ from pursue_index.release import rates  # noqa: E402
 from pursue_index.tranche_ready.record import RecordInputs, build_record  # noqa: E402
 from pursue_index.tranche_ready.schema import load_schema, validate  # noqa: E402
 from pursue_index.tranche_report import render_markdown  # noqa: E402
+from tests.conftest import empty_overlay  # noqa: E402
 
 SHA_OLD, SHA_NEW = "b" * 64, "a" * 64
 _UNRESOLVED = {"card_id": "2" * 16, "title": "Report on lights", "field": "incident_date",
@@ -93,7 +94,8 @@ def test_passthrough_count_is_on_stdout_never_in_the_receipt(
     monkeypatch.setattr(sys, "argv", [
         "tranche_diff.py", "--old-manifest", str(paths["old"]), "--new-manifest",
         str(paths["new"]), "--registry", str(tmp_path / "registry.jsonl"),
-        "--out-dir", str(tmp_path / "out")])
+        "--out-dir", str(tmp_path / "out"),
+        "--date-resolutions", str(empty_overlay(tmp_path))])
     assert tranche_diff.main() == 0
     assert "[tranche-diff] two_digit_priors_passed_through=2" in capsys.readouterr().out
     written = tmp_path / "out" / f"tranche-diff-{SHA_NEW[:12]}"

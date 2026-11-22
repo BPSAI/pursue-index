@@ -25,6 +25,7 @@ from pursue_index.scrape import csv_fetcher  # noqa: E402
 from pursue_index.scrape.csv_fetcher import build_manifest, parse_csv  # noqa: E402
 from pursue_index.scrape.manifest import save_manifest  # noqa: E402
 from tests.support.pdf_page_fakes import FakeHttpGet, pdf_bytes  # noqa: E402
+from tests.conftest import empty_overlay  # noqa: E402
 
 _SOURCE_URL = "https://www.war.gov/UFO/uap-data.csv"
 _HEADER = (
@@ -57,6 +58,7 @@ def _summary(tmp_path: Path, bundle_stats: dict | None = None) -> str:
         "--source-url", _SOURCE_URL,
         "--canonical-dir", str(tmp_path / "canonical"), "--public-dir", str(tmp_path / "public"),
         "--summary-out", str(summary), "--qc-bundle", str(bundle),
+        "--date-resolutions", str(empty_overlay(tmp_path)),
     ])
     assert rc == 0
     return summary.read_text()
