@@ -270,8 +270,9 @@ def test_head_does_not_report_a_compressed_length_as_the_size(monkeypatch, dns):
 
 
 @pytest.fixture()
-def seam(monkeypatch):
-    monkeypatch.setattr(_r2_hosts, "TEST_ONLY_ALLOW_LOCAL", True)
+def seam():
+    with _r2_hosts.allow_local_for_tests():
+        yield
 
 
 def test_real_client_hashes_the_decoded_bytes_and_caps_them_as_decoded(local, seam, tmp_path):

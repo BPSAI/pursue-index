@@ -108,8 +108,13 @@ def test_a_redirect_to_an_explicit_default_port_is_followed(monkeypatch, tmp_pat
     assert _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)[1] == 1
 
 
-def test_real_client_refuses_a_redirect_to_another_local_port(tmp_path, monkeypatch):
-    monkeypatch.setattr(_r2_hosts, "TEST_ONLY_ALLOW_LOCAL", True)
+@pytest.fixture()
+def _local_seam():
+    with _r2_hosts.allow_local_for_tests():
+        yield
+
+
+def test_real_client_refuses_a_redirect_to_another_local_port(tmp_path, monkeypatch, _local_seam):
     class _Target(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             self.send_response(200)

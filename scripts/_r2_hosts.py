@@ -17,9 +17,8 @@ _DEFAULT_PORTS = {"http": 80, "https": 443}
 # libcurl's CURLOPT_RESOLVE (curl_cffi's CurlOpt.RESOLVE), inlined like the other option numbers.
 CURLOPT_RESOLVE = 10203
 
-# Test-only seam: lets a local-server test fetch plain http from a loopback address. Nothing
-# in production sets it; a test turns it on explicitly with ``monkeypatch.setattr``.
-TEST_ONLY_ALLOW_LOCAL = False
+# Test-only seam (see _r2_local_seam): on only inside ``allow_local_for_tests()``.
+from _r2_local_seam import _ALLOW_LOCAL, allow_local_for_tests  # noqa: F401
 
 
 class FetchLimitError(Exception):
@@ -112,7 +111,7 @@ def check_host(url: str, allowed_hosts: Collection[str] | AnyHost | None) -> Non
 def check_scheme(url: str) -> None:
     """The URL a fetch starts from must be https (plain http only through the test seam)."""
     scheme = urlsplit(url).scheme
-    if scheme != "https" and not (TEST_ONLY_ALLOW_LOCAL and scheme == "http"):
+    if scheme != "https" and not (_ALLOW_LOCAL.get() and scheme == "http"):
         raise FetchLimitError(f"scheme {scheme or '(none)'!r} is refused: a fetch must start on https")
 
 
@@ -142,7 +141,7 @@ def check_resolved(
     connection to, so the request cannot resolve the name a second time to something else.
     Skipped, returning ``[]``, with ``ANY_HOST`` (the explicit no-restriction opt-out) and
     through the test seam."""
-    if allowed_hosts is ANY_HOST or TEST_ONLY_ALLOW_LOCAL:
+    if allowed_hosts is ANY_HOST or _ALLOW_LOCAL.get():
         return []
     parts = urlsplit(url)
     host = (parts.hostname or "").lower()

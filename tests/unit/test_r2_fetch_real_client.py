@@ -54,9 +54,10 @@ class _Handler(http.server.BaseHTTPRequestHandler):
 
 
 @pytest.fixture(autouse=True)
-def _loopback_http(monkeypatch):
-    """The explicit test-only seam: plain http to a loopback server."""
-    monkeypatch.setattr(_r2_hosts, "TEST_ONLY_ALLOW_LOCAL", True)
+def _loopback_http():
+    """The explicit test-only seam: plain http to a loopback server, for this test only."""
+    with _r2_hosts.allow_local_for_tests():
+        yield
 
 
 @pytest.fixture()
