@@ -107,15 +107,24 @@ def verdict_date_lines(report: DateReport) -> str:
     return "\n".join(lines) + "\n"
 
 
-_ENTITY_ROUNDS = 4
-_AUTOLINK = re.compile(r"(?i)(https?):/{2}")
+_MAX_DECODE_PASSES = 256
+# Any "scheme://", plus "mailto:" and a leading "www.", is a bare autolink.
+_SCHEME_SLASHES = re.compile(r"([a-z][a-z0-9+.\-]*):/{2}", re.I)
+_MAILTO = re.compile(r"(mailto):", re.I)
+_WWW = re.compile(r"\b(www)\.", re.I)
+# "GH-123" is an issue reference; "#123" and "owner/repo#123" end in "#".
+_GH_REF = re.compile(r"\b(gh)-(?=\d)", re.I)
 
 
 def _decoded(value: Any) -> str:
-    """``value`` with HTML entities decoded (to a fixed point, bounded), so an
-    entity-encoded ``&#64;`` or ``&colon;`` is judged as the character it renders as."""
+    """``value`` with HTML entities decoded until the text stops changing, so a
+    nested ``&amp;amp;#64;`` is judged as the ``@`` it eventually renders as.
+
+    Every pass that changes the text shortens it, so the loop ends; the pass cap
+    only bounds the cost of a hostile value, and ``_inert`` escapes any ``&`` left over.
+    """
     text = "" if value is None else str(value)
-    for _ in range(_ENTITY_ROUNDS):
+    for _ in range(min(len(text), _MAX_DECODE_PASSES)):
         decoded = html.unescape(text)
         if decoded == text:
             break
@@ -126,12 +135,19 @@ def _decoded(value: Any) -> str:
 def _inert(value: Any, limit: int = 80) -> str:
     """Upstream-derived text for a verdict-summary line, which is posted as an
     issue comment: entities decoded first, then table-safe (``cell``), no
-    backticks or angle brackets, no live @-mention, no bare ``http(s)://``
-    autolink (its ``//`` becomes fullwidth), and backslashes then square
-    brackets escaped so no link can form."""
+    backticks or angle brackets, no live @-mention, no bare autolink
+    (``scheme://``, ``mailto:``, ``www.``: one separator becomes its fullwidth
+    form), no ``#123``/``GH-123`` cross-reference, backslashes then square
+    brackets escaped so no link can form, and any remaining ``&`` escaped so no
+    entity can re-form when the comment is rendered."""
     text = neutralize(_cell(_decoded(value), limit))
-    text = _AUTOLINK.sub(lambda m: f"{m.group(1)}:\uff0f\uff0f", text)
-    return text.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
+    text = _SCHEME_SLASHES.sub(lambda m: f"{m.group(1)}:\uff0f\uff0f", text)
+    text = _MAILTO.sub(lambda m: f"{m.group(1)}\uff1a", text)
+    text = _WWW.sub(lambda m: f"{m.group(1)}\uff0e", text)
+    text = _GH_REF.sub(lambda m: f"{m.group(1)}\uff0d", text)
+    text = text.replace("#", "\uff03")
+    text = text.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
+    return text.replace("&", "&amp;")
 
 
 def _row_lines(rows: list[dict[str, Any]]) -> list[str]:
