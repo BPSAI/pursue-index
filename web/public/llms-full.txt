@@ -5881,7 +5881,7 @@ Narrative Description: The monochrome image displays a grainy texture with a sim
 
 Excerpt (page 1):
 
-[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:08
+[REDACTED] [REDACTED] [REDACTED] 3 3 [REDACTED] [REDACTED] [REDACTED] [REDACTED] 12/31/99 18:20:08
 
 ### 3a5445e8aa7985d4 — FBI Photo B015
 

@@ -2,17 +2,17 @@
   "schema": "pursue-chunked-asset/1",
   "name": "embeddings.bin",
   "size": 33718272,
-  "sha256": "a820f13cc84ca7b112f2a76aedbebd65c44269d8140351368294fc60e07db59b",
+  "sha256": "3d49baa328f4184c2d99eea6c3550290b336abb9fb0a7cc6400a3828860ced2c",
   "parts": [
     {
-      "path": "embeddings.bin.part-000-943df0b52402.bin",
+      "path": "embeddings.bin.part-000-059489fb4616.bin",
       "size": 16859136,
-      "sha256": "943df0b52402b15f7a183d896e88997bfbe12d69679347da3195fa8def781dbf"
+      "sha256": "059489fb4616ff38e492ded572a6b662362c43e7800a6fa1a63aa68637699417"
     },
     {
-      "path": "embeddings.bin.part-001-ba2eec0388b0.bin",
+      "path": "embeddings.bin.part-001-91834ddc60f3.bin",
       "size": 16859136,
-      "sha256": "ba2eec0388b05dba8921c843a02098cd1c84cd91fc81101b4a66fae3fc6bd804"
+      "sha256": "91834ddc60f33acd4a0ebd0a05f759d3c1dca4191efb9545d1dcb5b9de181367"
     }
   ]
 }
