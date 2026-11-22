@@ -30,7 +30,6 @@ from collections.abc import Mapping
 from typing import Any
 
 from pursue_index.scrape.year_normalize import DateReport
-from pursue_index.scrape.year_normalize_md import cell as _cell
 from pursue_index.scrape.year_normalize_md import date_md_parts
 from pursue_index.text_safety import neutralize
 
@@ -132,22 +131,33 @@ def _decoded(value: Any) -> str:
     return text
 
 
+# Bidirectional and zero-width controls hide or reorder text.
+_INVISIBLE = {c: None for c in (*range(0x200B, 0x2010), *range(0x202A, 0x202F),
+                                *range(0x2066, 0x206A), 0xFEFF)}
+# "#123" and "owner/repo#123" are cross-references; any other "#" is plain text.
+_HASH_REF = re.compile(r"(?<!\w)#(?=\d)")
+_REPO_HASH_REF = re.compile(r"([\w.\-]+/[\w.\-]+)#(?=\d)")
+
+
 def _inert(value: Any, limit: int = 80) -> str:
     """Upstream-derived text for a verdict-summary line, which is posted as an
-    issue comment: entities decoded first, then table-safe (``cell``), no
-    backticks or angle brackets, no live @-mention, no bare autolink
-    (``scheme://``, ``mailto:``, ``www.``: one separator becomes its fullwidth
-    form), no ``#123``/``GH-123`` cross-reference, backslashes then square
-    brackets escaped so no link can form, and any remaining ``&`` escaped so no
-    entity can re-form when the comment is rendered."""
-    text = neutralize(_cell(_decoded(value), limit))
+    issue comment. The raw value is decoded (entities), stripped of invisible
+    controls, collapsed and cut to ``limit`` first, so no escape is ever split;
+    then made inert: no backticks or angle brackets, no live @-mention, no bare
+    autolink (``scheme://``, ``mailto:``, ``www.``: one separator becomes its
+    fullwidth form), no ``#123``/``owner/repo#123``/``GH-123`` cross-reference,
+    backslashes, square brackets and ``&`` escaped. ``|`` is escaped last, so
+    the table-cell backslash is never doubled."""
+    text = _decoded(value).translate(_INVISIBLE)
+    text = neutralize(" ".join(text.split())[:limit])
     text = _SCHEME_SLASHES.sub(lambda m: f"{m.group(1)}:\uff0f\uff0f", text)
     text = _MAILTO.sub(lambda m: f"{m.group(1)}\uff1a", text)
     text = _WWW.sub(lambda m: f"{m.group(1)}\uff0e", text)
     text = _GH_REF.sub(lambda m: f"{m.group(1)}\uff0d", text)
-    text = text.replace("#", "\uff03")
+    text = _REPO_HASH_REF.sub(lambda m: f"{m.group(1)}\uff03", text)
+    text = _HASH_REF.sub("\uff03", text)
     text = text.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
-    return text.replace("&", "&amp;")
+    return text.replace("&", "&amp;").replace("|", "\\|")
 
 
 def _row_lines(rows: list[dict[str, Any]]) -> list[str]:

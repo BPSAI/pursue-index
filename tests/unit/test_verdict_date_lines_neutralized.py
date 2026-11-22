@@ -179,7 +179,7 @@ def test_pipes_survive_the_table_cell_escape() -> None:
     out = _inert_text(value)
     cells = _split_row(f"| x | {out} | y |")
     assert len(cells) == 5, (out, cells)  # leading and trailing empty strings plus three cells
-    shown = _render_literal(out).replace("／", "/")
+    shown = _render_literal(out).replace("\uff0f", "/")
     assert shown == value
 
 
@@ -202,11 +202,11 @@ def test_truncation_never_splits_an_escape_or_entity() -> None:
 
 
 def test_only_reference_forms_lose_their_hash() -> None:
-    for kept in ("Case # of 7", "C# and F#", "#hashtag", "a #  b", "##"):
+    for kept in ("Case # of 7", "C# and F#", "#hashtag", "a # b", "##"):
         assert _inert_text(kept) == kept.replace("&", "&amp;"), kept
     for ref in ("see #5", "(#99)", "o/r#12", "GH-4"):
         out = _inert_text(ref)
-        assert "#" not in out and "GH-" not in out.upper().replace("GH－", ""), ref
+        assert "#" not in out and "GH-" not in out.upper().replace("GH\uff0d", ""), ref
 
 
 def test_bidi_and_zero_width_controls_are_stripped() -> None:
