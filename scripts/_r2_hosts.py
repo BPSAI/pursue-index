@@ -14,6 +14,8 @@ from typing import Any
 from urllib.parse import urlsplit
 
 _DEFAULT_PORTS = {"http": 80, "https": 443}
+# libcurl's CURLOPT_RESOLVE (curl_cffi's CurlOpt.RESOLVE), inlined like the other option numbers.
+CURLOPT_RESOLVE = 10203
 
 # Test-only seam: lets a local-server test fetch plain http from a loopback address. Nothing
 # in production sets it; a test turns it on explicitly with ``monkeypatch.setattr``.
@@ -114,29 +116,41 @@ def check_scheme(url: str) -> None:
         raise FetchLimitError(f"scheme {scheme or '(none)'!r} is refused: a fetch must start on https")
 
 
+# Ranges ``is_global`` still lets through but a fetch must not reach: NAT64 and 6to4 embed an
+# IPv4 address that the gateway then connects to, which could be an internal one.
+_TRANSLATION_NETS = (ipaddress.ip_network("64:ff9b::/96"), ipaddress.ip_network("2002::/16"))
+
+
 def _public(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    """Globally routable only: ``is_global`` (so CGNAT, benchmarking, documentation and the other
+    reserved ranges are out), minus the NAT64 and 6to4 translation prefixes."""
     mapped = getattr(ip, "ipv4_mapped", None)
     if mapped is not None:
         ip = mapped
-    return not (
-        ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_unspecified
-        or ip.is_multicast or ip.is_reserved
-    )
+    if ip.version == 6 and any(ip in net for net in _TRANSLATION_NETS):
+        return False
+    return ip.is_global
 
 
-def check_resolved(url: str, allowed_hosts: Collection[str] | AnyHost | None = None) -> None:
-    """Refuse a URL whose host resolves to a private, loopback, link-local or unspecified address.
+def check_resolved(
+    url: str, allowed_hosts: Collection[str] | AnyHost | None = None
+) -> list[str]:
+    """Refuse a URL whose host resolves to any address that is not globally routable.
 
     Every address the name resolves to must be public; a host that does not resolve is refused.
-    Skipped with ``ANY_HOST`` (the explicit no-restriction opt-out) and through the test seam."""
+    Returns the checked addresses (de-duplicated, in answer order) for the caller to pin the
+    connection to, so the request cannot resolve the name a second time to something else.
+    Skipped, returning ``[]``, with ``ANY_HOST`` (the explicit no-restriction opt-out) and
+    through the test seam."""
     if allowed_hosts is ANY_HOST or TEST_ONLY_ALLOW_LOCAL:
-        return
+        return []
     parts = urlsplit(url)
     host = (parts.hostname or "").lower()
     try:
         infos = socket.getaddrinfo(host, parts.port or _DEFAULT_PORTS.get(parts.scheme, 443))
     except (OSError, UnicodeError) as exc:
         raise FetchLimitError(f"host {host!r} could not be resolved: {exc}") from exc
+    checked: list[str] = []
     for info in infos:
         addr = str(info[4][0]).split("%", 1)[0]
         try:
@@ -145,8 +159,26 @@ def check_resolved(url: str, allowed_hosts: Collection[str] | AnyHost | None = N
             raise FetchLimitError(f"host {host!r} resolved to an unreadable address") from exc
         if not _public(ip):
             raise FetchLimitError(f"host {host!r} resolves to a non-public address ({ip})")
-    if not infos:
+        if addr not in checked:
+            checked.append(addr)
+    if not checked:
         raise FetchLimitError(f"host {host!r} could not be resolved")
+    return checked
+
+
+def pinned(kw: dict[str, Any], url: str, addresses: list[str]) -> dict[str, Any]:
+    """``kw`` with curl told to connect to the addresses that passed the check.
+
+    ``CURLOPT_RESOLVE`` only fixes where the name goes: TLS still validates the certificate
+    against the host name. Nothing is pinned when the address check was skipped."""
+    if not addresses:
+        return kw
+    options = dict(kw.get("curl_options") or {})
+    parts = urlsplit(url)
+    port = parts.port or _DEFAULT_PORTS.get(parts.scheme, 443)
+    shown = ",".join(f"[{a}]" if ":" in a else a for a in addresses)
+    options[CURLOPT_RESOLVE] = [f"{(parts.hostname or '').lower()}:{port}:{shown}"]
+    return {**kw, "curl_options": options}
 
 
 def _port(url: str) -> int | None:

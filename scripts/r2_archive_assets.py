@@ -251,12 +251,15 @@ def _process_card(
         state.note_type_change(card.card_id, registry.get(card.card_id), card.asset_url, card.asset_filename)
     hosts = state.allowed_hosts
     with for_card(card.card_id):
-        cl, etag, last_modified = head_asset(card.asset_url, hosts)
+        head = head_asset(card.asset_url, hosts)
+    cl, etag, last_modified = head
     # A HEAD answer is never proof of unchanged bytes. Only a HEAD that agrees
     # with the last row (size + ETag, or size + Last-Modified when there is no
     # ETag) is trusted to skip the fetch, and
     # then the card is reported as unverified, not unchanged.
-    if not state.full_hash and head_identical(rows, cl, etag, last_modified):
+    if not state.full_hash and head_identical(
+        rows, cl, etag, last_modified, encoded=getattr(head, "encoded", False)
+    ):
         return "head-unchanged"
 
     with tempfile.TemporaryDirectory(prefix="r2-archive-") as tmp:
@@ -265,7 +268,8 @@ def _process_card(
         try:
             with for_card(card.card_id):
                 byte_sha, size = fetch_asset(
-                    card.asset_url, body, max_bytes=ceiling, allowed_hosts=hosts
+                    card.asset_url, body, max_bytes=ceiling, allowed_hosts=hosts,
+                    known_size=last_known_size(rows),
                 )
         except FetchOverCapError as exc:
             state.budget_hit = ceiling < hard_ceiling(rows)

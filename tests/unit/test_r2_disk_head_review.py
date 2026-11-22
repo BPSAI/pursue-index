@@ -45,8 +45,8 @@ def test_a_large_known_asset_passes_the_precheck_on_a_14_gb_runner(monkeypatch, 
 
 
 def test_a_declared_size_over_the_free_space_is_refused_before_any_byte(monkeypatch, tmp_path):
-    _free(monkeypatch, 2 * GB)
-    resp = _Resp(headers={"content-length": str(3 * GB)}, chunks=[b"x"])
+    _free(monkeypatch, 8 * GB)
+    resp = _Resp(headers={"content-length": str(9 * GB)}, chunks=[b"x"])
     _serve(monkeypatch, {URL: resp})
     with pytest.raises(_r2_fetch.InsufficientDiskError, match="insufficient disk"):
         _r2_fetch.fetch_asset(

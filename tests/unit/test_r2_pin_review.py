@@ -136,7 +136,7 @@ def test_no_pin_when_the_check_is_opted_out(monkeypatch, tmp_path):
     assert RESOLVE not in log[0][1]["curl_options"]
 
 
-def test_real_curl_connects_to_the_pinned_address_not_the_name(local):
+def test_real_curl_connects_to_the_pinned_address_not_the_name(local):  # noqa: F811
     """curl_cffi accepts ``{CURLOPT_RESOLVE: ["host:port:addr"]}``: a name that resolves nowhere
     still reaches the local server, so the pin is what decided the destination."""
     port = int(local.rsplit(":", 1)[1])
