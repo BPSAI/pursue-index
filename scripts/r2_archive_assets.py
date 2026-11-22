@@ -95,7 +95,7 @@ from pursue_index.paths import repo_root
 _REPO_ROOT = repo_root()
 
 from _r2_archive_put import put_archive_and_current
-from _r2_fetch import fetch_asset, head_asset, head_identical, last_known_size
+from _r2_fetch import fetch_asset, head_asset, head_identical, last_known_size, rows_for_asset
 from _r2_run_state import (
     GATE_MARKER_SCHEMA,
     RUN_RECORD_NAME,
@@ -257,8 +257,8 @@ def _process_card(
 ) -> str:
     """Return 'new' | 'unchanged' | 'archive-hit' | 'head-unchanged' | 'fail'.
 
-    ``unchanged`` means the bytes were fetched, hashed and equal the card's LATEST
-    registry row. ``head-unchanged`` means HEAD matched and nothing was hashed
+    ``unchanged`` means the bytes were fetched, hashed and equal the latest registry row
+    of the same asset URL. ``head-unchanged`` means HEAD matched and nothing was hashed
     (unverified). Bytes equal to an older row are a change, not unchanged.
     """
     state = state or RunState()
@@ -270,7 +270,8 @@ def _process_card(
         print(f"[r2-archive] refused {str(card.card_id)[:40]!r}: {exc}")
         return "fail"
 
-    rows = registry.get(card.card_id, [])
+    # Only this asset's rows: a card's newest row may belong to another asset.
+    rows = rows_for_asset(registry.get(card.card_id), card.asset_url)
     cl, etag, last_modified = head_asset(card.asset_url)
     # A HEAD answer is never proof of unchanged bytes. Only a HEAD that agrees
     # with the last row (size + ETag, or size + Last-Modified when there is no
@@ -475,7 +476,8 @@ def _run_cards(args, eligible, registry, client, state: RunState) -> None:
     """Process each card in order, stopping when the ``--full-hash`` byte budget is spent."""
     for i, card in enumerate(eligible):
         if args.full_hash:
-            expected = last_known_size(registry.get(card.card_id, [])) or 0
+            known = rows_for_asset(registry.get(card.card_id), card.asset_url)
+            expected = last_known_size(known) or 0
             if state.bytes_hashed + expected > args.max_bytes_per_run:
                 state.over_budget, state.unhashed = True, len(eligible) - i
                 return

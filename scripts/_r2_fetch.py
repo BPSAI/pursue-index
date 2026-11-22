@@ -95,6 +95,16 @@ def fetch_asset(url: Any, dest: Path) -> tuple[str, int]:
     return digest.hexdigest(), size
 
 
+def rows_for_asset(rows: list[dict[str, Any]] | None, asset_url: Any) -> list[dict[str, Any]]:
+    """The rows of one asset: those whose ``asset_url`` equals the URL being fetched.
+
+    A card can own several assets (a PDF plus a video), so its newest row is not
+    necessarily the row of the asset in hand. Order (oldest first) is kept.
+    """
+    url = str(asset_url)
+    return [r for r in rows or [] if str(r.get("asset_url")) == url]
+
+
 def last_known_size(rows: list[dict[str, Any]]) -> int | None:
     return rows[-1].get("byte_size") if rows else None
 

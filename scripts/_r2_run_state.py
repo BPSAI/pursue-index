@@ -11,7 +11,6 @@ import json
 import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
-from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
@@ -156,10 +155,17 @@ def drift_window_start(args, now: datetime | None = None) -> datetime:
 
 def registry_drift_since(registry: dict[str, list[dict[str, Any]]], since: datetime):
     """``(card_id, previous_sha, new_sha)`` for each row fetched at/after ``since`` whose sha
-    differs from the same card's previous row. A card's first row (net-new) is never drift."""
+    differs from the previous row of the same card AND the same ``asset_url``. A card's
+    first row for an asset (net-new) is never drift, and rows of different assets never
+    compare."""
     out = []
     for card_id, rows in registry.items():
-        for prev, row in pairwise(rows):
+        last_by_url: dict[Any, dict[str, Any]] = {}
+        for row in rows:
+            prev = last_by_url.get(row.get("asset_url"))
+            last_by_url[row.get("asset_url")] = row
+            if prev is None:
+                continue
             try:
                 when = datetime.fromisoformat(row["fetched_at"])
             except (KeyError, ValueError, TypeError):
