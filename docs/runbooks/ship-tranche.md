@@ -186,7 +186,13 @@ $ARGUMENTS
       An 81-page sample proved **51% of pages carry real issues the rules
       tier does not catch**. Sanity check against a prior release: sidecar rows
       should be ~100% judged with a `judge-ok` / `operator-review` mix,
-      never 100% `no-corrections`. Budget ≈ $0.024/page.
+      never 100% `no-corrections`. Typical spend ≈ $0.024/page, but the
+      run refuses to start unless its cap covers the padded worst case,
+      $0.14/page (`PER_PAGE_JUDGE_COST_USD`). Size the cap from that worst
+      case, not from the typical figure: set `--budget-usd` (or
+      `--hard-cap-usd`) to at least `n_pages × $0.14`, and check it with
+      `estimate_run_cost_usd(n_pages)` from `curate.clean_qc.budget`
+      before the run.
       To spot-check one page's raw OCR beside its cleaned text and provenance before publishing:
       ```
       python scripts/spotcheck_view.py <card_id> <page>
