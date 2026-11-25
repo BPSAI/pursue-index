@@ -82,7 +82,10 @@ def load_approved_hosts(path: Path) -> frozenset[str]:
 def unlisted_card_hosts(card: Any, approved: Collection[str], where: Any) -> bool:
     """True, after naming the card and its host on stderr, when the card's asset host is not
     on the approved list. That refuses this card's row only; the run goes on."""
-    unlisted = sorted(allowed_hosts_from_urls([card.asset_url]) - set(approved))
+    url = card.asset_url
+    unlisted = sorted(allowed_hosts_from_urls([url]) - set(approved))
+    if url and not host_of(url):
+        unlisted = ["<refused url>"]  # fail closed: a URL the strict parse refuses is never listed
     if unlisted:
         print(
             f"[r2-archive] ERROR: manifest asset host(s) {', '.join(unlisted)} not listed in "

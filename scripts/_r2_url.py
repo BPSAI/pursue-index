@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import ipaddress
 import re
 from typing import Any, NamedTuple
@@ -27,8 +28,29 @@ _SCHEME_RE = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*(?=:)")
 _LABEL_RE = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?")
 
 
+def _clean_host(authority: str) -> str:
+    """The host of ``authority`` when it parses cleanly, else ''. Used only to word a refusal."""
+    host = authority.rpartition("@")[2]
+    if ":" in host:
+        host = host.rpartition(":")[0]
+    host = host.lower().removesuffix(".")
+    ok = host.isascii() and 0 < len(host) <= 253 and all(_LABEL_RE.fullmatch(lb) for lb in host.split("."))
+    return host if ok else ""
+
+
+def _redacted(url: str) -> str:
+    """The scheme, the host if it parsed cleanly (else ``<unparsed>``) and a short fingerprint:
+    never userinfo, port, path, query, fragment or any other raw text."""
+    fingerprint = hashlib.sha256(url.encode("utf-8", "replace")).hexdigest()[:12]
+    m = None if "\\" in url or any(ord(c) <= 0x20 or ord(c) == 0x7F for c in url) else _URL_RE.fullmatch(url)
+    scheme = _SCHEME_RE.match(url)
+    shown_scheme = scheme[0].lower() if scheme and url[scheme.end() :].startswith("://") else "<none>"
+    host = _clean_host(m["authority"]) if m else ""
+    return f"{shown_scheme}://{host or '<unparsed>'} [{fingerprint}]"
+
+
 def _refuse(url: str, why: str) -> FetchLimitError:
-    return FetchLimitError(f"URL refused ({why}): {url[:80]!r}")
+    return FetchLimitError(f"URL refused ({why}): {_redacted(url)}")
 
 
 def parse_url(url: Any) -> ParsedUrl:
