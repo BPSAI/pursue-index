@@ -322,6 +322,57 @@ def test_unsafe_redirect_is_refused_without_a_request(location: str | None) -> N
     assert fetcher.redirects_followed == 0
 
 
+class _MultiHeaders(dict):  # type: ignore[type-arg]
+    """httpx-shaped headers: ``items`` joins repeats, ``get_list`` keeps each one."""
+
+    def __init__(self, locations: list[str]) -> None:
+        super().__init__({"Location": ", ".join(locations)})
+        self._locations = locations
+
+    def get_list(self, key: str) -> list[str]:
+        return list(self._locations) if key.lower() == "location" else []
+
+
+@pytest.mark.parametrize(
+    "location",
+    [
+        "https://www.theblackvault.com:8443/documentarchive/sitemap.xml",
+        "https://www.theblackvault.com:80/documentarchive/sitemap.xml",
+        "https://www.theblackvault.com:abc/documentarchive/sitemap.xml",
+        "https://www.theblackvault.com:99999/documentarchive/sitemap.xml",
+    ],
+)
+def test_redirect_to_a_non_default_port_is_refused(location: str) -> None:
+    fetcher, rec, _ = _hop_fetcher({_OLD: _redirect(location), location: _Resp(200, "ok", {})})
+    with pytest.raises(SitemapFetchError, match="redirect"):
+        fetcher.fetch(_OLD)
+    assert rec.fetched == [_OLD]
+    assert fetcher.redirects_refused == 1
+    assert fetcher.redirects_followed == 0
+
+
+@pytest.mark.parametrize("location", [_NEW, "https://www.theblackvault.com:443/documentarchive/sitemap.xml"])
+def test_redirect_with_no_port_or_the_default_port_is_followed(location: str) -> None:
+    fetcher, rec, _ = _hop_fetcher({_OLD: _redirect(location), location: _Resp(200, "ok", {})})
+    assert fetcher.fetch(_OLD).body == "ok"
+    assert rec.fetched == [_OLD, location]
+    assert fetcher.redirects_followed == 1
+
+
+def test_duplicate_location_headers_are_refused_without_a_request() -> None:
+    first, second = _NEW, "https://documents.theblackvault.com/sitemap.xml"
+    response = _Resp(302, "", _MultiHeaders([first, second]))
+    joined = response.headers["Location"]
+    fetcher, rec, _ = _hop_fetcher(
+        {_OLD: response, first: _Resp(200, "ok", {}), second: _Resp(200, "ok", {}), joined: _Resp(200, "ok", {})}
+    )
+    with pytest.raises(SitemapFetchError, match="redirect"):
+        fetcher.fetch(_OLD)
+    assert rec.fetched == [_OLD]
+    assert fetcher.redirects_refused == 1
+    assert fetcher.redirects_followed == 0
+
+
 def test_second_hop_is_refused() -> None:
     third = "https://www.theblackvault.com/documentarchive/other.xml"
     fetcher, rec, _ = _hop_fetcher({_OLD: _redirect(_NEW), _NEW: _redirect(third)})
