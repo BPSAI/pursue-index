@@ -1,9 +1,9 @@
 """The one-redirect-hop rule for the sitemap fetcher.
 
 A listing request may be answered by a single redirect. The target is accepted
-only when it is https, on a pinned source host, and itself a listing; anything
-else is refused so the scope decision stays in this repo rather than with the
-server. Kept apart from the fetcher so the policy is read and tested on its own.
+only when it is https on the default port, on a pinned source host, and
+itself a listing; anything else is refused so the scope decision stays in this
+repo rather than with the server. Kept apart from the fetcher so the policy is read and tested on its own.
 """
 
 from __future__ import annotations
@@ -32,6 +32,9 @@ def redirect_target(
     ``listing_ok`` says whether a URL is an admissible listing; ``allowed_hosts``
     holds lower-cased hostnames, matched exactly.
     """
+    get_list = getattr(headers, "get_list", None)
+    if get_list is not None and len(get_list("location")) > 1:
+        raise RedirectRefusedError("more than one Location header")
     location = next((v for k, v in headers.items() if k.lower() == "location"), "").strip()
     if not location:
         raise RedirectRefusedError("missing Location")
@@ -40,6 +43,12 @@ def redirect_target(
     host = (parts.hostname or "").lower().rstrip(".")
     if parts.scheme != "https" or host not in allowed_hosts:
         raise RedirectRefusedError(f"{target!r} is not an https URL on a pinned source host")
+    try:
+        port = parts.port
+    except ValueError:
+        port = -1
+    if port not in (None, 443):
+        raise RedirectRefusedError(f"{target!r} does not use the default https port")
     if not listing_ok(target):
         raise RedirectRefusedError(f"{target!r} is not a listing")
     return target
