@@ -120,3 +120,12 @@ def test_a_run_without_encoded_assets_reports_zero(tmp_path, monkeypatch, capsys
     w.add_card(1, prior=OLD_BODY, body=NEW_BODY, head_matches_prior=False)
     w.run()
     assert "encoded-head fetches: 0 (bytes 0)" in capsys.readouterr().out
+
+
+def test_note_hashed_counts_bytes_and_encoded_fetches():
+    from _r2_run_state import RunState
+
+    state = RunState()
+    state.note_hashed(10)
+    state.note_hashed(5, encoded=True)
+    assert (state.bytes_hashed, state.encoded_fetches, state.encoded_bytes) == (15, 1, 5)
