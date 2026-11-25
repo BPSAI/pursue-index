@@ -88,13 +88,15 @@ def load_approved_hosts(path: Path) -> frozenset[str]:
     return frozenset(h.strip().lower() for h in hosts)
 
 
-def unlisted_hosts_error(cards: Iterable[Any], approved: Collection[str], where: Any) -> bool:
-    """True, after naming them on stderr, when a card's asset host is not on the approved list."""
-    unlisted = sorted(allowed_hosts_from_urls(c.asset_url for c in cards) - set(approved))
+def unlisted_card_hosts(card: Any, approved: Collection[str], where: Any) -> bool:
+    """True, after naming the card and its host on stderr, when the card's asset host is not
+    on the approved list. That refuses this card's row only; the run goes on."""
+    unlisted = sorted(allowed_hosts_from_urls([card.asset_url]) - set(approved))
     if unlisted:
         print(
             f"[r2-archive] ERROR: manifest asset host(s) {', '.join(unlisted)} not listed in "
-            f"{where}; add them there on purpose, in a reviewed change.",
+            f"{where} (card {str(card.card_id)[:40]!r} refused); add them there on purpose, "
+            "in a reviewed change.",
             file=sys.stderr,
         )
     return bool(unlisted)

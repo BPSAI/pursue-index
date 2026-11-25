@@ -459,7 +459,11 @@ jobs:
         # archive is idempotent). continue-on-error so a failure can't skip
         # the tranche-detected issue; re-raised at the end of the job.
         id: registry_commit
-        if: steps.r2_archive.outcome == 'success' && steps.sha_commit.outcome == 'success'
+        # A refused card exits the archive step non-zero but the other cards' rows
+        # are real, so they are committed on failure too; the final step re-raises.
+        if: >-
+          (steps.r2_archive.outcome == 'success' || steps.r2_archive.outcome == 'failure') &&
+          steps.sha_commit.outcome == 'success'
         continue-on-error: true
         env:
           POLL_BRANCH: ${{ steps.branch.outputs.name }}
@@ -614,6 +618,7 @@ jobs:
         if: >-
           steps.poll.outputs.status == 'failed' || steps.poll.outcome == 'failure' ||
           steps.pdf_health.outcome == 'failure' || steps.branch.outcome == 'failure' ||
+          steps.r2_archive.outcome == 'failure' ||
           steps.sha_commit.outcome == 'failure' || steps.registry_commit.outcome == 'failure' ||
           steps.csv_artifact.outcome == 'failure'
         run: exit 1

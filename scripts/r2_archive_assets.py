@@ -103,7 +103,7 @@ from _r2_archive_put import put_archive_and_current
 from _r2_drift_scan import (
     drift_window_start,
     gate_marker_path,
-    gated_row_count,
+    gated_row_ids,
     registry_drift_since,  # noqa: F401  (re-exported)
     scan_registry,
 )
@@ -118,7 +118,7 @@ from _r2_fetch import (
     last_known_size,
     rows_for_asset,
 )
-from _r2_hosts import ApprovedHostsError, load_approved_hosts, unlisted_hosts_error
+from _r2_hosts import ApprovedHostsError, load_approved_hosts, unlisted_card_hosts
 from _r2_registry import append_registry, load_registry
 from _r2_run_state import (
     GATE_MARKER_SCHEMA,
@@ -471,9 +471,13 @@ def _select_cards(manifest, args, state: RunState) -> list[Any]:
     return eligible[: args.limit] if args.limit else eligible
 
 
-def _run_cards(args, eligible, registry, client, state: RunState) -> None:
+def _run_cards(args, eligible, registry, client, state: RunState, approved=()) -> None:
     """Process each card in order, stopping when the ``--full-hash`` byte budget is spent."""
     for i, card in enumerate(eligible):
+        if unlisted_card_hosts(card, approved, args.approved_hosts):
+            state.unlisted_host += 1  # this row fails; nothing is fetched or recorded for it
+            state.counts["fail"] += 1
+            continue
         if args.full_hash:
             known = rows_for_asset(registry.get(card.card_id), card.asset_url, card.asset_filename)
             expected = last_known_size(known) or 0
@@ -510,8 +514,6 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     manifest = load_manifest(args.manifest)
-    if unlisted_hosts_error(manifest.cards, approved, args.approved_hosts):
-        return 1
     registry = load_registry(args.registry)
     print(
         f"[r2-archive] registry has {sum(len(v) for v in registry.values())} "
@@ -519,17 +521,19 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     started = now_iso()
-    since, gated = drift_window_start(args), gated_row_count(args)  # read before this run appends
+    since, gated = drift_window_start(args), gated_row_ids(args)  # read before this run appends
 
     client = None if args.dry_run else make_r2_client()
     if client is None and not args.dry_run:
-        return _no_credentials(args)
+        # The skip must not hide an unlisted host: name each one and fail the run.
+        unlisted = [c for c in manifest.cards if unlisted_card_hosts(c, approved, args.approved_hosts)]
+        return max(_no_credentials(args), 1 if unlisted else 0)
 
     state = RunState.for_run(args, manifest, approved, started)
     eligible = _select_cards(manifest, args, state)
     state.cards_hashed = len(eligible)
     print(f"[r2-archive] processing {len(eligible)} eligible cards")
-    _run_cards(args, eligible, registry, client, state)
+    _run_cards(args, eligible, registry, client, state, approved)
 
     c = state.counts
     print(
@@ -537,20 +541,22 @@ def main(argv: list[str] | None = None) -> int:
         f"new={c['new']} unchanged={c['unchanged']} "
         f"head-unchanged (unverified)={c['head-unchanged']} "
         f"archive-hit={c['archive-hit']} fail={c['fail']} "
+        f"unlisted_host={state.unlisted_host} "
         f"size_alerts={state.size_alerts} "
         f"no-upstream-url={state.no_upstream_url}"
     )
     rc = full_hash_outcome(args, state) if args.full_hash else 0
     # The registry itself, not only this run's own findings: the poll lane appends
     # new-sha rows without --fail-on-drift, so the fetched sha can equal the latest row.
-    seen, scanned = scan_registry(args, since, gated)
+    seen, gated_ids = scan_registry(args, since, gated)
     drift_rc = drift_outcome(args, state, dispositions, seen)
     if args.fail_on_drift and not drift_rc and not args.dry_run:
         write_run_record(
             gate_marker_path(args),
-            {"schema": GATE_MARKER_SCHEMA, "completed_at": started, "gated_rows": scanned},
+            {"schema": GATE_MARKER_SCHEMA, "completed_at": started, "gated_row_ids": gated_ids},
         )
-    return max(rc, drift_rc, staleness_outcome(args))
+    # A refused host fails the run in every mode, the poll lane included.
+    return max(rc, drift_rc, staleness_outcome(args), 1 if state.unlisted_host else 0)
 
 
 if __name__ == "__main__":

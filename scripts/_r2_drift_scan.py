@@ -1,12 +1,13 @@
 """Where the registry drift scan starts and what it covers, for ``r2_archive_assets.py``.
 
 The window starts at the earliest of the last passing gate marker and the last complete
-``--full-hash`` run; a marker also records how many registry rows its gate covered, so the
-next scan starts after them. Imported by ``r2_archive_assets.py`` after its bootstrap.
+``--full-hash`` run; a marker also records the ids of the registry rows its gate covered, so the
+next scan skips exactly those rows, wherever they sit in the file. Imported by ``r2_archive_assets.py`` after its bootstrap.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -58,15 +59,22 @@ def newest_run_start(path: Path, now: datetime | None = None) -> datetime | None
     return started
 
 
-def gated_row_count(args, now: datetime | None = None) -> int | None:
-    """Registry rows (in file order) the newest passing gate covered, or ``None`` when that
-    marker is missing or in the old format (then the whole window is rescanned)."""
+def row_id(row: dict[str, Any]) -> str:
+    """A stable id for a registry row: the registry has no unique field of its own, so it is
+    derived from the row's content (sha256 of its canonical JSON, first 20 hex digits)."""
+    canon = json.dumps(row, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    return hashlib.sha256(canon.encode()).hexdigest()[:20]
+
+
+def gated_row_ids(args, now: datetime | None = None) -> set[str] | None:
+    """Ids of the registry rows the newest passing gate covered, or ``None`` when that marker
+    is missing, unreadable or in the old integer format (then the whole window is rescanned)."""
     now = now or datetime.now(UTC)
     path = gate_marker_path(args)
     if not path.exists():
         return None
     newest: datetime | None = None
-    count: int | None = None
+    ids: set[str] | None = None
     for line in path.read_text().splitlines():
         try:
             row = json.loads(line)
@@ -77,9 +85,10 @@ def gated_row_count(args, now: datetime | None = None) -> int | None:
             when = when.replace(tzinfo=UTC)
         if when > now + timedelta(minutes=5) or (newest is not None and when <= newest):
             continue
-        rows = row.get("gated_rows")
-        newest, count = when, rows if isinstance(rows, int) and not isinstance(rows, bool) and rows >= 0 else None
-    return count
+        listed = row.get("gated_row_ids")
+        ok = isinstance(listed, list) and all(isinstance(i, str) for i in listed)
+        newest, ids = when, set(listed) if ok else None
+    return ids
 
 
 def drift_window_start(args, now: datetime | None = None) -> datetime:
@@ -138,10 +147,12 @@ def registry_drift_since(
     return out
 
 
-def scan_registry(args, since: datetime, gated: int | None) -> tuple[Any, int]:
-    """``(drift rows, rows scanned)``: the registry rows appended since the last passing gate."""
+def scan_registry(args, since: datetime, gated: set[str] | None) -> tuple[Any, list[str]]:
+    """``(drift rows, ids of every registry row)``: drift among the rows no passing gate has
+    covered yet (``gated`` ids are skipped wherever they sit; ``None`` scans them all)."""
     if not args.fail_on_drift:
-        return (), 0
+        return (), []
     rows = load_registry_rows(args.registry)
-    after = rows[gated:] if gated is not None and gated <= len(rows) else None
-    return registry_drift_since(group_registry(rows), since, after), len(rows)
+    ids = [row_id(r) for r in rows]
+    after = None if gated is None else [r for r, i in zip(rows, ids, strict=True) if i not in gated]
+    return registry_drift_since(group_registry(rows), since, after), sorted(set(ids))

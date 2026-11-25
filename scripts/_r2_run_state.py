@@ -52,6 +52,7 @@ class RunState:
             "new": 0, "unchanged": 0, "head-unchanged": 0, "archive-hit": 0, "fail": 0,
         }
     )
+    unlisted_host: int = 0  # cards refused because their asset host is not approved
     over_budget: bool = False
     unhashed: int = 0
     partial_reason: str = ""  # why a run covered fewer cards than the manifest has
