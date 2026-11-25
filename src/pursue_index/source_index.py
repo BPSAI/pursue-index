@@ -47,6 +47,7 @@ from pursue_index.era_dates import parse_year
 from pursue_index.era_models import era_for_year
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import DateBasis, require_web_url
+from pursue_index.redirect_hop import fetch_counts
 from pursue_index.sitemap_fetch import (
     DEFAULT_ROBOTS_URL,
     CourteousFetcher,
@@ -322,8 +323,8 @@ def build_catalogue_from_fetcher(
         allowed_hosts = load_source_hosts(_resolve_repo_root() / SOURCE_HOSTS_PATH)
     rows, index_urls, dropped = walk_sitemaps(fetcher, robots_url, allowed_hosts)
     catalogue = build_catalogue(rows, index_urls)
-    invalid = catalogue.excluded_invalid_url + dropped
-    return replace(catalogue, excluded_invalid_url=invalid, fetch_stats=fetcher.stats())
+    stats = fetch_counts(fetcher)
+    return replace(catalogue, excluded_invalid_url=catalogue.excluded_invalid_url + dropped, fetch_stats=stats)
 
 
 def build_output(catalogue: Catalogue, robots_url: str) -> dict[str, Any]:
@@ -368,7 +369,7 @@ def main() -> int:
     """CLI: enumerate the published sitemap indexes live → the tracked artifact.
 
     This is the operator's regeneration step; it makes real (but courteous,
-    listing-only) requests. A non-2xx aborts; there is no retry loop.
+    listing-only) requests; a non-2xx aborts, with no retry loop.
     """
     repo_root = _resolve_repo_root()
     out_path = repo_root / OUTPUT_PATH
@@ -385,8 +386,7 @@ def main() -> int:
         f"({catalogue.excluded_ufofiles} UFOFiles rows excluded per §2a) "
         f"from {catalogue.total_urls} URLs"
     )
-    print(f"  fetch: {catalogue.fetch_stats}")
-    print(f"  wrote {out_path.relative_to(repo_root)}")
+    print(f"  fetch: {catalogue.fetch_stats}\n  wrote {out_path.relative_to(repo_root)}")
     return 0
 
 
