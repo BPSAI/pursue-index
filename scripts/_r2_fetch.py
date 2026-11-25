@@ -173,7 +173,7 @@ def head_asset(url: Any, allowed_hosts: Collection[str] | AnyHost) -> HeadResult
         if resp.status_code >= 400:
             return HeadResult((None, None, None))
         # A compressed response's length is not the stored (decoded) size: report none, and
-        # flag it so the caller falls back to the validators instead of refetching every poll.
+        # flag it so the caller fetches and hashes instead of trusting the validators.
         encoded = _encoded(resp)
         cl = None if encoded else resp.headers.get("content-length")
         return HeadResult(
@@ -211,33 +211,43 @@ def fetch_asset(
     file. Each violation raises ``FetchLimitError``.
     """
     dest = Path(dest)
-    require_disk(dest, expected_bytes(known_size, max_bytes, SIZE_GROWTH_FACTOR))
-    # curl_cffi's streamed Response is not a context manager, so it is closed
-    # explicitly; the close releases the connection even when the read fails.
-    resp = _open(
-        cffi_requests.get,
-        str(url),
-        allowed_hosts,
-        impersonate="chrome",
-        timeout=TOTAL_CEILING_S,
-        stream=True,
-        curl_options={_CURLOPT_LOW_SPEED_LIMIT: 1, _CURLOPT_LOW_SPEED_TIME: IDLE_TIMEOUT_S},
-    )
+    planned = expected_bytes(known_size, max_bytes, SIZE_GROWTH_FACTOR)
+    resp = None
+    done = False
     try:
+        require_disk(dest, planned)
+        # curl_cffi's streamed Response is not a context manager, so it is closed
+        # explicitly; the close releases the connection even when the read fails.
+        resp = _open(
+            cffi_requests.get,
+            str(url),
+            allowed_hosts,
+            impersonate="chrome",
+            timeout=TOTAL_CEILING_S,
+            stream=True,
+            curl_options={_CURLOPT_LOW_SPEED_LIMIT: 1, _CURLOPT_LOW_SPEED_TIME: IDLE_TIMEOUT_S},
+        )
         resp.raise_for_status()
         declared = _declared_length(resp)
         if declared is not None and declared > max_bytes:
             raise FetchOverCapError(observed=declared, cap=max_bytes, declared=True)
         if declared is not None:
+            planned = declared
             require_disk(dest, declared)
-        return _stream_to(resp, dest, max_bytes)
-    except (OSError, InsufficientDiskError) as exc:
-        dest.unlink(missing_ok=True)
-        if isinstance(exc, OSError) and exc.errno == errno.ENOSPC:
-            raise InsufficientDiskError(need=DISK_MARGIN_BYTES, free=0) from exc
+        result = _stream_to(resp, dest, max_bytes)
+        done = True
+        return result
+    except OSError as exc:
+        if exc.errno == errno.ENOSPC:
+            written = dest.stat().st_size if dest.exists() else 0
+            free = shutil.disk_usage(dest.parent).free
+            raise InsufficientDiskError(need=max(planned, written) + DISK_MARGIN_BYTES, free=free) from exc
         raise
     finally:
-        resp.close()
+        if resp is not None:
+            resp.close()
+        if not done:
+            dest.unlink(missing_ok=True)
 
 
 def _declared_length(resp: Any) -> int | None:
@@ -303,10 +313,10 @@ def head_identical(
     fallback is Content-Length plus Last-Modified: both present and equal to the
     values recorded on the last row (a row without Last-Modified cannot use it).
 
-    ``encoded`` (a content-encoded response, whose length is not the stored size) drops the size
-    condition and leaves the ETag / Last-Modified rules, so such an asset is not refetched daily.
+    ``encoded`` (a content-encoded response) is never identical: the encoding flag comes from the
+    upstream, so it must not decide whether the bytes are read. Such an asset is fetched and hashed.
     """
-    if not rows or (not encoded and (cl is None or cl != last_known_size(rows))):
+    if not rows or encoded or cl is None or cl != last_known_size(rows):
         return False
     recorded_etag = last_known_etag(rows)
     if etag is not None and recorded_etag is not None:
