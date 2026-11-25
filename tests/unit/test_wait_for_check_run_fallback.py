@@ -110,3 +110,43 @@ def test_older_fallback_run_with_deployed_step_is_accepted_when_newest_skipped()
     ok, _, _ = run([page()], fallback=[fb],
                    jobs=[jobs_body(DEPLOY_STEP, "skipped"), jobs_body(DEPLOY_STEP, "success")])
     assert ok
+
+
+# ---- a terminal deploy-step verdict is read once -----------------------------
+
+def _jobs_reads(calls, run_id):
+    return [c for c in calls if f"/actions/runs/{run_id}/jobs" in c]
+
+
+def test_terminal_failed_verdict_is_read_once_across_polls():
+    ok, _, calls = run([page()], timeout=60, fallback=[wf("completed", "success", id_=7)],
+                       jobs=[jobs_body(DEPLOY_STEP, "failure")])
+    assert not ok
+    assert len(_jobs_reads(calls, 7)) == 1
+
+
+def test_terminal_skipped_verdict_is_read_once_across_polls():
+    ok, _, calls = run([page()], timeout=60, fallback=[wf("completed", "success", id_=7)],
+                       jobs=[jobs_body(DEPLOY_STEP, "skipped")])
+    assert not ok
+    assert len(_jobs_reads(calls, 7)) == 1
+
+
+def test_unknown_verdict_is_reread_until_terminal():
+    # the deploy step is still running on the first read, then succeeds
+    ok, msg, calls = run([page()], timeout=60, fallback=[wf("completed", "success", id_=7)],
+                         jobs=[jobs_body(DEPLOY_STEP, None), jobs_body(DEPLOY_STEP, None),
+                               jobs_body(DEPLOY_STEP, "success")])
+    assert ok, msg
+    assert len(_jobs_reads(calls, 7)) == 3
+
+
+def test_a_failed_older_run_is_not_reread_while_a_newer_run_is_unknown():
+    fb = {"total_count": 2, "workflow_runs": [
+        {"id": 1, "status": "completed", "conclusion": "success"},
+        {"id": 2, "status": "completed", "conclusion": "success"}]}
+
+    ok, _, calls = run([page()], timeout=40, fallback=[fb],
+                       jobs=[jobs_body(DEPLOY_STEP, None), jobs_body(DEPLOY_STEP, "failure")])
+    assert not ok
+    assert len(_jobs_reads(calls, 1)) == 1
