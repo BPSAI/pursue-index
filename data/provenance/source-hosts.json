@@ -1,0 +1,9 @@
+{
+  "comment": "Hosts the provenance source enumeration may request from: robots.txt, sitemap indexes, child sitemaps and text sitemaps. Exact hostname match only (no wildcards, no suffix match); https only. Any other host is refused before a request is made.",
+  "hosts": [
+    "documents3.theblackvault.com",
+    "www.theblackvault.com",
+    "documents.theblackvault.com",
+    "documents2.theblackvault.com"
+  ]
+}
