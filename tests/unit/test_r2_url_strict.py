@@ -158,6 +158,6 @@ def test_a_refusal_carries_a_stable_twelve_hex_fingerprint():
     import re
 
     url = "https://user:s3cret@good.example/x"
-    fp = hashlib.sha256(url.encode()).hexdigest()[:12]
+    fp = hashlib.sha256(b"https://good.example/x").hexdigest()[:12]  # userinfo is not hashed
     assert fp in _refusal(url) and _refusal(url) == _refusal(url)
     assert re.search(r"\b[0-9a-f]{12}\b", _refusal("https://good.example:0/y"))
