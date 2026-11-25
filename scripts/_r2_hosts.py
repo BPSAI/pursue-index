@@ -4,81 +4,24 @@ from __future__ import annotations
 
 import ipaddress
 import json
-import re
 import socket
 import sys
 from collections.abc import Collection, Iterable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import Any
 
-_DEFAULT_PORTS = {"http": 80, "https": 443}
 # libcurl's CURLOPT_RESOLVE (curl_cffi's CurlOpt.RESOLVE), inlined like the other option numbers.
 CURLOPT_RESOLVE = 10203
 
 # Test-only seam (see _r2_local_seam): on only inside ``allow_local_for_tests()``.
 from _r2_local_seam import _ALLOW_LOCAL, allow_local_for_tests  # noqa: F401
-
-
-class FetchLimitError(Exception):
-    """A fetch broke a bound: too large, too many redirects, or a host off the allowlist."""
+from _r2_url import _DEFAULT_PORTS, FetchLimitError, ParsedUrl, _scheme_of, parse_url
 
 
 class ApprovedHostsError(Exception):
     """The approved-host list is missing or malformed; the run must not guess."""
-
-
-class ParsedUrl(NamedTuple):
-    """One URL, parsed once: what every check and the request itself go by."""
-
-    scheme: str
-    host: str
-    port: int
-    url: str  # canonical: lower-cased host without a trailing dot, same path and query
-
-
-_URL_RE = re.compile(r"(?P<scheme>[A-Za-z][A-Za-z0-9+.-]*)://(?P<authority>[^/?#]*)(?P<rest>.*)", re.S)
-_SCHEME_RE = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*(?=:)")
-_LABEL_RE = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?")
-
-
-def _refuse(url: str, why: str) -> FetchLimitError:
-    return FetchLimitError(f"URL refused ({why}): {url[:80]!r}")
-
-
-def parse_url(url: Any) -> ParsedUrl:
-    """The one strict parse. ``urlsplit`` and curl can disagree on the host of an odd URL, so a
-    URL that could be read two ways is refused rather than interpreted: userinfo, a backslash,
-    whitespace or control characters, a percent sign or non-ASCII character in the host, an
-    empty host, a bad port, an IPv6 literal, and an IPv4 form other than four plain decimals."""
-    text = str(url)
-    if "\\" in text or any(ord(c) <= 0x20 or ord(c) == 0x7F for c in text):
-        raise _refuse(text, "backslash, space or control character")
-    m = _URL_RE.fullmatch(text)
-    if m is None:
-        raise _refuse(text, "no scheme and host")
-    scheme, authority, rest = m["scheme"].lower(), m["authority"], m["rest"]
-    if "@" in authority:
-        raise _refuse(text, "userinfo")
-    host, sep, port_text = authority.rpartition(":") if ":" in authority else (authority, "", "")
-    if sep and not (port_text.isascii() and port_text.isdigit() and 1 <= int(port_text) <= 65535):
-        raise _refuse(text, "port")
-    port = int(port_text) if sep else _DEFAULT_PORTS.get(scheme, 443)
-    host = host.lower().removesuffix(".")
-    if not host.isascii() or not host or len(host) > 253:
-        raise _refuse(text, "host")
-    labels = host.split(".")
-    if not all(_LABEL_RE.fullmatch(label) for label in labels):
-        raise _refuse(text, "host")
-    if labels[-1].isdigit() or labels[-1].startswith("0x") or all(lb.isdigit() for lb in labels):
-        try:
-            if len(labels) != 4 or str(ipaddress.IPv4Address(host)) != host:
-                raise ValueError(host)
-        except ValueError as exc:
-            raise _refuse(text, "numeric host") from exc
-    shown = host if port == _DEFAULT_PORTS.get(scheme) else f"{host}:{port}"
-    return ParsedUrl(scheme, host, port, f"{scheme}://{shown}{rest}")
 
 
 _CARD: ContextVar[str] = ContextVar("r2_current_card", default="-")
@@ -231,11 +174,6 @@ def pinned(kw: dict[str, Any], url: str | ParsedUrl, addresses: list[str]) -> di
     shown = ",".join(f"[{a}]" if ":" in a else a for a in addresses)
     options[CURLOPT_RESOLVE] = [f"{parts.host}:{parts.port}:{shown}"]
     return {**kw, "curl_options": options}
-
-
-def _scheme_of(url: str) -> str:
-    m = _SCHEME_RE.match(str(url))
-    return m[0].lower() if m else ""
 
 
 def check_hop(current: str, target: str) -> None:
