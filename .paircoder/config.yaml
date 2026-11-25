@@ -1,0 +1,250 @@
+version: 3.0.9
+project:
+  name: pursue-index
+  description: Citable interface to U.S. DoW PURSUE Release 01 (UAP documents)
+  primary_goal: Ship a reproducible, citable archive of declassified UAP documents with full-text search, semantic atlas, and editorial reading guides
+  coverage_target: 80
+workflow:
+  default_branch_type: feature
+  main_branch: main
+  require_feature_branch: true
+  context_dir: .paircoder/context
+  plans_dir: .paircoder/plans
+  tasks_dir: .paircoder/tasks
+pack:
+  default_name: agent_pack.tgz
+  excludes:
+  - .git
+  - .venv
+  - __pycache__
+  - node_modules
+  - dist
+  - build
+  - '*.log'
+  - '*.bak'
+models:
+  navigator: claude-opus-4-8
+  driver: claude-opus-4-8
+  nayru: claude-opus-4-8
+  vaivora: claude-opus-4-8
+  bellona: claude-sonnet-5
+  divona: claude-sonnet-5
+  laverna: claude-sonnet-5
+  providers:
+    anthropic:
+      models:
+      - claude-opus-4-6
+      - claude-sonnet-4-6
+      - claude-sonnet-4-5
+      - claude-haiku-4-5
+      default_effort: medium
+routing:
+  by_complexity:
+    trivial:
+      max_score: 20
+      model: claude-haiku-5-5
+    simple:
+      max_score: 40
+      model: claude-sonnet-4-6
+    moderate:
+      max_score: 60
+      model: claude-sonnet-4-6
+    complex:
+      max_score: 80
+      model: claude-opus-4-6
+    epic:
+      max_score: 100
+      model: claude-opus-4-6
+  overrides:
+    bellona: claude-opus-4-6
+    architecture: claude-opus-4-6
+estimation:
+  complexity_to_hours:
+    xs:
+      range:
+      - 0
+      - 15
+      hours:
+      - 0.5
+      - 1.0
+      - 2.0
+    s:
+      range:
+      - 16
+      - 30
+      hours:
+      - 1.0
+      - 2.0
+      - 4.0
+    m:
+      range:
+      - 31
+      - 50
+      hours:
+      - 2.0
+      - 4.0
+      - 8.0
+    l:
+      range:
+      - 51
+      - 75
+      hours:
+      - 4.0
+      - 8.0
+      - 16.0
+    xl:
+      range:
+      - 76
+      - 100
+      hours:
+      - 8.0
+      - 16.0
+      - 32.0
+token_estimates:
+  base_context: 15000
+  per_complexity_point: 500
+  per_file_touched: 2000
+  by_task_type:
+    feature: 1.2
+    bugfix: 0.8
+    docs: 0.6
+    refactor: 1.5
+    chore: 0.9
+token_budget:
+  warning_threshold: 75
+  critical_threshold: 90
+metrics:
+  enabled: true
+  store_path: .paircoder/history/metrics.jsonl
+hooks:
+  enabled: true
+  on_task_ready:
+  - sync_pm
+  - update_state
+  on_task_start:
+  - select_model
+  - check_token_budget
+  - start_timer
+  - sync_pm
+  - update_state
+  on_task_review:
+  - sync_pm
+  - update_state
+  on_task_complete:
+  - arch_check_modified
+  - contract_break_check
+  - stop_timer
+  - workspace_impact_scan
+  - telemetry_snapshot
+  - calibration_update_incremental
+  - feedback_calibrate
+  - sync_pm
+  - update_state
+  - check_unblocked
+  on_task_block:
+  - sync_pm
+  - update_state
+pm:
+  provider: none
+  workflow: simple
+containment:
+  enabled: false
+  mode: strict
+  blocked_directories: []
+  blocked_files:
+  - .env
+  - .env.local
+  - .env.production
+  - credentials.json
+  - secrets.yaml
+  readonly_directories:
+  - .claude/agents
+  - .claude/commands
+  - .claude/skills
+  readonly_files:
+  - CLAUDE.md
+  - AGENTS.md
+  allow_network:
+  - api.anthropic.com
+  - api.trello.com
+  - github.com
+  - pypi.org
+  auto_checkpoint: true
+  rollback_on_violation: false
+ci:
+  python_formatter: ruff
+  node_formatter: prettier
+architecture:
+  enabled: true
+  max_file_lines: 400
+  warning_file_lines: 200
+  max_function_lines: 50
+  max_functions_per_file: 15
+  max_imports: 20
+  exclude_patterns: []
+  enforce_on_commit: true
+  enforce_on_pr: true
+  enforce_on_ci: true
+  test_max_file_lines: 600
+  test_warning_file_lines: 400
+  test_max_function_lines: 50
+  test_max_functions_per_file: 40
+  test_max_imports: 30
+  roles: {}
+  role_overrides: {}
+overrides:
+  models.providers.anthropic.models:
+    value:
+    - claude-opus-4-6
+    - claude-sonnet-4-6
+    - claude-sonnet-4-5
+    - claude-haiku-4-5
+    reason: promoted by upgrade 2.39.0; rationale not recorded in source
+  routing.by_complexity.simple.max_score:
+    value: 40
+    reason: promoted by upgrade 2.39.0; rationale not recorded in source
+  routing.by_complexity.simple.model:
+    value: claude-sonnet-4-6
+    reason: promoted by upgrade 2.39.0; rationale not recorded in source
+  routing.by_complexity.moderate.model:
+    value: claude-sonnet-4-6
+    reason: promoted by upgrade 2.39.0; rationale not recorded in source
+  routing.by_complexity.complex.model:
+    value: claude-opus-4-6
+    reason: promoted by upgrade 2.39.0; rationale not recorded in source
+  routing.by_complexity.epic.model:
+    value: claude-opus-4-6
+    reason: promoted by upgrade 2.39.0; rationale not recorded in source
+  routing.overrides.bellona:
+    value: claude-opus-4-6
+    reason: promoted by upgrade 2.39.0; rationale not recorded in source
+  routing.overrides.architecture:
+    value: claude-opus-4-6
+    reason: promoted by upgrade 2.39.0; rationale not recorded in source
+  routing.by_complexity.trivial.max_score:
+    value: 20
+    reason: 'preserving your local override 20 (canonical: 6); add rationale or delete the override'
+
+# The Codex fallback review may run on a head the connector refused for quota.
+review:
+  # Reviewer accounts whose reviews count toward merge readiness. The PR's
+  # author is always excluded, so an account never approves its own PR.
+  bots:
+  - "chatgpt-codex-connector[bot]"
+  - "bpsai-prime[bot]"
+  codex_fallback:
+    enabled: true
+  native_authors: []
+llm:
+  providers:
+    ollama:
+      context_window: 32768
+      env_overrides:
+        ANTHROPIC_BASE_URL: http://localhost:11434
+        ANTHROPIC_AUTH_TOKEN: ollama
+        ANTHROPIC_API_KEY: ""
+    openrouter:
+      env_overrides:
+        ANTHROPIC_BASE_URL: https://openrouter.ai/api
+        ANTHROPIC_AUTH_TOKEN: ${OPENROUTER_API_KEY}
+        ANTHROPIC_API_KEY: ""
