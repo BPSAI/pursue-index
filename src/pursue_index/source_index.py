@@ -35,8 +35,8 @@ from __future__ import annotations
 
 import json
 from collections import Counter
-from collections.abc import Iterable, Sequence
-from dataclasses import dataclass, field
+from collections.abc import Collection, Iterable, Sequence
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -53,9 +53,18 @@ from pursue_index.sitemap_fetch import (
     SitemapFetchError,
     UrlRow,
     is_listing_url,
+    is_text_sitemap_url,
+    normalize_host,
     parse_robots_sitemaps,
     parse_sitemap_index,
+    parse_text_sitemap,
     parse_url_entries,
+)
+from pursue_index.source_hosts import (
+    SOURCE_HOSTS_PATH,
+    host_allowed,
+    load_source_hosts,
+    note_skipped,
 )
 
 __all__ = [
@@ -307,36 +316,50 @@ def build_catalogue(
     )
 
 
-def _fetchable(url: str, host: str | None) -> bool:
-    """A URL is followed only if it is a listing *on the enumerated host*.
-
-    The enumeration's scope is one host's published sitemaps, and the URLs that
-    name its children come from those sitemaps themselves. Pinning every fetch
-    to the ``robots.txt`` host keeps the scope decided here rather than by the
-    documents being read — the same rule the asset downloader applies.
-    """
-    return is_listing_url(url) and urlparse(url).hostname == host
-
-
-def build_catalogue_from_fetcher(fetcher: CourteousFetcher, robots_url: str) -> Catalogue:
+def build_catalogue_from_fetcher(
+    fetcher: CourteousFetcher,
+    robots_url: str,
+    allowed_hosts: Collection[str] | None = None,
+) -> Catalogue:
     """Enumerate robots → sitemap indexes → sitemaps → rows, and assemble.
 
-    Only listings *on the robots host* are ever fetched (the ``fetcher`` also
-    refuses non-listings), so no PDF is downloaded and the enumeration stays on
-    the host it set out to enumerate. Off-host or non-listing children are
-    skipped rather than fetched.
+    Every request, robots.txt included, must be ``https`` on a host in the
+    pinned allowlist (``allowed_hosts``, default: the committed config); anything
+    else is refused before a request. A ``.txt`` sitemap is fetched only when
+    robots.txt lists that exact URL; children of an XML index are followed only
+    when they are ``.xml`` listings. No asset is ever requested.
     """
-    host = urlparse(robots_url).hostname
+    if allowed_hosts is None:
+        allowed_hosts = load_source_hosts(_resolve_repo_root() / SOURCE_HOSTS_PATH)
+    hosts = frozenset(h for h in (normalize_host(h) for h in allowed_hosts) if h)
+    if not hosts:
+        raise SitemapFetchError("no pinned source hosts; refusing to run")
+    if not host_allowed(robots_url, hosts):
+        raise SitemapFetchError(f"refusing robots URL {robots_url!r}: not an https URL on a pinned source host")
     index_urls = parse_robots_sitemaps(fetcher.fetch(robots_url).body)
+    declared = frozenset(u for u in index_urls if is_text_sitemap_url(u))
     rows: list[Any] = []
+    dropped = 0
     for index_url in index_urls:
-        if not _fetchable(index_url, host):
+        if not host_allowed(index_url, hosts):
+            note_skipped(index_url, "sitemap")
+            continue
+        if index_url in declared:
+            text_rows, bad = parse_text_sitemap(fetcher.fetch(index_url, declared).body)
+            rows.extend(text_rows)
+            dropped += bad
+            continue
+        if not is_listing_url(index_url):
             continue
         for child in parse_sitemap_index(fetcher.fetch(index_url).body):
-            if not _fetchable(child, host):
+            if not is_listing_url(child):
+                continue
+            if not host_allowed(child, hosts):
+                note_skipped(child, "child sitemap")
                 continue
             rows.extend(parse_url_entries(fetcher.fetch(child).body))
-    return build_catalogue(rows, index_urls)
+    catalogue = build_catalogue(rows, index_urls)
+    return replace(catalogue, excluded_invalid_url=catalogue.excluded_invalid_url + dropped)
 
 
 def build_output(catalogue: Catalogue, robots_url: str) -> dict[str, Any]:

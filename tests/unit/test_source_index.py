@@ -202,7 +202,7 @@ class _FixtureNet:
 def _build_from_fixtures() -> tuple[_FixtureNet, object]:
     net = _FixtureNet(_FIXTURE_BYTES)
     fetcher = CourteousFetcher(get=net.get, sleep=net.sleep, delay=0.0)
-    catalogue = build_catalogue_from_fetcher(fetcher, "https://host/robots.txt")
+    catalogue = build_catalogue_from_fetcher(fetcher, "https://host/robots.txt", allowed_hosts={"host"})
     return net, catalogue
 
 
@@ -249,7 +249,7 @@ def test_end_to_end_never_follows_an_off_host_sitemap() -> None:
         }
     )
     fetcher = CourteousFetcher(get=net.get, sleep=net.sleep, delay=0.0)
-    catalogue = build_catalogue_from_fetcher(fetcher, "https://host/robots.txt")
+    catalogue = build_catalogue_from_fetcher(fetcher, "https://host/robots.txt", allowed_hosts={"host"})
 
     assert "https://evil.example.com/sitemap-evil.xml" not in net.requested
     # cbp kept, the UFOFiles row in sitemap-a excluded.

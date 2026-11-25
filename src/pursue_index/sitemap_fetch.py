@@ -27,7 +27,7 @@ tests against fixture bytes, with no live network call.
 from __future__ import annotations
 
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Collection, Mapping
 from dataclasses import dataclass
 from typing import NamedTuple, Protocol
 from urllib.parse import urlparse
@@ -41,8 +41,11 @@ __all__ = [
     "SitemapFetchError",
     "UrlRow",
     "is_listing_url",
+    "is_text_sitemap_url",
+    "normalize_host",
     "parse_robots_sitemaps",
     "parse_sitemap_index",
+    "parse_text_sitemap",
     "parse_url_entries",
 ]
 
@@ -99,6 +102,22 @@ def is_listing_url(url: str) -> bool:
     return path.endswith(".xml") or path.endswith("/robots.txt") or path == "/robots.txt"
 
 
+def is_text_sitemap_url(url: str) -> bool:
+    """True iff ``url`` has a ``.txt`` path (a *candidate* plain-text sitemap).
+
+    Not a listing on its own: it is fetched only when robots.txt lists that exact
+    URL (see :meth:`CourteousFetcher.fetch`'s ``declared`` argument).
+    """
+    return urlparse(url).path.lower().endswith(".txt")
+
+
+def normalize_host(host: str | None) -> str | None:
+    """Lower-case a hostname and strip trailing dots, for exact comparison."""
+    if not host:
+        return None
+    return host.lower().rstrip(".") or None
+
+
 def _last_modified(response: _Response) -> str | None:
     """Read the ``Last-Modified`` header case-insensitively, or ``None``."""
     for key, value in response.headers.items():
@@ -120,13 +139,16 @@ class CourteousFetcher:
     sleep: Callable[[float], None] = time.sleep
     delay: float = DEFAULT_DELAY_SECONDS
 
-    def fetch(self, url: str) -> FetchedListing:
+    def fetch(self, url: str, declared: Collection[str] = ()) -> FetchedListing:
         """Fetch a single listing, or raise :class:`SitemapFetchError`.
+
+        ``declared`` holds the exact ``.txt`` sitemap URLs robots.txt listed; a
+        ``.txt`` URL is admitted only if it is in that collection.
 
         Refuses non-listing URLs before any request (no PDF is fetched), waits
         the courtesy ``delay``, then aborts on any non-2xx rather than retrying.
         """
-        if not is_listing_url(url):
+        if not (is_listing_url(url) or (is_text_sitemap_url(url) and url in declared)):
             raise SitemapFetchError(
                 f"refusing to fetch non-listing URL {url!r}: this stage indexes "
                 "sitemaps only and never downloads a PDF or other asset"
@@ -213,3 +235,23 @@ def parse_url_entries(text: str) -> list[UrlRow]:
         if loc:
             rows.append(UrlRow(loc=loc, lastmod=_child_text(entry, "lastmod")))
     return rows
+
+
+def parse_text_sitemap(text: str) -> tuple[list[UrlRow], int]:
+    """Parse a sitemaps.org plain-text sitemap: one URL per line.
+
+    Whitespace is trimmed and blank lines skipped. A line that is not an
+    ``http(s)`` URL is dropped and counted. Rows carry no ``lastmod``.
+    """
+    rows: list[UrlRow] = []
+    dropped = 0
+    for line in text.splitlines():
+        candidate = line.strip()
+        if not candidate:
+            continue
+        parts = urlparse(candidate)
+        if parts.scheme.lower() in ("http", "https") and parts.netloc and not any(c.isspace() for c in candidate):
+            rows.append(UrlRow(loc=candidate, lastmod=None))
+        else:
+            dropped += 1
+    return rows, dropped

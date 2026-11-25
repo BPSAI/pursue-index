@@ -17,10 +17,9 @@ from pursue_index.sitemap_fetch import (
     is_listing_url,
     parse_text_sitemap,
 )
+from pursue_index.source_hosts import SOURCE_HOSTS_PATH, load_source_hosts
 from pursue_index.source_index import (
-    SOURCE_HOSTS_PATH,
     build_catalogue_from_fetcher,
-    load_source_hosts,
 )
 
 _REPO = Path(__file__).resolve().parents[2]
