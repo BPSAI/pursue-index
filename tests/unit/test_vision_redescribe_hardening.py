@@ -228,6 +228,30 @@ def test_write_atomic_creates_a_new_file_0644(tmp_path) -> None:
     assert json.loads(target.read_text()) == {"a": 1}
 
 
+def test_write_atomic_refuses_a_symlinked_sidecar(tmp_path) -> None:
+    real = tmp_path / "real.json"
+    real.write_text("original", encoding="utf-8")
+    real.chmod(0o600)
+    link = tmp_path / "card.json"
+    link.symlink_to(real)
+    with pytest.raises(OSError, match="card.json"):
+        supersede.write_atomic(link, {"a": 1})
+    assert link.is_symlink()
+    assert os.readlink(link) == str(real)
+    assert real.read_text(encoding="utf-8") == "original"
+    assert real.stat().st_mode & 0o777 == 0o600
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["card.json", "real.json"]
+
+
+def test_write_atomic_refuses_a_dangling_symlink(tmp_path) -> None:
+    link = tmp_path / "card.json"
+    link.symlink_to(tmp_path / "missing.json")
+    with pytest.raises(OSError, match="card.json"):
+        supersede.write_atomic(link, {"a": 1})
+    assert link.is_symlink()
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["card.json"]
+
+
 def test_write_atomic_syncs_the_file_and_the_directory(tmp_path, monkeypatch) -> None:
     import stat as stat_mod
 
