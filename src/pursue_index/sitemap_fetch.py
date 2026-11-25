@@ -30,7 +30,7 @@ import time
 from collections.abc import Callable, Collection, Mapping
 from dataclasses import dataclass
 from typing import NamedTuple, Protocol
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 from xml.etree import ElementTree as ET
 
 __all__ = [
@@ -55,6 +55,8 @@ DEFAULT_ROBOTS_URL = "https://documents3.theblackvault.com/robots.txt"
 
 #: Courtesy spacing between sequential requests, in seconds.
 DEFAULT_DELAY_SECONDS = 1.0
+
+_REDIRECT_STATUSES = frozenset({301, 302, 307, 308})
 
 _SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
@@ -138,6 +140,7 @@ class CourteousFetcher:
     get: Callable[[str], _Response]
     sleep: Callable[[float], None] = time.sleep
     delay: float = DEFAULT_DELAY_SECONDS
+    #: Normalised hostnames a redirect may land on; empty means none.
     allowed_hosts: Collection[str] = ()
     requests: int = 0
     redirects_followed: int = 0
@@ -157,16 +160,59 @@ class CourteousFetcher:
                 f"refusing to fetch non-listing URL {url!r}: this stage indexes "
                 "sitemaps only and never downloads a PDF or other asset"
             )
-        if self.delay:
-            self.sleep(self.delay)
-        response = self.get(url)
+        response = self._request(url)
         status = response.status_code
+        if status in _REDIRECT_STATUSES:
+            url, response = self._hop(url, response, declared)
+            status = response.status_code
         if not 200 <= status < 300:
             raise SitemapFetchError(
                 f"aborting: {url} returned HTTP {status} (likely rate-limited or "
                 "blocked); not retrying in a loop — re-run later"
             )
         return FetchedListing(url=url, body=response.text, last_modified=_last_modified(response))
+
+    def _request(self, url: str) -> _Response:
+        """One paced GET, counted."""
+        if self.delay:
+            self.sleep(self.delay)
+        self.requests += 1
+        return self.get(url)
+
+    def _refuse(self, url: str, why: str) -> SitemapFetchError:
+        self.redirects_refused += 1
+        return SitemapFetchError(f"aborting: refusing redirect from {url}: {why}; no request made to the target")
+
+    def _hop(self, url: str, response: _Response, declared: Collection[str]) -> tuple[str, _Response]:
+        """Follow the single permitted redirect hop, or raise.
+
+        The target must be https, on a pinned host, and a listing (a ``.txt``
+        only if robots.txt declared it). It is requested with the same pacing;
+        a redirect answered by the target itself is never followed.
+        """
+        location = next((v for k, v in response.headers.items() if k.lower() == "location"), "").strip()
+        if not location:
+            raise self._refuse(url, "missing Location")
+        target = urljoin(url, location)
+        parts = urlparse(target)
+        if parts.scheme != "https" or normalize_host(parts.hostname) not in self.allowed_hosts:
+            raise self._refuse(url, f"{target!r} is not an https URL on a pinned source host")
+        if not (is_listing_url(target) or (is_text_sitemap_url(target) and target in declared)):
+            raise self._refuse(url, f"{target!r} is not a listing")
+        print(f"sitemap-fetch: following redirect {url} -> {target}")
+        self.redirects_followed += 1
+        followed = self._request(target)
+        if followed.status_code in _REDIRECT_STATUSES:
+            raise self._refuse(target, "second redirect hop")
+        return target, followed
+
+    def stats(self) -> dict[str, int]:
+        """Request and redirect counts, for the run summary and output."""
+        return {
+            "requests": self.requests,
+            "redirects_followed": self.redirects_followed,
+            "redirects_refused": self.redirects_refused,
+        }
 
 
 def parse_robots_sitemaps(text: str) -> list[str]:
