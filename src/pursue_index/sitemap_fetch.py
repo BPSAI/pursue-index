@@ -138,6 +138,10 @@ class CourteousFetcher:
     get: Callable[[str], _Response]
     sleep: Callable[[float], None] = time.sleep
     delay: float = DEFAULT_DELAY_SECONDS
+    allowed_hosts: Collection[str] = ()
+    requests: int = 0
+    redirects_followed: int = 0
+    redirects_refused: int = 0
 
     def fetch(self, url: str, declared: Collection[str] = ()) -> FetchedListing:
         """Fetch a single listing, or raise :class:`SitemapFetchError`.
