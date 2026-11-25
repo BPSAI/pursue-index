@@ -4,6 +4,7 @@ titles and values in its date lines carry no @-mention, link or HTML syntax."""
 from __future__ import annotations
 
 import html
+import re
 
 from pursue_index.scrape.year_normalize import DateReport
 from pursue_index.scrape.year_normalize_report import verdict_date_lines
@@ -26,8 +27,9 @@ def _lines(**report_kwargs) -> str:
 def _assert_inert(text: str) -> None:
     assert "@" not in text.replace("\uff20", "")
     assert "<" not in text and ">" not in text
-    assert "](http" not in text.replace("\\]", "")  # a backslash-escaped bracket is literal
-    assert "[" not in text.replace("\\[", "")
+    prose = re.sub(r"`[^`]*`", "``", text)  # link syntax inside a code span is literal
+    assert "](http" not in prose.replace("\\]", "")  # a backslash-escaped bracket is literal
+    assert "[" not in prose.replace("\\[", "")
 
 
 def test_unresolved_row_title_is_neutralized() -> None:
@@ -214,3 +216,105 @@ def test_bidi_and_zero_width_controls_are_stripped() -> None:
                                    *range(0x2066, 0x206A), 0xFEFF))
     assert _inert_text(f"a{bad}b") == "ab"
     assert _inert_text("a&#x202E;b&#8203;c") == "abc"
+
+
+def test_every_format_character_is_stripped() -> None:
+    import unicodedata
+
+    classes = {
+        "alm": [0x061C], "word joiners": list(range(0x2060, 0x2065)), "soft hyphen": [0xAD],
+        "zero width": list(range(0x200B, 0x2010)), "bidi embeddings": list(range(0x202A, 0x202F)),
+        "bidi isolates": list(range(0x2066, 0x206A)), "bom": [0xFEFF],
+        "tags": list(range(0xE0000, 0xE0080)), "line sep": [0x2028], "para sep": [0x2029],
+    }
+    for name, points in classes.items():
+        for cp in points:
+            if unicodedata.category(chr(cp)) not in ("Cf", "Zl", "Zp"):
+                continue  # unassigned in this Unicode version: not a format character
+            assert _inert_text(f"a{chr(cp)}b") == "ab", (name, hex(cp))
+    for cp in (0x061C, 0x2060, 0xAD, 0x200B, 0x202E, 0x2066, 0xFEFF, 0xE0041, 0x2028, 0x2029):
+        assert unicodedata.category(chr(cp)) in ("Cf", "Zl", "Zp"), hex(cp)
+
+
+def test_entity_encoded_invisibles_are_stripped_after_decoding() -> None:
+    assert _inert_text("a&#x202E;b&#x200B;c&#xE0041;d&#x2029;e&shy;f") == "abcdef"
+
+
+def test_ordinary_and_non_latin_text_is_untouched() -> None:
+    for text in ("héllo wörld", "日本語のテキスト", "Привет мир", "שלום עולם", "مرحبا", "नमस्ते",
+                 "ไทย", "😀 ok"):
+        assert _inert_text(text) == text, text
+
+
+def test_huge_field_finishes_quickly() -> None:
+    import time
+
+    start = time.monotonic()
+    out = _inert_text("&amp;" * 1_000_000 + "#64;someone")
+    _inert_text("x" * 5_000_000)
+    assert time.monotonic() - start < 2.0
+    _no_live_entity(out)
+
+
+def test_cap_is_applied_before_decoding() -> None:
+    from pursue_index.scrape import year_normalize_report as mod
+
+    seen: list[int] = []
+    real = html.unescape
+
+    def spy(text: str) -> str:
+        seen.append(len(text))
+        return real(text)
+
+    original = mod.html.unescape
+    mod.html.unescape = spy
+    try:
+        _inert_text("y" * 1_000_000, 80)
+    finally:
+        mod.html.unescape = original
+    assert seen and max(seen) <= 80 * mod._DECODE_CAP_FACTOR
+
+
+def test_nest_within_the_limit_still_decodes_fully() -> None:
+    out = _inert_text("&amp;" * 20 + "#64;someone", limit=200)
+    assert _FW_AT + "someone" in out
+
+
+def test_code_span_form_has_no_markdown_escapes() -> None:
+    from pursue_index.scrape.year_normalize_report import _inert
+
+    assert _inert("a\\b [x] R&D 5/8/26", code=True) == "a\\b [x] R&D 5/8/26"
+    assert _inert("a`b@c<d>", code=True) == "ab" + _FW_AT + "cd"
+    text = _lines(unresolved=[_row(raw="R&D [x] a\\b", card_id="c&d")])
+    assert "`R&D [x] a\\b`" in text and "`c&d`" in text
+    assert "&amp;" not in text.split("`R&D")[1].split("`")[0]
+    assert "R&amp;D" not in text
+
+
+def test_prose_and_cells_keep_full_escaping() -> None:
+    assert _inert_text("R&D [x] a\\b|c") == "R&amp;D \\[x\\] a\\\\b\\|c"
+    text = _lines(unresolved=[_row(title="R&D", reason="a|b")])
+    assert "R&amp;D" in text and "a\\|b" in text
+
+
+def test_commit_shas_are_neutralized() -> None:
+    sha = "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678"
+    for form in (sha, sha[:7], f"fixed in {sha[:12]}.", f"owner/repo@{sha}", f"o/r@{sha[:9]}"):
+        out = _inert_text(form)
+        assert not re.search(r"\b[0-9a-f]{7,40}\b", out, re.I), (form, out)
+        assert re.sub(r"[^\w]", "", out.translate(_FW_TO_ASCII)) == \
+            re.sub(r"[^\w]", "", form.replace("@", "")), form
+
+
+_FW_TO_ASCII = {c: c - 0xFEE0 for c in range(0xFF01, 0xFF5F)}
+
+
+def test_ordinary_words_and_numbers_stay_literal() -> None:
+    for kept in ("deadbeef", "1234567", "2026", "20260508", "facade", "a1b2c3", "ABCDEF12",
+                 "1234567890123456789012345678901234567890123"):
+        assert _inert_text(kept) == kept, kept
+
+
+def test_card_ids_in_code_spans_keep_their_hex() -> None:
+    text = _lines(unresolved=[_row(card_id="cf061838a0a88bf6", raw="deadbee1")])
+    assert "`cf061838a0a88bf6`" in text and "`deadbee1`" in text

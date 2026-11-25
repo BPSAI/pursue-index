@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import html
 import re
+import unicodedata
 from collections.abc import Mapping
 from typing import Any
 
@@ -107,22 +108,29 @@ def verdict_date_lines(report: DateReport) -> str:
 
 
 _MAX_DECODE_PASSES = 256
+# Untrusted text is cut to ``limit`` times this many characters before any decoding, so
+# an entity nest that fits the limit still decodes fully while a huge value costs little.
+_DECODE_CAP_FACTOR = 8
 # Any "scheme://", plus "mailto:" and a leading "www.", is a bare autolink.
 _SCHEME_SLASHES = re.compile(r"([a-z][a-z0-9+.\-]*):/{2}", re.I)
 _MAILTO = re.compile(r"(mailto):", re.I)
 _WWW = re.compile(r"\b(www)\.", re.I)
 # "GH-123" is an issue reference; "#123" and "owner/repo#123" end in "#".
 _GH_REF = re.compile(r"\b(gh)-(?=\d)", re.I)
+# A 7-40 character lowercase hex run at word boundaries (also after "owner/repo@") is a
+# commit reference; plain words and plain numbers are not, so one letter and one digit.
+_SHA = re.compile(r"\b(?=[0-9a-f]*[a-f])(?=[0-9a-f]*\d)[0-9a-f]{7,40}\b")
 
 
-def _decoded(value: Any) -> str:
-    """``value`` with HTML entities decoded until the text stops changing, so a
-    nested ``&amp;amp;#64;`` is judged as the ``@`` it eventually renders as.
+def _decoded(value: Any, cap: int) -> str:
+    """``value`` cut to ``cap`` characters, then with HTML entities decoded until the
+    text stops changing, so a nested ``&amp;amp;#64;`` is judged as the ``@`` it
+    eventually renders as.
 
     Every pass that changes the text shortens it, so the loop ends; the pass cap
     only bounds the cost of a hostile value, and ``_inert`` escapes any ``&`` left over.
     """
-    text = "" if value is None else str(value)
+    text = "" if value is None else str(value)[:cap]
     for _ in range(min(len(text), _MAX_DECODE_PASSES)):
         decoded = html.unescape(text)
         if decoded == text:
@@ -131,24 +139,38 @@ def _decoded(value: Any) -> str:
     return text
 
 
-# Bidirectional and zero-width controls hide or reorder text.
-_INVISIBLE = {c: None for c in (*range(0x200B, 0x2010), *range(0x202A, 0x202F),
-                                *range(0x2066, 0x206A), 0xFEFF)}
+# Format characters (bidi controls, zero-width, soft hyphen, tags, BOM) and the line and
+# paragraph separators hide or reorder text.
+_INVISIBLE_CATEGORIES = frozenset({"Cf", "Zl", "Zp"})
+
+
+def _strip_invisible(text: str) -> str:
+    return "".join(c for c in text if unicodedata.category(c) not in _INVISIBLE_CATEGORIES)
+
+
 # "#123" and "owner/repo#123" are cross-references; any other "#" is plain text.
 _HASH_REF = re.compile(r"(?<!\w)#(?=\d)")
 _REPO_HASH_REF = re.compile(r"([\w.\-]+/[\w.\-]+)#(?=\d)")
 
 
-def _inert(value: Any, limit: int = 80) -> str:
+def _fullwidth_head(match: re.Match[str]) -> str:
+    """The match with its first character in fullwidth form, so it no longer links."""
+    head = match.group(0)
+    return chr(ord(head[0]) + 0xFEE0) + head[1:]
+
+
+def _inert(value: Any, limit: int = 80, *, code: bool = False) -> str:
     """Upstream-derived text for a verdict-summary line, which is posted as an
-    issue comment. The raw value is decoded (entities), stripped of invisible
+    issue comment. The raw value is capped, decoded (entities), stripped of invisible
     controls, collapsed and cut to ``limit`` first, so no escape is ever split;
     then made inert: no backticks or angle brackets, no live @-mention, no bare
     autolink (``scheme://``, ``mailto:``, ``www.``: one separator becomes its
-    fullwidth form), no ``#123``/``owner/repo#123``/``GH-123`` cross-reference,
-    backslashes, square brackets and ``&`` escaped. ``|`` is escaped last, so
-    the table-cell backslash is never doubled."""
-    text = _decoded(value).translate(_INVISIBLE)
+    fullwidth form), no ``#123``/``owner/repo#123``/``GH-123`` cross-reference;
+    unless ``code``, also no commit SHA reference, and backslashes, square brackets and
+    ``&`` escaped. ``|`` is escaped last, so the table-cell backslash is never
+    doubled. ``code`` is for a value inside a backtick span: the backticks are
+    already stripped, so the span cannot be broken and escapes would show literally."""
+    text = _strip_invisible(_decoded(value, limit * _DECODE_CAP_FACTOR))
     text = neutralize(" ".join(text.split())[:limit])
     text = _SCHEME_SLASHES.sub(lambda m: f"{m.group(1)}:\uff0f\uff0f", text)
     text = _MAILTO.sub(lambda m: f"{m.group(1)}\uff1a", text)
@@ -156,10 +178,14 @@ def _inert(value: Any, limit: int = 80) -> str:
     text = _GH_REF.sub(lambda m: f"{m.group(1)}\uff0d", text)
     text = _REPO_HASH_REF.sub(lambda m: f"{m.group(1)}\uff03", text)
     text = _HASH_REF.sub("\uff03", text)
+    if code:  # nothing links inside a span, so a card id's hex stays readable
+        return text
+    text = _SHA.sub(_fullwidth_head, text)
     text = text.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
     return text.replace("&", "&amp;").replace("|", "\\|")
 
 
 def _row_lines(rows: list[dict[str, Any]]) -> list[str]:
-    return [f"  * `{_inert(r['card_id'])}` {_inert(r.get('title'), 120)} — {_inert(r['field'], 40)} "
-            f"`{_inert(r['raw'])}` ({_inert(r['reason'], 120)})" for r in rows]
+    return [f"  * `{_inert(r['card_id'], code=True)}` {_inert(r.get('title'), 120)} — "
+            f"{_inert(r['field'], 40)} `{_inert(r['raw'], code=True)}` "
+            f"({_inert(r['reason'], 120)})" for r in rows]
