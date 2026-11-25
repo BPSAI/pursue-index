@@ -8,6 +8,9 @@ client downscales to anyway).
 
 from __future__ import annotations
 
+import hashlib
+import io
+
 from pdf2image import convert_from_path
 from PIL import Image
 
@@ -26,7 +29,17 @@ def load_image_for(item: EligibleItem, dpi: int = _RENDER_DPI) -> Image.Image:
     if item.image_path is None:
         raise ValueError(f"eligible item has no image_path: {item.card_id}")
     if item.kind == "img_card":
-        return Image.open(item.image_path).convert("RGB")
+        if item.expected_sha256 is None:
+            return Image.open(item.image_path).convert("RGB")
+        # Hash the bytes actually decoded, not the file as it was at planning.
+        data = item.image_path.read_bytes()
+        actual = hashlib.sha256(data).hexdigest()
+        if actual != item.expected_sha256:
+            raise ValueError(
+                f"{item.card_id}: {item.image_path} sha256 {actual} != "
+                f"verified {item.expected_sha256}; the file changed after planning"
+            )
+        return Image.open(io.BytesIO(data)).convert("RGB")
     pages = convert_from_path(
         str(item.image_path), dpi=dpi, first_page=item.page, last_page=item.page
     )

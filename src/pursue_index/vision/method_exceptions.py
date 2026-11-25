@@ -13,7 +13,9 @@ the list as empty.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 from pursue_index.paths import repo_root
@@ -53,6 +55,14 @@ def _entry(raw: object, where: str) -> MethodException:
         raise MethodExceptionsError(
             f"{where}: card_id {values['card_id']!r} is not 16 lowercase hex characters"
         )
+    try:
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", values["decided_at"]):
+            raise ValueError("shape")
+        date.fromisoformat(values["decided_at"])
+    except ValueError:
+        raise MethodExceptionsError(
+            f"{where}: decided_at {values['decided_at']!r} is not an ISO date (YYYY-MM-DD)"
+        ) from None
     return MethodException(**values)
 
 
