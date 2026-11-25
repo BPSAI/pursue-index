@@ -234,7 +234,7 @@ def test_write_atomic_refuses_a_symlinked_sidecar(tmp_path) -> None:
     real.chmod(0o600)
     link = tmp_path / "card.json"
     link.symlink_to(real)
-    with pytest.raises(OSError, match="card.json"):
+    with pytest.raises(OSError, match=r"card\.json"):
         supersede.write_atomic(link, {"a": 1})
     assert link.is_symlink()
     assert os.readlink(link) == str(real)
@@ -246,7 +246,7 @@ def test_write_atomic_refuses_a_symlinked_sidecar(tmp_path) -> None:
 def test_write_atomic_refuses_a_dangling_symlink(tmp_path) -> None:
     link = tmp_path / "card.json"
     link.symlink_to(tmp_path / "missing.json")
-    with pytest.raises(OSError, match="card.json"):
+    with pytest.raises(OSError, match=r"card\.json"):
         supersede.write_atomic(link, {"a": 1})
     assert link.is_symlink()
     assert sorted(p.name for p in tmp_path.iterdir()) == ["card.json"]
