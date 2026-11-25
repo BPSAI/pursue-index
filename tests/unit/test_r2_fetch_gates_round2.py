@@ -152,11 +152,20 @@ def test_a_downgrade_or_other_scheme_hop_is_refused(monkeypatch, tmp_path, dns, 
     assert log and [u for u, _ in log] == [URL]
 
 
-def test_an_http_to_https_upgrade_hop_is_allowed_and_logged(capsys):
-    _r2_hosts.check_hop("http://www.war.gov/a.pdf", "https://www.war.gov/a.pdf")
-    _r2_hosts.log_hop("http://www.war.gov/a.pdf", "https://www.war.gov/a.pdf", 301)
+def test_an_http_redirect_is_refused_whatever_it_came_from(monkeypatch, tmp_path, dns):
+    """No upgrade hop: a fetch starts on https, so a redirect is https or it is refused."""
+    for current in ("https://www.war.gov/a.pdf", "http://www.war.gov/a.pdf"):
+        with pytest.raises(_r2_hosts.FetchLimitError, match="scheme"):
+            _r2_hosts.check_hop(current, "http://www.war.gov/a.pdf")
+    with pytest.raises(_r2_hosts.FetchLimitError, match="scheme"):
+        _r2_hosts.check_hop("http://www.war.gov/a.pdf", "https://www.war.gov/a.pdf")
+
+
+def test_a_logged_hop_carries_hosts_and_status_only(capsys):
+    _r2_hosts.log_hop("https://www.war.gov/a.pdf?x=1", "https://cdn.example.com/b.pdf?y=2", 301)
     out = capsys.readouterr().out
-    assert "scheme upgrade" in out and "http -> https" in out and "www.war.gov" in out
+    assert "www.war.gov -> cdn.example.com (301)" in out
+    assert "upgrade" not in out and "x=1" not in out and "y=2" not in out
 
 
 def test_http_to_other_scheme_hop_is_refused():

@@ -89,3 +89,15 @@ def test_the_scan_side_is_quiet_for_rows_before_the_window(capsys):
     )
     r2.registry_drift_since({"c1": [old, new]}, NOW - timedelta(days=2))
     assert "TYPE CHANGE" not in capsys.readouterr().out
+
+
+def test_a_type_change_prints_exactly_one_warning(tmp_path, monkeypatch, capsys):
+    """The scan side sees every row, so it is the only place the warning is emitted."""
+    w = World(tmp_path, monkeypatch)
+    w.add_card(1, prior=OLD_BODY, body=NEW_BODY, head_matches_prior=False)
+    new_url = "https://www.war.gov/medialink/ufo/c1.mp4"
+    w.cards[0].update(asset_url=new_url, asset_filename="c1.mp4", asset_type="VID")
+    w.bodies[new_url] = NEW_BODY
+    flags = ["--fail-on-drift", "--dispositions", str(w.dispositions), "--run-record", str(w.record)]
+    assert w.run(*flags) == 0
+    assert capsys.readouterr().out.count("TYPE CHANGE") == 1
