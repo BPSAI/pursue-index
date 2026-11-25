@@ -62,9 +62,18 @@ def write_atomic(path: Path, doc: dict[str, Any]) -> None:
     """Write ``doc`` to ``path`` through an unpredictably named temp file beside it.
 
     The file keeps the target's mode (0644 for a new one) and is synced before the
-    rename, the directory after it.
+    rename, the directory after it. A target that is a symlink is refused before
+    anything is written.
     """
     text = json.dumps(doc, indent=2) + "\n"
+    try:
+        st = os.lstat(path)
+    except FileNotFoundError:
+        mode = 0o644
+    else:
+        if stat.S_ISLNK(st.st_mode):
+            raise OSError(f"refusing to write through a symlink: {path}")
+        mode = stat.S_IMODE(st.st_mode)
     tmp: Path | None = None
     try:
         with tempfile.NamedTemporaryFile(
@@ -75,10 +84,6 @@ def write_atomic(path: Path, doc: dict[str, Any]) -> None:
             fh.write(text)
             fh.flush()
             os.fsync(fh.fileno())
-        try:
-            mode = stat.S_IMODE(path.stat().st_mode)
-        except FileNotFoundError:
-            mode = 0o644
         os.chmod(tmp, mode)
         os.replace(tmp, path)
         _fsync_dir(path.parent)
