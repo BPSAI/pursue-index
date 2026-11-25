@@ -82,7 +82,7 @@ def test_fetch_streams_into_the_hash_in_chunks_for_every_type(monkeypatch, tmp_p
 
     monkeypatch.setattr(_r2_fetch.cffi_requests, "get", fake_get)
     dest = tmp_path / f"asset.{ext}"
-    digest, size = r2.fetch_asset(f"https://www.war.gov/x.{ext}", dest, allowed_hosts=frozenset({"www.war.gov"}))
+    digest, size = r2.fetch_asset(f"https://www.war.gov/x.{ext}", dest, max_bytes=10**6, allowed_hosts=frozenset({"www.war.gov"}))
     assert seen.get("stream") is True
     assert resp.chunk_sizes and resp.chunk_sizes[0] > 0
     assert (digest, size) == (hashlib.sha256(b"".join(chunks)).hexdigest(), 20)
@@ -273,7 +273,7 @@ def test_a_large_body_arriving_steadily_does_not_time_out(monkeypatch, tmp_path)
     resp = _TimedResp(clock, [(30.0, b"x" * 4) for _ in range(100)])
     mod = _patch_fetch(monkeypatch, resp)
     monkeypatch.setattr(mod, "_now", clock)
-    digest, size = mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4", allowed_hosts=mod.ANY_HOST)
+    digest, size = mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4", max_bytes=10**6, allowed_hosts=mod.ANY_HOST)
     assert size == 400 and digest == hashlib.sha256(b"x" * 400).hexdigest()
 
 
@@ -283,7 +283,7 @@ def test_a_stalled_stream_fails_at_the_idle_timeout(monkeypatch, tmp_path):
     mod = _patch_fetch(monkeypatch, resp)
     monkeypatch.setattr(mod, "_now", clock)
     with pytest.raises(mod.FetchTimeoutError, match="idle"):
-        mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4", allowed_hosts=mod.ANY_HOST)
+        mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4", max_bytes=10**6, allowed_hosts=mod.ANY_HOST)
 
 
 def test_the_overall_ceiling_still_applies_to_a_trickling_server(monkeypatch, tmp_path):
@@ -293,13 +293,13 @@ def test_the_overall_ceiling_still_applies_to_a_trickling_server(monkeypatch, tm
     mod = _patch_fetch(monkeypatch, resp)
     monkeypatch.setattr(mod, "_now", clock)
     with pytest.raises(mod.FetchTimeoutError, match="ceiling"):
-        mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4", allowed_hosts=mod.ANY_HOST)
+        mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4", max_bytes=10**6, allowed_hosts=mod.ANY_HOST)
 
 
 def test_the_request_enforces_idle_and_ceiling_in_curl_itself(monkeypatch, tmp_path):
     seen: dict = {}
     mod = _patch_fetch(monkeypatch, _StreamResp([b"z"]), seen)
-    mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4", allowed_hosts=mod.ANY_HOST)
+    mod.fetch_asset("https://www.war.gov/v.mp4", tmp_path / "v.mp4", max_bytes=10**6, allowed_hosts=mod.ANY_HOST)
     assert seen["timeout"] == mod.TOTAL_CEILING_S
     assert mod.TOTAL_CEILING_S > 300 and mod.IDLE_TIMEOUT_S == 60
     assert mod.TOTAL_CEILING_S <= 180 * 60  # inside the weekly job's timeout-minutes

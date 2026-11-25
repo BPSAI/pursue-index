@@ -90,7 +90,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import argparse
-import json
 import os
 import tempfile
 from typing import Any
@@ -101,9 +100,15 @@ from pursue_index.paths import repo_root
 _REPO_ROOT = repo_root()
 
 from _r2_archive_put import put_archive_and_current
+from _r2_drift_scan import (
+    drift_window_start,
+    gate_marker_path,
+    gated_row_ids,
+    registry_drift_since,  # noqa: F401  (re-exported)
+    scan_registry,
+)
 from _r2_fetch import (
     FetchOverCapError,
-    allowed_hosts_from_urls,
     byte_cap,
     fetch_asset,
     for_card,
@@ -113,17 +118,15 @@ from _r2_fetch import (
     last_known_size,
     rows_for_asset,
 )
-from _r2_hosts import ApprovedHostsError, load_approved_hosts
+from _r2_hosts import ApprovedHostsError, load_approved_hosts, unlisted_card_hosts
+from _r2_registry import append_registry, load_registry
 from _r2_run_state import (
     GATE_MARKER_SCHEMA,
     RUN_RECORD_NAME,
     RunState,
     drift_outcome,
-    drift_window_start,
     full_hash_outcome,
-    gate_marker_path,
     now_iso,
-    registry_drift_since,
     staleness_outcome,
     write_run_record,
 )
@@ -142,53 +145,6 @@ DEFAULT_APPROVED_HOSTS = _REPO_ROOT / "data" / "approved-asset-hosts.json"
 DEFAULT_BUCKET = "pursue-pdfs"
 # Every asset type the registry tracks.
 ASSET_TYPES = ("PDF", "IMG", "VID", "AUD")
-
-
-def load_registry(path: Path) -> dict[str, list[dict[str, Any]]]:
-    """Return ``{card_id: [row, row, ...]}`` sorted newest-last by fetched_at.
-
-    Robust against malformed rows: a line missing ``card_id`` or
-    failing JSON parse is skipped, not raised. The registry is
-    append-only + content-addressed and is committed by multiple
-    workflows; a single corrupt mid-write line shouldn't take down
-    every subsequent run.
-    """
-    if not path.exists():
-        return {}
-    out: dict[str, list[dict[str, Any]]] = {}
-    with path.open() as fh:
-        for line in fh:
-            if not line.strip():
-                continue
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            card_id = row.get("card_id")
-            if not card_id:
-                continue
-            out.setdefault(card_id, []).append(row)
-    for rows in out.values():
-        rows.sort(key=lambda r: r.get("fetched_at", ""))
-    return out
-
-
-def append_registry(path: Path, entry: dict[str, Any]) -> None:
-    """Append one JSONL row to the asset-bytes registry.
-
-    Contract pin: every row MUST be on a single line. The workflow's
-    "count new rows" step uses `grep -c '^+{'` on the diff to report
-    how many rows landed in a given commit; that grep relies on each
-    row starting with `{` and ending with `}\n` — i.e., no pretty-
-    printed multi-line JSON. ``json.dumps`` with default settings
-    enforces this (no indent argument supplied), but the contract is
-    load-bearing for the workflow's row-count source, so this comment
-    serves as the regression alert: do NOT add `indent=` here.
-    """
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a") as fh:
-        # json.dumps default: compact, no indent → single-line per row.
-        fh.write(json.dumps(entry) + "\n")
 
 
 def make_r2_client():
@@ -291,24 +247,32 @@ def _process_card(
 
     # Only this asset's rows: a card's newest row may belong to another asset.
     rows = rows_for_asset(registry.get(card.card_id), card.asset_url, card.asset_filename)
+    if not rows:
+        state.note_type_change(card.card_id, registry.get(card.card_id), card.asset_url, card.asset_filename)
     hosts = state.allowed_hosts
     with for_card(card.card_id):
-        cl, etag, last_modified = head_asset(card.asset_url, hosts)
+        head = head_asset(card.asset_url, hosts)
+    cl, etag, last_modified = head
     # A HEAD answer is never proof of unchanged bytes. Only a HEAD that agrees
     # with the last row (size + ETag, or size + Last-Modified when there is no
     # ETag) is trusted to skip the fetch, and
     # then the card is reported as unverified, not unchanged.
-    if not state.full_hash and head_identical(rows, cl, etag, last_modified):
+    if not state.full_hash and head_identical(
+        rows, cl, etag, last_modified, encoded=getattr(head, "encoded", False)
+    ):
         return "head-unchanged"
 
     with tempfile.TemporaryDirectory(prefix="r2-archive-") as tmp:
         body = Path(tmp) / "asset"
+        ceiling = state.fetch_ceiling(hard_ceiling(rows))
         try:
             with for_card(card.card_id):
                 byte_sha, size = fetch_asset(
-                    card.asset_url, body, max_bytes=hard_ceiling(rows), allowed_hosts=hosts
+                    card.asset_url, body, max_bytes=ceiling, allowed_hosts=hosts,
+                    known_size=last_known_size(rows),
                 )
         except FetchOverCapError as exc:
+            state.budget_hit = ceiling < hard_ceiling(rows)
             print(f"[r2-archive] over the hard ceiling {card.card_id}: {exc}")
             return "fail"
         except Exception as exc:
@@ -507,9 +471,13 @@ def _select_cards(manifest, args, state: RunState) -> list[Any]:
     return eligible[: args.limit] if args.limit else eligible
 
 
-def _run_cards(args, eligible, registry, client, state: RunState) -> None:
+def _run_cards(args, eligible, registry, client, state: RunState, approved=()) -> None:
     """Process each card in order, stopping when the ``--full-hash`` byte budget is spent."""
     for i, card in enumerate(eligible):
+        if unlisted_card_hosts(card, approved, args.approved_hosts):
+            state.unlisted_host += 1  # this row fails; nothing is fetched or recorded for it
+            state.counts["fail"] += 1
+            continue
         if args.full_hash:
             known = rows_for_asset(registry.get(card.card_id), card.asset_url, card.asset_filename)
             expected = last_known_size(known) or 0
@@ -520,6 +488,9 @@ def _run_cards(args, eligible, registry, client, state: RunState) -> None:
             card, registry, client, args.bucket, args.dry_run, args.registry, state
         )
         state.counts[result] = state.counts.get(result, 0) + 1
+        if args.full_hash and state.budget_hit:  # the budget left, not the asset, was the bound
+            state.over_budget, state.unhashed = True, len(eligible) - i
+            return
         if args.full_hash and state.bytes_hashed > args.max_bytes_per_run:
             state.over_budget, state.unhashed = True, len(eligible) - i - 1
             return
@@ -550,18 +521,19 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     started = now_iso()
-    since = drift_window_start(args)  # read before this run appends anything
+    since, gated = drift_window_start(args), gated_row_ids(args)  # read before this run appends
 
     client = None if args.dry_run else make_r2_client()
     if client is None and not args.dry_run:
-        return _no_credentials(args)
+        # The skip must not hide an unlisted host: name each one and fail the run.
+        unlisted = [c for c in manifest.cards if unlisted_card_hosts(c, approved, args.approved_hosts)]
+        return max(_no_credentials(args), 1 if unlisted else 0)
 
-    state = RunState(full_hash=args.full_hash, started_at=started)
-    state.allowed_hosts = allowed_hosts_from_urls(c.asset_url for c in manifest.cards) | approved
+    state = RunState.for_run(args, manifest, approved, started)
     eligible = _select_cards(manifest, args, state)
     state.cards_hashed = len(eligible)
     print(f"[r2-archive] processing {len(eligible)} eligible cards")
-    _run_cards(args, eligible, registry, client, state)
+    _run_cards(args, eligible, registry, client, state, approved)
 
     c = state.counts
     print(
@@ -569,19 +541,22 @@ def main(argv: list[str] | None = None) -> int:
         f"new={c['new']} unchanged={c['unchanged']} "
         f"head-unchanged (unverified)={c['head-unchanged']} "
         f"archive-hit={c['archive-hit']} fail={c['fail']} "
+        f"unlisted_host={state.unlisted_host} "
         f"size_alerts={state.size_alerts} "
         f"no-upstream-url={state.no_upstream_url}"
     )
     rc = full_hash_outcome(args, state) if args.full_hash else 0
     # The registry itself, not only this run's own findings: the poll lane appends
     # new-sha rows without --fail-on-drift, so the fetched sha can equal the latest row.
-    seen = registry_drift_since(load_registry(args.registry), since) if args.fail_on_drift else ()
+    seen, gated_ids = scan_registry(args, since, gated)
     drift_rc = drift_outcome(args, state, dispositions, seen)
     if args.fail_on_drift and not drift_rc and not args.dry_run:
         write_run_record(
-            gate_marker_path(args), {"schema": GATE_MARKER_SCHEMA, "completed_at": started}
+            gate_marker_path(args),
+            {"schema": GATE_MARKER_SCHEMA, "completed_at": started, "gated_row_ids": gated_ids},
         )
-    return max(rc, drift_rc, staleness_outcome(args))
+    # A refused host fails the run in every mode, the poll lane included.
+    return max(rc, drift_rc, staleness_outcome(args), 1 if state.unlisted_host else 0)
 
 
 if __name__ == "__main__":

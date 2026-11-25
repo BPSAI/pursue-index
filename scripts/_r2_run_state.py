@@ -14,7 +14,9 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from pursue_index.asset_rows import file_type, rows_of_asset  # noqa: F401  (re-exported)
+from _r2_hosts import type_change_line
+
+from pursue_index.asset_rows import type_change
 from pursue_index.byte_dispositions import RESAVE_CONTENT_VERIFIED
 
 RUN_RECORD_NAME = "full-hash-runs.jsonl"
@@ -50,6 +52,7 @@ class RunState:
             "new": 0, "unchanged": 0, "head-unchanged": 0, "archive-hit": 0, "fail": 0,
         }
     )
+    unlisted_host: int = 0  # cards refused because their asset host is not approved
     over_budget: bool = False
     unhashed: int = 0
     partial_reason: str = ""  # why a run covered fewer cards than the manifest has
@@ -60,6 +63,34 @@ class RunState:
     allowed_hosts: frozenset[str] = frozenset()
     size_alerts: int = 0  # assets past the x2 growth cap (alerts, not failures)
     started_at: str = ""  # when the run began; recorded so a rescan can start before its rows
+    byte_budget: int | None = None  # ``--max-bytes-per-run``; caps each fetch's ceiling
+    budget_hit: bool = False  # a fetch stopped at the budget left, not at its own ceiling
+    card_urls: dict[str, set[str]] = field(default_factory=dict)  # asset URLs per manifest card
+
+    @classmethod
+    def for_run(cls, args, manifest, approved: frozenset[str], started: str) -> RunState:
+        """A run's state: its budget, the approved hosts (the manifest may not widen them) and
+        each card's manifest asset URLs."""
+        # The byte budget belongs to the weekly full-hash pass only; a poll or daily run
+        # never carries one, so its fetches keep their own ceilings.
+        budget = args.max_bytes_per_run if args.full_hash else None
+        state = cls(full_hash=args.full_hash, started_at=started, byte_budget=budget)
+        state.allowed_hosts = approved
+        for card in manifest.cards:
+            state.card_urls.setdefault(card.card_id, set()).add(str(card.asset_url))
+        return state
+
+    def fetch_ceiling(self, ceiling: int) -> int:
+        """``ceiling``, cut to what is left of a full-hash run's byte budget."""
+        if not self.full_hash or self.byte_budget is None:
+            return ceiling
+        return min(ceiling, max(self.byte_budget - self.bytes_hashed, 0))
+
+    def note_type_change(self, card_id: str, card_rows, asset_url: Any, asset_filename: Any) -> None:
+        """Warn when an asset's URL and file type both changed (its old asset is gone from the manifest)."""
+        found = type_change(card_rows, asset_url, asset_filename)
+        if found and str(found[0].get("asset_url")) not in self.card_urls.get(card_id, ()):
+            print(type_change_line(card_id, *found, asset_url))
 
     def note_growth(self, card_id: str, known: int | None, size: int, cap: int) -> None:
         """Alert, without failing the card, when an asset with a known size passed its cap."""
@@ -152,80 +183,6 @@ def staleness_outcome(args) -> int:
         )
         return 1
     return 0
-
-
-def gate_marker_path(args) -> Path:
-    return args.gate_marker or args.registry.parent / GATE_MARKER_NAME
-
-
-def newest_run_start(path: Path, now: datetime | None = None) -> datetime | None:
-    """When the newest complete run in ``path`` BEGAN.
-
-    A complete weekly record is written whether or not its drift gate passed, and the
-    rows it wrote are dated inside the run, before ``completed_at``. Only ``started_at``
-    is safe as a scan start. A legacy record without one is not trusted: it yields the
-    bootstrap window instead, which reaches at least as far back."""
-    now = now or datetime.now(UTC)
-    finished = newest_complete_run(path, now)
-    if finished is None:
-        return None
-    started: datetime | None = None
-    for line in path.read_text().splitlines():
-        try:
-            row = json.loads(line)
-            done = datetime.fromisoformat(row["completed_at"])
-            when = datetime.fromisoformat(row["started_at"])
-        except (ValueError, KeyError, TypeError):
-            continue
-        if done.tzinfo is None:
-            done = done.replace(tzinfo=UTC)
-        if when.tzinfo is None:
-            when = when.replace(tzinfo=UTC)
-        if done == finished:
-            started = when
-    if started is None:
-        return min(finished, now - timedelta(days=BOOTSTRAP_WINDOW_DAYS))
-    return started
-
-
-def drift_window_start(args, now: datetime | None = None) -> datetime:
-    """Where the registry drift scan starts: the EARLIEST of the last passing gate marker
-    and the start of the last complete ``--full-hash`` run.
-
-    The weekly record exists even when that run's drift gate failed, so a run with no
-    marker must not start after the rows it wrote. With neither, the last 8 days."""
-    now = now or datetime.now(UTC)
-    record = args.run_record or args.registry.parent / RUN_RECORD_NAME
-    starts = [
-        t
-        for t in (newest_complete_run(gate_marker_path(args), now), newest_run_start(record, now))
-        if t is not None
-    ]
-    return min(starts) if starts else now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)
-
-
-def registry_drift_since(registry: dict[str, list[dict[str, Any]]], since: datetime):
-    """``(card_id, previous_sha, new_sha)`` for each row fetched at/after ``since`` whose sha
-    differs from the previous row of the same card AND the same ``asset_url``, or
-    (for a moved URL) the newest earlier row of the same file type. A first row with no
-    such earlier row is net-new, never drift."""
-    out = []
-    for card_id, rows in registry.items():
-        for i, row in enumerate(rows):
-            earlier = rows_of_asset(rows[:i], row.get("asset_url"), row.get("asset_filename"))
-            prev = earlier[-1] if earlier else None
-            if prev is None:
-                continue
-            try:
-                when = datetime.fromisoformat(row["fetched_at"])
-            except (KeyError, ValueError, TypeError):
-                continue
-            if when.tzinfo is None:
-                when = when.replace(tzinfo=UTC)
-            old, new = prev.get("byte_sha256"), row.get("byte_sha256")
-            if when >= since and old and new and old != new:
-                out.append((card_id, old, new))
-    return out
 
 
 def drift_outcome(args, state: RunState, dispositions, registry_drift=()) -> int:

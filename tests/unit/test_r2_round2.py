@@ -20,9 +20,12 @@ if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
 import _r2_fetch  # noqa: E402
+import _r2_hosts  # noqa: E402
 import _r2_run_state  # noqa: E402
 
 HOSTS = frozenset({"www.war.gov"})
+pytestmark = pytest.mark.usefixtures("dns")
+
 URL = "https://www.war.gov/a.pdf"
 
 
@@ -67,13 +70,13 @@ def test_head_without_hosts_is_a_type_error(monkeypatch):
 def test_none_is_not_a_way_to_skip_the_check(monkeypatch, tmp_path):
     _serve(monkeypatch, {"https://evil.example/a.pdf": _Resp(chunks=[b"x"])})
     with pytest.raises(_r2_fetch.FetchLimitError):
-        _r2_fetch.fetch_asset("https://evil.example/a.pdf", tmp_path / "a", allowed_hosts=None)
+        _r2_fetch.fetch_asset("https://evil.example/a.pdf", tmp_path / "a", max_bytes=10**6, allowed_hosts=None)
 
 
 def test_the_explicit_any_host_sentinel_allows_any_host(monkeypatch, tmp_path):
     _serve(monkeypatch, {"https://other.example/a.pdf": _Resp(chunks=[b"ok"])})
     _, size = _r2_fetch.fetch_asset(
-        "https://other.example/a.pdf", tmp_path / "a", allowed_hosts=_r2_fetch.ANY_HOST
+        "https://other.example/a.pdf", tmp_path / "a", max_bytes=10**6, allowed_hosts=_r2_fetch.ANY_HOST
     )
     assert size == 2
 
@@ -88,24 +91,30 @@ def _redirect(to):
 def test_an_https_to_http_redirect_is_refused_before_it_is_requested(monkeypatch, tmp_path):
     log = _serve(monkeypatch, {URL: _redirect("http://www.war.gov/a.pdf")})
     with pytest.raises(_r2_fetch.FetchLimitError, match="scheme"):
-        _r2_fetch.fetch_asset(URL, tmp_path / "a", allowed_hosts=HOSTS)
+        _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)
     assert log == [URL]
 
 
 def test_a_redirect_to_a_non_default_port_is_refused(monkeypatch, tmp_path):
     log = _serve(monkeypatch, {URL: _redirect("https://www.war.gov:8443/a.pdf")})
     with pytest.raises(_r2_fetch.FetchLimitError, match="port"):
-        _r2_fetch.fetch_asset(URL, tmp_path / "a", allowed_hosts=HOSTS)
+        _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)
     assert log == [URL]
 
 
 def test_a_redirect_to_an_explicit_default_port_is_followed(monkeypatch, tmp_path):
     _serve(monkeypatch, {URL: _redirect("https://www.war.gov:443/b.pdf"),
                          "https://www.war.gov:443/b.pdf": _Resp(chunks=[b"k"])})
-    assert _r2_fetch.fetch_asset(URL, tmp_path / "a", allowed_hosts=HOSTS)[1] == 1
+    assert _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)[1] == 1
 
 
-def test_real_client_refuses_a_redirect_to_another_local_port(tmp_path):
+@pytest.fixture()
+def _local_seam():
+    with _r2_hosts.allow_local_for_tests():
+        yield
+
+
+def test_real_client_refuses_a_redirect_to_another_local_port(tmp_path, monkeypatch, _local_seam):
     class _Target(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             self.send_response(200)
@@ -135,6 +144,7 @@ def test_real_client_refuses_a_redirect_to_another_local_port(tmp_path):
             _r2_fetch.fetch_asset(
                 f"http://127.0.0.1:{hop.server_address[1]}/a",
                 tmp_path / "a",
+                max_bytes=10**6,
                 allowed_hosts=frozenset({"127.0.0.1"}),
             )
     finally:

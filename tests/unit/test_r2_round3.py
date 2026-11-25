@@ -18,6 +18,8 @@ import _r2_hosts  # noqa: E402
 
 from tests.unit.r2_verify_harness import OLD_BODY, World, r2, sha  # noqa: E402
 
+pytestmark = pytest.mark.usefixtures("dns")
+
 URL = "https://www.war.gov/a.pdf"
 CDN = "https://cdn.example.com/a.pdf"
 APPROVED = _SCRIPTS.parent / "data" / "approved-asset-hosts.json"
@@ -104,7 +106,7 @@ def _hosts_seen_by_fetch(tmp_path, monkeypatch, *extra):
 
 
 def test_main_adds_the_approved_hosts_to_the_manifest_hosts(tmp_path, monkeypatch):
-    path = _approved(tmp_path, {"comment": "c", "hosts": ["cdn.example.com"]})
+    path = _approved(tmp_path, {"comment": "c", "hosts": ["www.war.gov", "cdn.example.com"]})
     got = _hosts_seen_by_fetch(tmp_path, monkeypatch, "--approved-hosts", str(path))
     assert got == frozenset({"www.war.gov", "cdn.example.com"})
 
@@ -116,13 +118,13 @@ def test_main_without_extra_hosts_allows_only_the_manifest_host(tmp_path, monkey
 def test_an_approved_cross_host_hop_is_followed(monkeypatch, tmp_path):
     _serve(monkeypatch, {URL: _Resp(302, {"location": CDN}), CDN: _Resp(chunks=[b"ok"])})
     hosts = frozenset({"www.war.gov", "cdn.example.com"})
-    assert _r2_fetch.fetch_asset(URL, tmp_path / "a", allowed_hosts=hosts)[1] == 2
+    assert _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=hosts)[1] == 2
 
 
 def test_an_unapproved_cross_host_hop_is_refused_before_it_is_requested(monkeypatch, tmp_path):
     log = _serve(monkeypatch, {URL: _Resp(302, {"location": CDN})})
     with pytest.raises(_r2_fetch.FetchLimitError, match=r"cdn\.example\.com"):
-        _r2_fetch.fetch_asset(URL, tmp_path / "a", allowed_hosts=frozenset({"www.war.gov"}))
+        _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=frozenset({"www.war.gov"}))
     assert log == [URL]
 
 
@@ -131,7 +133,7 @@ def test_every_hop_is_logged_with_hosts_only(monkeypatch, tmp_path, capsys):
     _serve(monkeypatch, {URL: _Resp(301, {"location": secret}), secret: _Resp(chunks=[b"ok"])})
     hosts = frozenset({"www.war.gov", "cdn.example.com"})
     with _r2_fetch.for_card("00000000000000aa"):
-        _r2_fetch.fetch_asset(URL, tmp_path / "a", allowed_hosts=hosts)
+        _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=hosts)
     out = capsys.readouterr().out
     assert "[r2-archive] redirect: 00000000000000aa www.war.gov -> cdn.example.com (301)" in out
     assert "SECRET" not in out and "/a.pdf" not in out
