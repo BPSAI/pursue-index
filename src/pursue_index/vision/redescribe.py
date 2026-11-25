@@ -205,10 +205,10 @@ def _write_card(
 ) -> None:
     """Supersede the planned sidecar; refuse if the file is no longer that copy."""
     planned = plan.sidecars.get(card_id)
+    if planned is None:
+        raise RuntimeError(f"{card_id}: no planned copy of the sidecar; not written over")
     current = _read_sidecar(path)
-    if planned is None and isinstance(current, dict):
-        planned = current
-    if current != planned or planned is None:
+    if current != planned:
         raise RuntimeError(f"{card_id}: sidecar changed since it was planned; not written over")
     write_atomic(path, supersede_sidecar(planned, pages, model=model, now=now))
 
