@@ -81,6 +81,20 @@ class RunState:
             return ceiling
         return min(ceiling, max(self.byte_budget - self.bytes_hashed, 0))
 
+    def note_hashed(self, size: int, encoded: bool = False) -> None:
+        """Count ``size`` hashed bytes; an encoded asset also counts as an encoded-head fetch."""
+        self.bytes_hashed += size
+        if encoded:
+            self.encoded_fetches, self.encoded_bytes = self.encoded_fetches + 1, self.encoded_bytes + size
+
+    def begin(self, registry, cards, eligible) -> None:
+        """Record the eligible count, announce it, and warn about asset-type changes."""
+        from _r2_type_change import warn_type_changes
+
+        self.cards_hashed = len(eligible)
+        print(f"[r2-archive] processing {len(eligible)} eligible cards")
+        warn_type_changes(registry, cards, eligible)
+
     def summary_line(self) -> str:
         return f"[r2-archive] encoded-head fetches: {self.encoded_fetches} (bytes {self.encoded_bytes})"
 
