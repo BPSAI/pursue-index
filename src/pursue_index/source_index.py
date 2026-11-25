@@ -52,20 +52,8 @@ from pursue_index.sitemap_fetch import (
     CourteousFetcher,
     SitemapFetchError,
     UrlRow,
-    is_listing_url,
-    is_text_sitemap_url,
-    normalize_host,
-    parse_robots_sitemaps,
-    parse_sitemap_index,
-    parse_text_sitemap,
-    parse_url_entries,
 )
-from pursue_index.source_hosts import (
-    SOURCE_HOSTS_PATH,
-    host_allowed,
-    load_source_hosts,
-    note_skipped,
-)
+from pursue_index.source_hosts import SOURCE_HOSTS_PATH, load_source_hosts, walk_sitemaps
 
 __all__ = [
     "INVALID_URL_EXCLUSION_REASON",
@@ -331,33 +319,7 @@ def build_catalogue_from_fetcher(
     """
     if allowed_hosts is None:
         allowed_hosts = load_source_hosts(_resolve_repo_root() / SOURCE_HOSTS_PATH)
-    hosts = frozenset(h for h in (normalize_host(h) for h in allowed_hosts) if h)
-    if not hosts:
-        raise SitemapFetchError("no pinned source hosts; refusing to run")
-    if not host_allowed(robots_url, hosts):
-        raise SitemapFetchError(f"refusing robots URL {robots_url!r}: not an https URL on a pinned source host")
-    index_urls = parse_robots_sitemaps(fetcher.fetch(robots_url).body)
-    declared = frozenset(u for u in index_urls if is_text_sitemap_url(u))
-    rows: list[Any] = []
-    dropped = 0
-    for index_url in index_urls:
-        if not host_allowed(index_url, hosts):
-            note_skipped(index_url, "sitemap")
-            continue
-        if index_url in declared:
-            text_rows, bad = parse_text_sitemap(fetcher.fetch(index_url, declared).body)
-            rows.extend(text_rows)
-            dropped += bad
-            continue
-        if not is_listing_url(index_url):
-            continue
-        for child in parse_sitemap_index(fetcher.fetch(index_url).body):
-            if not is_listing_url(child):
-                continue
-            if not host_allowed(child, hosts):
-                note_skipped(child, "child sitemap")
-                continue
-            rows.extend(parse_url_entries(fetcher.fetch(child).body))
+    rows, index_urls, dropped = walk_sitemaps(fetcher, robots_url, allowed_hosts)
     catalogue = build_catalogue(rows, index_urls)
     return replace(catalogue, excluded_invalid_url=catalogue.excluded_invalid_url + dropped)
 
