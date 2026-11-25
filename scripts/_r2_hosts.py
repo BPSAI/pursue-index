@@ -101,6 +101,8 @@ def _parsed(url: str | ParsedUrl) -> ParsedUrl:
 
 
 def check_host(url: str | ParsedUrl, allowed_hosts: Collection[str] | AnyHost | None) -> None:
+    """Refuse a host off ``allowed_hosts``. ``ANY_HOST`` means no allowlist restriction, not no URL
+    validation: a string the strict parse refuses raises ``FetchLimitError`` with it too."""
     host = _parsed(url).host
     if allowed_hosts is ANY_HOST:
         return
@@ -140,7 +142,8 @@ def check_resolved(
     Returns the checked addresses (de-duplicated, in answer order) for the caller to pin the
     connection to, so the request cannot resolve the name a second time to something else.
     Skipped, returning ``[]``, with ``ANY_HOST`` (the explicit no-restriction opt-out) and
-    through the test seam."""
+    through the test seam. The URL is strictly parsed first even then: ``ANY_HOST`` lifts the
+    allowlist, never the validation, so a URL the parse refuses raises ``FetchLimitError``."""
     parts = _parsed(url)
     if allowed_hosts is ANY_HOST or _ALLOW_LOCAL.get():
         return []

@@ -130,6 +130,7 @@ from _r2_run_state import (
     staleness_outcome,
     write_run_record,
 )
+from _r2_type_change import warn_type_changes
 
 from pursue_index.byte_dispositions import (
     ByteDispositionError,
@@ -278,6 +279,8 @@ def _process_card(
             return "fail"
         state.note_growth(card.card_id, last_known_size(rows), size, byte_cap(rows))
         state.bytes_hashed += size
+        if getattr(head, "encoded", False):
+            state.encoded_fetches, state.encoded_bytes = state.encoded_fetches + 1, state.encoded_bytes + size
         # Only the LATEST row decides: bytes equal to an older row are a revert.
         if rows and rows[-1].get("byte_sha256") == byte_sha:
             return "unchanged"
@@ -531,7 +534,9 @@ def main(argv: list[str] | None = None) -> int:
     eligible = _select_cards(manifest, args, state)
     state.cards_hashed = len(eligible)
     print(f"[r2-archive] processing {len(eligible)} eligible cards")
+    warn_type_changes(registry, manifest.cards, eligible)
     _run_cards(args, eligible, registry, client, state, approved)
+    print(state.summary_line())
 
     c = state.counts
     print(

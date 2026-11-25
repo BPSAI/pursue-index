@@ -58,6 +58,8 @@ class RunState:
     # Hosts of the manifest's asset URLs plus the approved list; every fetch and redirect
     # must stay inside it.
     allowed_hosts: frozenset[str] = frozenset()
+    encoded_fetches: int = 0  # content-encoded assets fetched and hashed in full (no HEAD shortcut)
+    encoded_bytes: int = 0
     size_alerts: int = 0  # assets past the x2 growth cap (alerts, not failures)
     started_at: str = ""  # when the run began; recorded so a rescan can start before its rows
     byte_budget: int | None = None  # ``--max-bytes-per-run``; caps each fetch's ceiling
@@ -78,6 +80,9 @@ class RunState:
         if not self.full_hash or self.byte_budget is None:
             return ceiling
         return min(ceiling, max(self.byte_budget - self.bytes_hashed, 0))
+
+    def summary_line(self) -> str:
+        return f"[r2-archive] encoded-head fetches: {self.encoded_fetches} (bytes {self.encoded_bytes})"
 
     def note_growth(self, card_id: str, known: int | None, size: int, cap: int) -> None:
         """Alert, without failing the card, when an asset with a known size passed its cap."""
