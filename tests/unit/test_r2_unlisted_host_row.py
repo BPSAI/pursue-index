@@ -83,3 +83,28 @@ def test_a_run_with_no_credentials_and_only_listed_hosts_still_warns_and_skips(t
     w.creds = False
     assert w.run() == 0
     assert "skipping the archive step" in capsys.readouterr().err
+
+
+def test_a_url_the_strict_parse_refuses_counts_as_an_unlisted_host(capsys):
+    import sys
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from types import SimpleNamespace
+
+    import _r2_hosts
+
+    card = SimpleNamespace(card_id="c1", asset_url="https://evil@good.example/x")
+    assert _r2_hosts.unlisted_card_hosts(card, {"good.example"}, "hosts.json") is True
+    err = capsys.readouterr().err
+    assert "not listed in" in err and "evil@" not in err and "evil@good" not in err
+
+
+def test_a_refused_url_fails_a_run_with_no_credentials(tmp_path, monkeypatch, capsys):
+    w = World(tmp_path, monkeypatch)
+    w.add_card(1)
+    w.cards[0]["asset_url"] = "https://evil@good.example/x"
+    w.creds = False
+    rc = w.run()
+    err = capsys.readouterr().err
+    assert rc == 1
+    assert "not listed in" in err and "evil@" not in err

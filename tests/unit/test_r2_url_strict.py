@@ -115,3 +115,49 @@ def test_the_request_uses_the_normalized_url_and_the_pin_names_the_same_host(mon
     (url, kw), = sent
     assert url == "https://www.war.gov:8443/a.pdf"
     assert kw["curl_options"][_r2_hosts.CURLOPT_RESOLVE] == ["www.war.gov:8443:93.184.216.34"]
+
+
+def _refusal(url):
+    with pytest.raises(_r2_hosts.FetchLimitError) as exc:
+        _r2_hosts.parse_url(url)
+    return str(exc.value)
+
+
+def test_a_userinfo_refusal_never_echoes_the_credentials():
+    msg = _refusal("https://user:s3cret@good.example/x")
+    assert "s3cret" not in msg and "user:" not in msg and "user" not in msg.replace("userinfo", "")
+    assert "userinfo" in msg and "https://good.example" in msg
+
+
+@pytest.mark.parametrize(
+    ("url", "leaks"),
+    [
+        ("https://user:s3cret@good.example/secret/path?token=abc#frag", ["s3cret", "secret", "token", "abc", "frag", "user"]),
+        ("https://good.example\\evil/secret/path?token=abc", ["secret", "token", "abc", "evil"]),
+        ("https://good.example/secret\x07path?token=abc", ["secret", "token", "abc"]),
+        ("https://good.example:99999/secret/path?token=abc", ["secret", "token", "abc", "99999"]),
+        ("https://goo d.example/secret?token=abc", ["secret", "token", "abc"]),
+        ("not a url with secret=abc", ["secret", "abc"]),
+    ],
+)
+def test_a_refusal_carries_no_raw_path_query_userinfo_or_port_text(url, leaks):
+    msg = _refusal(url)
+    for leak in leaks:
+        assert leak not in msg.replace("userinfo", "")
+    assert "'" not in msg and "\\" not in msg
+
+
+def test_a_refusal_shows_the_scheme_and_a_cleanly_parsed_host_only():
+    assert "https://good.example" in _refusal("https://good.example:99999/x?q=1")
+    assert "<unparsed>" in _refusal("https://good.example\\evil/x")
+    assert "<unparsed>" in _refusal("https://good.example/a\x07b")
+
+
+def test_a_refusal_carries_a_stable_twelve_hex_fingerprint():
+    import hashlib
+    import re
+
+    url = "https://user:s3cret@good.example/x"
+    fp = hashlib.sha256(url.encode()).hexdigest()[:12]
+    assert fp in _refusal(url) and _refusal(url) == _refusal(url)
+    assert re.search(r"\b[0-9a-f]{12}\b", _refusal("https://good.example:0/y"))
