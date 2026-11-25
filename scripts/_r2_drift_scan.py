@@ -111,6 +111,8 @@ def drift_and_coverage(
     registry: dict[str, list[dict[str, Any]]],
     since: datetime,
     rows_after: list[dict[str, Any]] | None = None,
+    *,
+    sweep: bool = False,
 ):
     """The one place a registry row is evaluated, and so the only producer of covered ids.
 
@@ -125,7 +127,11 @@ def drift_and_coverage(
     ``"outside the window"`` or ``"unparseable time"``.
 
     ``rows_after`` (row objects of ``registry``, as ``load_registry`` returns them) limits the
-    scan to those rows: the ones a passing gate has not covered yet. ``None`` scans them all."""
+    scan to those rows: the ones a passing gate has not covered yet. ``None`` scans them all.
+
+    ``sweep`` (the weekly full-hash run) evaluates every row in scope whatever its ``fetched_at``,
+    an unparseable one included: a late-merged row dated before ``since`` is compared against
+    its asset's earlier rows, and only then marked covered. Nothing is skipped."""
     fresh = None if rows_after is None else {id(r) for r in rows_after}
     out: list[tuple[str, str, str]] = []
     covered: set[str] = set()
@@ -137,11 +143,14 @@ def drift_and_coverage(
             try:
                 when = datetime.fromisoformat(row["fetched_at"])
             except (KeyError, ValueError, TypeError):
-                skipped[row_id(row)] = (card_id, "unparseable time")
-                continue
-            if when.tzinfo is None:
+                if not sweep:
+                    skipped[row_id(row)] = (card_id, "unparseable time")
+                    continue
+                when = None
+            if when is not None and when.tzinfo is None:
                 when = when.replace(tzinfo=UTC)
-            if when < since:
+            in_window = when is not None and when >= since
+            if not in_window and not sweep:
                 skipped[row_id(row)] = (card_id, "outside the window")
                 continue
             covered.add(row_id(row))
@@ -149,7 +158,7 @@ def drift_and_coverage(
             prev = earlier[-1] if earlier else None
             if prev is None:
                 change = type_change(rows[:i], row.get("asset_url"), row.get("asset_filename"))
-                if change and not any(
+                if in_window and change and not any(
                     r.get("asset_url") == change[0].get("asset_url") for r in rows[i + 1 :]
                 ):
                     print(type_change_line(card_id, *change, row.get("asset_url")))
@@ -188,7 +197,7 @@ def scan_registry(args, since: datetime, gated: set[str] | None) -> tuple[Any, l
 
     ``gated`` ids (``None`` scans every row) are skipped wherever they sit and stay covered
     while still in the registry; the only other ids are those ``drift_and_coverage`` evaluated.
-    Rows it skipped stay ungated and are reported."""
+    Rows it skipped stay ungated and are reported; on a ``--full-hash`` run it skips none."""
     if not args.fail_on_drift:
         return (), []
     rows = load_registry_rows(args.registry)
@@ -196,6 +205,8 @@ def scan_registry(args, since: datetime, gated: set[str] | None) -> tuple[Any, l
     present = set(ids)
     keep = set() if gated is None else gated & present
     after = None if gated is None else [r for r, i in zip(rows, ids, strict=True) if i not in gated]
-    drift, covered, skipped = drift_and_coverage(group_registry(rows), since, after)
+    drift, covered, skipped = drift_and_coverage(
+        group_registry(rows), since, after, sweep=bool(getattr(args, "full_hash", False))
+    )
     _report_ungated({k: v for k, v in skipped.items() if k not in keep})
     return drift, sorted(keep | covered)
