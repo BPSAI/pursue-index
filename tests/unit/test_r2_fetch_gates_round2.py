@@ -152,13 +152,11 @@ def test_a_downgrade_or_other_scheme_hop_is_refused(monkeypatch, tmp_path, dns, 
     assert log and [u for u, _ in log] == [URL]
 
 
-def test_an_http_redirect_is_refused_whatever_it_came_from(monkeypatch, tmp_path, dns):
+def test_an_http_redirect_is_refused_whatever_it_came_from():
     """No upgrade hop: a fetch starts on https, so a redirect is https or it is refused."""
     for current in ("https://www.war.gov/a.pdf", "http://www.war.gov/a.pdf"):
         with pytest.raises(_r2_hosts.FetchLimitError, match="scheme"):
             _r2_hosts.check_hop(current, "http://www.war.gov/a.pdf")
-    with pytest.raises(_r2_hosts.FetchLimitError, match="scheme"):
-        _r2_hosts.check_hop("http://www.war.gov/a.pdf", "https://www.war.gov/a.pdf")
 
 
 def test_a_logged_hop_carries_hosts_and_status_only(capsys):

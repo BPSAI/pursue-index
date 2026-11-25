@@ -12,7 +12,6 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
 from typing import Any, NamedTuple
-from urllib.parse import urlsplit
 
 _DEFAULT_PORTS = {"http": 80, "https": 443}
 # libcurl's CURLOPT_RESOLVE (curl_cffi's CurlOpt.RESOLVE), inlined like the other option numbers.
@@ -96,16 +95,8 @@ def for_card(card_id: str) -> Iterator[None]:
 
 
 def log_hop(current: str, target: str, status: int) -> None:
-    """One line per redirect hop: hosts only, never a path or query string.
-
-    An http to https upgrade says so on the same line."""
-    upgrade = ""
-    if urlsplit(current).scheme == "http" and urlsplit(target).scheme == "https":
-        upgrade = " scheme upgrade http -> https"
-    print(
-        f"[r2-archive] redirect: {_CARD.get()} {host_of(current)} -> {host_of(target)} "
-        f"({status}){upgrade}"
-    )
+    """One line per redirect hop: hosts only, never a path or query string."""
+    print(f"[r2-archive] redirect: {_CARD.get()} {host_of(current)} -> {host_of(target)} ({status})")
 
 
 class AnyHost:
@@ -248,14 +239,13 @@ def _scheme_of(url: str) -> str:
 
 
 def check_hop(current: str, target: str) -> None:
-    """A redirect stays on https (an http to https upgrade is the one scheme change allowed),
-    and stays on the port it came from (or the default)."""
-    nxt = _scheme_of(target)
-    cur = _scheme_of(current)
-    if nxt not in _DEFAULT_PORTS or (cur == "https" and nxt != "https"):
-        raise FetchLimitError(f"redirect to scheme {nxt!r} from {cur!r} is refused")
+    """A redirect must stay on https (plain http only through the test seam) and on the port it
+    came from, or the default. There is no http to https upgrade: a fetch starts on https."""
+    scheme = _scheme_of(target)
+    if scheme != "https" and not (_ALLOW_LOCAL.get() and scheme == "http"):
+        raise FetchLimitError(f"redirect to scheme {scheme or '(none)'!r} is refused: https only")
     new, old = parse_url(target), parse_url(current)
-    if new.port not in (_DEFAULT_PORTS[nxt], old.port):
+    if new.port not in (_DEFAULT_PORTS[scheme], old.port):
         raise FetchLimitError(f"redirect to port {new.port} is refused")
 
 

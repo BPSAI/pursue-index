@@ -14,9 +14,6 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from _r2_hosts import type_change_line
-
-from pursue_index.asset_rows import type_change
 from pursue_index.byte_dispositions import RESAVE_CONTENT_VERIFIED
 
 RUN_RECORD_NAME = "full-hash-runs.jsonl"
@@ -65,19 +62,15 @@ class RunState:
     started_at: str = ""  # when the run began; recorded so a rescan can start before its rows
     byte_budget: int | None = None  # ``--max-bytes-per-run``; caps each fetch's ceiling
     budget_hit: bool = False  # a fetch stopped at the budget left, not at its own ceiling
-    card_urls: dict[str, set[str]] = field(default_factory=dict)  # asset URLs per manifest card
 
     @classmethod
     def for_run(cls, args, manifest, approved: frozenset[str], started: str) -> RunState:
-        """A run's state: its budget, the approved hosts (the manifest may not widen them) and
-        each card's manifest asset URLs."""
+        """A run's state: its budget and the approved hosts (the manifest may not widen them)."""
         # The byte budget belongs to the weekly full-hash pass only; a poll or daily run
         # never carries one, so its fetches keep their own ceilings.
         budget = args.max_bytes_per_run if args.full_hash else None
         state = cls(full_hash=args.full_hash, started_at=started, byte_budget=budget)
         state.allowed_hosts = approved
-        for card in manifest.cards:
-            state.card_urls.setdefault(card.card_id, set()).add(str(card.asset_url))
         return state
 
     def fetch_ceiling(self, ceiling: int) -> int:
@@ -85,12 +78,6 @@ class RunState:
         if not self.full_hash or self.byte_budget is None:
             return ceiling
         return min(ceiling, max(self.byte_budget - self.bytes_hashed, 0))
-
-    def note_type_change(self, card_id: str, card_rows, asset_url: Any, asset_filename: Any) -> None:
-        """Warn when an asset's URL and file type both changed (its old asset is gone from the manifest)."""
-        found = type_change(card_rows, asset_url, asset_filename)
-        if found and str(found[0].get("asset_url")) not in self.card_urls.get(card_id, ()):
-            print(type_change_line(card_id, *found, asset_url))
 
     def note_growth(self, card_id: str, known: int | None, size: int, cap: int) -> None:
         """Alert, without failing the card, when an asset with a known size passed its cap."""

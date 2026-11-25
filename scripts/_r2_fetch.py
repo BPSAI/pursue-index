@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import errno
 import hashlib
-import shutil  # noqa: F401  (tests patch shutil.disk_usage through this module)
+import shutil  # tests patch shutil.disk_usage through this module
 import time
 from collections.abc import Callable, Collection
 from pathlib import Path
@@ -110,9 +110,8 @@ def _open(method: Callable[..., Any], url: str, allowed_hosts, **kw: Any) -> Any
     """Issue a request, following at most ``MAX_REDIRECTS`` redirects by hand.
 
     The host allowlist is checked on the original URL and on every redirect target
-    before anything is requested from it, and the initial URL and every hop must be https (an
-    http to https upgrade hop is the one allowed change). The host is resolved first and
-    refused when any address is not public. Returns the final (non-redirect) response.
+    before anything is requested from it, and the initial URL and every hop must be https. The
+    host is resolved first and refused when any address is not public. Returns the final (non-redirect) response.
     """
     current = url
     for hop in range(MAX_REDIRECTS + 1):

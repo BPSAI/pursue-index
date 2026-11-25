@@ -247,8 +247,6 @@ def _process_card(
 
     # Only this asset's rows: a card's newest row may belong to another asset.
     rows = rows_for_asset(registry.get(card.card_id), card.asset_url, card.asset_filename)
-    if not rows:
-        state.note_type_change(card.card_id, registry.get(card.card_id), card.asset_url, card.asset_filename)
     hosts = state.allowed_hosts
     with for_card(card.card_id):
         head = head_asset(card.asset_url, hosts)
