@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -48,8 +49,21 @@ def supersede_sidecar(
     return new
 
 
+def _fsync_dir(directory: Path) -> None:
+    """Flush a directory entry so a completed rename survives a crash."""
+    fd = os.open(directory, os.O_RDONLY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
 def write_atomic(path: Path, doc: dict[str, Any]) -> None:
-    """Write ``doc`` to ``path`` through an unpredictably named temp file beside it."""
+    """Write ``doc`` to ``path`` through an unpredictably named temp file beside it.
+
+    The file keeps the target's mode (0644 for a new one) and is synced before the
+    rename, the directory after it.
+    """
     text = json.dumps(doc, indent=2) + "\n"
     tmp: Path | None = None
     try:
@@ -59,7 +73,15 @@ def write_atomic(path: Path, doc: dict[str, Any]) -> None:
         ) as fh:
             tmp = Path(fh.name)
             fh.write(text)
+            fh.flush()
+            os.fsync(fh.fileno())
+        try:
+            mode = stat.S_IMODE(path.stat().st_mode)
+        except FileNotFoundError:
+            mode = 0o644
+        os.chmod(tmp, mode)
         os.replace(tmp, path)
+        _fsync_dir(path.parent)
     except BaseException:
         if tmp is not None:
             tmp.unlink(missing_ok=True)
