@@ -283,8 +283,8 @@ def test_nest_within_the_limit_still_decodes_fully() -> None:
 def test_code_span_form_has_no_markdown_escapes() -> None:
     from pursue_index.scrape.year_normalize_report import _inert
 
-    assert _inert("a\\b [x] R&D 5/8/26", code=True) == "a\\b [x] R&D 5/8/26"
-    assert _inert("a`b@c<d>", code=True) == "ab" + _FW_AT + "cd"
+    assert _inert("a\\b [x] R&D 5/8/26", for_code_span=True) == "a\\b [x] R&D 5/8/26"
+    assert _inert("a`b@c<d>", for_code_span=True) == "ab" + _FW_AT + "cd"
     text = _lines(unresolved=[_row(raw="R&D [x] a\\b", card_id="c&d")])
     assert "`R&D [x] a\\b`" in text and "`c&d`" in text
     assert "&amp;" not in text.split("`R&D")[1].split("`")[0]
@@ -310,7 +310,7 @@ _FW_TO_ASCII = {c: c - 0xFEE0 for c in range(0xFF01, 0xFF5F)}
 
 
 def test_ordinary_words_and_numbers_stay_literal() -> None:
-    for kept in ("deadbeef", "1234567", "2026", "20260508", "facade", "a1b2c3", "ABCDEF12",
+    for kept in ("deadbeef", "1234567", "2026", "20260508", "facade", "a1b2c3",
                  "1234567890123456789012345678901234567890123"):
         assert _inert_text(kept) == kept, kept
 

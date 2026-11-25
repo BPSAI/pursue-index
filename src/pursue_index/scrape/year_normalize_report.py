@@ -117,9 +117,15 @@ _MAILTO = re.compile(r"(mailto):", re.I)
 _WWW = re.compile(r"\b(www)\.", re.I)
 # "GH-123" is an issue reference; "#123" and "owner/repo#123" end in "#".
 _GH_REF = re.compile(r"\b(gh)-(?=\d)", re.I)
-# A 7-40 character lowercase hex run at word boundaries (also after "owner/repo@") is a
+# A 7-40 character hex run at word boundaries (any case, also after "owner/repo@") is a
 # commit reference; plain words and plain numbers are not, so one letter and one digit.
-_SHA = re.compile(r"\b(?=[0-9a-f]*[a-f])(?=[0-9a-f]*\d)[0-9a-f]{7,40}\b")
+_SHA = re.compile(r"\b(?=[0-9a-f]*[a-f])(?=[0-9a-f]*\d)[0-9a-f]{7,40}\b", re.I)
+# An all-letter run (a word such as "deadbeef") counts only right after a SHA cue:
+# "commit", "sha" or "@" (``neutralize`` has made that last one fullwidth by then),
+# with at most three separator characters between. All-digit runs are never SHAs.
+_CUED_SHA = re.compile(
+    r"((?:\b(?:commit|sha)|[@\uff20])[^0-9a-z]{0,3})\b((?=[0-9a-f]*[a-f])[0-9a-f]{7,40})\b",
+    re.I)
 
 
 def _decoded(value: Any, cap: int) -> str:
@@ -159,17 +165,22 @@ def _fullwidth_head(match: re.Match[str]) -> str:
     return chr(ord(head[0]) + 0xFEE0) + head[1:]
 
 
-def _inert(value: Any, limit: int = 80, *, code: bool = False) -> str:
+def _fullwidth_run(run: str) -> str:
+    return chr(ord(run[0]) + 0xFEE0) + run[1:]
+
+
+def _inert(value: Any, limit: int = 80, *, for_code_span: bool = False) -> str:
     """Upstream-derived text for a verdict-summary line, which is posted as an
     issue comment. The raw value is capped, decoded (entities), stripped of invisible
     controls, collapsed and cut to ``limit`` first, so no escape is ever split;
     then made inert: no backticks or angle brackets, no live @-mention, no bare
     autolink (``scheme://``, ``mailto:``, ``www.``: one separator becomes its
     fullwidth form), no ``#123``/``owner/repo#123``/``GH-123`` cross-reference;
-    unless ``code``, also no commit SHA reference, and backslashes, square brackets and
+    unless ``for_code_span``, also no commit SHA reference, and backslashes, square brackets and
     ``&`` escaped. ``|`` is escaped last, so the table-cell backslash is never
-    doubled. ``code`` is for a value inside a backtick span: the backticks are
-    already stripped, so the span cannot be broken and escapes would show literally."""
+    doubled. ``for_code_span`` is a contract with the caller: pass it only for a value the
+    caller wraps in a backtick span, where the stripped backticks cannot be broken and
+    escapes would show literally. Outside a span the skipped escaping is unsafe."""
     text = _strip_invisible(_decoded(value, limit * _DECODE_CAP_FACTOR))
     text = neutralize(" ".join(text.split())[:limit])
     text = _SCHEME_SLASHES.sub(lambda m: f"{m.group(1)}:\uff0f\uff0f", text)
@@ -178,14 +189,15 @@ def _inert(value: Any, limit: int = 80, *, code: bool = False) -> str:
     text = _GH_REF.sub(lambda m: f"{m.group(1)}\uff0d", text)
     text = _REPO_HASH_REF.sub(lambda m: f"{m.group(1)}\uff03", text)
     text = _HASH_REF.sub("\uff03", text)
-    if code:  # nothing links inside a span, so a card id's hex stays readable
+    if for_code_span:  # nothing links inside a span, so a card id's hex stays readable
         return text
+    text = _CUED_SHA.sub(lambda m: m.group(1) + _fullwidth_run(m.group(2)), text)
     text = _SHA.sub(_fullwidth_head, text)
     text = text.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
     return text.replace("&", "&amp;").replace("|", "\\|")
 
 
 def _row_lines(rows: list[dict[str, Any]]) -> list[str]:
-    return [f"  * `{_inert(r['card_id'], code=True)}` {_inert(r.get('title'), 120)} — "
-            f"{_inert(r['field'], 40)} `{_inert(r['raw'], code=True)}` "
+    return [f"  * `{_inert(r['card_id'], for_code_span=True)}` {_inert(r.get('title'), 120)} — "
+            f"{_inert(r['field'], 40)} `{_inert(r['raw'], for_code_span=True)}` "
             f"({_inert(r['reason'], 120)})" for r in rows]
