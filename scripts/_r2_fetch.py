@@ -33,6 +33,7 @@ from _r2_hosts import (  # noqa: F401  (re-exported: callers import these from h
     check_scheme,
     for_card,
     log_hop,
+    parse_url,
     pinned,
 )
 from _r2_hosts import CURLOPT_RESOLVE as _CURLOPT_RESOLVE  # noqa: F401
@@ -117,9 +118,10 @@ def _open(method: Callable[..., Any], url: str, allowed_hosts, **kw: Any) -> Any
     for hop in range(MAX_REDIRECTS + 1):
         if hop == 0:
             check_scheme(current)
-        check_host(current, allowed_hosts)
-        addresses = check_resolved(current, allowed_hosts)
-        resp = method(current, allow_redirects=False, **pinned(kw, current, addresses))
+        parsed = parse_url(current)  # parsed once; every check and the request go by it
+        check_host(parsed, allowed_hosts)
+        addresses = check_resolved(parsed, allowed_hosts)
+        resp = method(parsed.url, allow_redirects=False, **pinned(kw, parsed, addresses))
         location = (getattr(resp, "headers", None) or {}).get("location")
         if getattr(resp, "status_code", 200) not in _REDIRECT_STATUSES or not location:
             return resp

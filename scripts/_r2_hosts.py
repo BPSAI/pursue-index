@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import ipaddress
 import json
+import re
 import socket
 import sys
 from collections.abc import Collection, Iterable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 from urllib.parse import urlsplit
 
 _DEFAULT_PORTS = {"http": 80, "https": 443}
@@ -27,6 +28,58 @@ class FetchLimitError(Exception):
 
 class ApprovedHostsError(Exception):
     """The approved-host list is missing or malformed; the run must not guess."""
+
+
+class ParsedUrl(NamedTuple):
+    """One URL, parsed once: what every check and the request itself go by."""
+
+    scheme: str
+    host: str
+    port: int
+    url: str  # canonical: lower-cased host without a trailing dot, same path and query
+
+
+_URL_RE = re.compile(r"(?P<scheme>[A-Za-z][A-Za-z0-9+.-]*)://(?P<authority>[^/?#]*)(?P<rest>.*)", re.S)
+_SCHEME_RE = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*(?=:)")
+_LABEL_RE = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?")
+
+
+def _refuse(url: str, why: str) -> FetchLimitError:
+    return FetchLimitError(f"URL refused ({why}): {url[:80]!r}")
+
+
+def parse_url(url: Any) -> ParsedUrl:
+    """The one strict parse. ``urlsplit`` and curl can disagree on the host of an odd URL, so a
+    URL that could be read two ways is refused rather than interpreted: userinfo, a backslash,
+    whitespace or control characters, a percent sign or non-ASCII character in the host, an
+    empty host, a bad port, an IPv6 literal, and an IPv4 form other than four plain decimals."""
+    text = str(url)
+    if "\\" in text or any(ord(c) <= 0x20 or ord(c) == 0x7F for c in text):
+        raise _refuse(text, "backslash, space or control character")
+    m = _URL_RE.fullmatch(text)
+    if m is None:
+        raise _refuse(text, "no scheme and host")
+    scheme, authority, rest = m["scheme"].lower(), m["authority"], m["rest"]
+    if "@" in authority:
+        raise _refuse(text, "userinfo")
+    host, sep, port_text = authority.rpartition(":") if ":" in authority else (authority, "", "")
+    if sep and not (port_text.isascii() and port_text.isdigit() and 1 <= int(port_text) <= 65535):
+        raise _refuse(text, "port")
+    port = int(port_text) if sep else _DEFAULT_PORTS.get(scheme, 443)
+    host = host.lower().removesuffix(".")
+    if not host.isascii() or not host or len(host) > 253:
+        raise _refuse(text, "host")
+    labels = host.split(".")
+    if not all(_LABEL_RE.fullmatch(label) for label in labels):
+        raise _refuse(text, "host")
+    if labels[-1].isdigit() or labels[-1].startswith("0x") or all(lb.isdigit() for lb in labels):
+        try:
+            if len(labels) != 4 or str(ipaddress.IPv4Address(host)) != host:
+                raise ValueError(host)
+        except ValueError as exc:
+            raise _refuse(text, "numeric host") from exc
+    shown = host if port == _DEFAULT_PORTS.get(scheme) else f"{host}:{port}"
+    return ParsedUrl(scheme, host, port, f"{scheme}://{shown}{rest}")
 
 
 _CARD: ContextVar[str] = ContextVar("r2_current_card", default="-")
@@ -66,7 +119,11 @@ ANY_HOST = AnyHost()
 
 
 def host_of(url: Any) -> str:
-    return (urlsplit(str(url)).hostname or "").lower()
+    """The strictly parsed, normalized host of ``url``; empty when the URL is refused."""
+    try:
+        return parse_url(url).host
+    except FetchLimitError:
+        return ""
 
 
 def allowed_hosts_from_urls(urls: Iterable[Any]) -> frozenset[str]:
@@ -102,17 +159,21 @@ def unlisted_card_hosts(card: Any, approved: Collection[str], where: Any) -> boo
     return bool(unlisted)
 
 
-def check_host(url: str, allowed_hosts: Collection[str] | AnyHost | None) -> None:
+def _parsed(url: str | ParsedUrl) -> ParsedUrl:
+    return url if isinstance(url, ParsedUrl) else parse_url(url)
+
+
+def check_host(url: str | ParsedUrl, allowed_hosts: Collection[str] | AnyHost | None) -> None:
+    host = _parsed(url).host
     if allowed_hosts is ANY_HOST:
         return
-    host = host_of(url)
     if allowed_hosts is None or host not in allowed_hosts:
         raise FetchLimitError(f"host {host or '(none)'!r} is not a manifest or approved asset host")
 
 
 def check_scheme(url: str) -> None:
     """The URL a fetch starts from must be https (plain http only through the test seam)."""
-    scheme = urlsplit(url).scheme
+    scheme = _scheme_of(url)
     if scheme != "https" and not (_ALLOW_LOCAL.get() and scheme == "http"):
         raise FetchLimitError(f"scheme {scheme or '(none)'!r} is refused: a fetch must start on https")
 
@@ -134,7 +195,7 @@ def _public(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
 
 
 def check_resolved(
-    url: str, allowed_hosts: Collection[str] | AnyHost | None = None
+    url: str | ParsedUrl, allowed_hosts: Collection[str] | AnyHost | None = None
 ) -> list[str]:
     """Refuse a URL whose host resolves to any address that is not globally routable.
 
@@ -143,12 +204,12 @@ def check_resolved(
     connection to, so the request cannot resolve the name a second time to something else.
     Skipped, returning ``[]``, with ``ANY_HOST`` (the explicit no-restriction opt-out) and
     through the test seam."""
+    parts = _parsed(url)
     if allowed_hosts is ANY_HOST or _ALLOW_LOCAL.get():
         return []
-    parts = urlsplit(url)
-    host = (parts.hostname or "").lower()
+    host = parts.host
     try:
-        infos = socket.getaddrinfo(host, parts.port or _DEFAULT_PORTS.get(parts.scheme, 443))
+        infos = socket.getaddrinfo(host, parts.port)
     except (OSError, UnicodeError) as exc:
         raise FetchLimitError(f"host {host!r} could not be resolved: {exc}") from exc
     checked: list[str] = []
@@ -167,7 +228,7 @@ def check_resolved(
     return checked
 
 
-def pinned(kw: dict[str, Any], url: str, addresses: list[str]) -> dict[str, Any]:
+def pinned(kw: dict[str, Any], url: str | ParsedUrl, addresses: list[str]) -> dict[str, Any]:
     """``kw`` with curl told to connect to the addresses that passed the check.
 
     ``CURLOPT_RESOLVE`` only fixes where the name goes: TLS still validates the certificate
@@ -175,26 +236,27 @@ def pinned(kw: dict[str, Any], url: str, addresses: list[str]) -> dict[str, Any]
     if not addresses:
         return kw
     options = dict(kw.get("curl_options") or {})
-    parts = urlsplit(url)
-    port = parts.port or _DEFAULT_PORTS.get(parts.scheme, 443)
+    parts = _parsed(url)
     shown = ",".join(f"[{a}]" if ":" in a else a for a in addresses)
-    options[CURLOPT_RESOLVE] = [f"{(parts.hostname or '').lower()}:{port}:{shown}"]
+    options[CURLOPT_RESOLVE] = [f"{parts.host}:{parts.port}:{shown}"]
     return {**kw, "curl_options": options}
 
 
-def _port(url: str) -> int | None:
-    parts = urlsplit(url)
-    return parts.port or _DEFAULT_PORTS.get(parts.scheme)
+def _scheme_of(url: str) -> str:
+    m = _SCHEME_RE.match(str(url))
+    return m[0].lower() if m else ""
 
 
 def check_hop(current: str, target: str) -> None:
     """A redirect stays on https (an http to https upgrade is the one scheme change allowed),
     and stays on the port it came from (or the default)."""
-    cur, nxt = urlsplit(current), urlsplit(target)
-    if nxt.scheme not in _DEFAULT_PORTS or (cur.scheme == "https" and nxt.scheme != "https"):
-        raise FetchLimitError(f"redirect to scheme {nxt.scheme!r} from {cur.scheme!r} is refused")
-    if _port(target) not in (_DEFAULT_PORTS[nxt.scheme], _port(current)):
-        raise FetchLimitError(f"redirect to port {_port(target)} is refused")
+    nxt = _scheme_of(target)
+    cur = _scheme_of(current)
+    if nxt not in _DEFAULT_PORTS or (cur == "https" and nxt != "https"):
+        raise FetchLimitError(f"redirect to scheme {nxt!r} from {cur!r} is refused")
+    new, old = parse_url(target), parse_url(current)
+    if new.port not in (_DEFAULT_PORTS[nxt], old.port):
+        raise FetchLimitError(f"redirect to port {new.port} is refused")
 
 
 def type_change_line(card_id: str, prev: dict[str, Any], old: str, new: str, new_url: Any) -> str:

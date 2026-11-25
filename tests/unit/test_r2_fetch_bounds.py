@@ -137,7 +137,7 @@ def test_a_redirect_to_another_host_is_refused_before_it_is_requested(monkeypatc
 
 
 def test_host_comparison_ignores_case_and_port(monkeypatch, tmp_path):
-    _serve(monkeypatch, {"https://WWW.War.GOV:443/a.pdf": _Resp(chunks=[b"x"])})
+    _serve(monkeypatch, {"https://www.war.gov/a.pdf": _Resp(chunks=[b"x"])})
     assert _r2_fetch.fetch_asset("https://WWW.War.GOV:443/a.pdf", tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)[1] == 1
 
 
