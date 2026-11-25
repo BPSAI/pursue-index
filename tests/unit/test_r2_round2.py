@@ -104,7 +104,7 @@ def test_a_redirect_to_a_non_default_port_is_refused(monkeypatch, tmp_path):
 
 def test_a_redirect_to_an_explicit_default_port_is_followed(monkeypatch, tmp_path):
     _serve(monkeypatch, {URL: _redirect("https://www.war.gov:443/b.pdf"),
-                         "https://www.war.gov:443/b.pdf": _Resp(chunks=[b"k"])})
+                         "https://www.war.gov/b.pdf": _Resp(chunks=[b"k"])})
     assert _r2_fetch.fetch_asset(URL, tmp_path / "a", max_bytes=10**6, allowed_hosts=HOSTS)[1] == 1
 
 

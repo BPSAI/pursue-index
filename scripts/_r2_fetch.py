@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import errno
 import hashlib
-import shutil  # noqa: F401  (tests patch shutil.disk_usage through this module)
+import shutil  # tests patch shutil.disk_usage through this module
 import time
 from collections.abc import Callable, Collection
 from pathlib import Path
@@ -22,6 +22,12 @@ from _r2_disk import (  # noqa: F401  (re-exported: callers import these from he
     expected_bytes,
     require_disk,
 )
+from _r2_head import (  # noqa: F401  (re-exported: callers import these from here)
+    head_identical,
+    last_known_etag,
+    last_known_size,
+    rows_for_asset,
+)
 from _r2_hosts import (  # noqa: F401  (re-exported: callers import these from here)
     ANY_HOST,
     AnyHost,
@@ -33,12 +39,11 @@ from _r2_hosts import (  # noqa: F401  (re-exported: callers import these from h
     check_scheme,
     for_card,
     log_hop,
+    parse_url,
     pinned,
 )
 from _r2_hosts import CURLOPT_RESOLVE as _CURLOPT_RESOLVE  # noqa: F401
 from curl_cffi import requests as cffi_requests
-
-from pursue_index.asset_rows import rows_of_asset
 
 CHUNK_SIZE = 1 << 20
 
@@ -109,17 +114,17 @@ def _open(method: Callable[..., Any], url: str, allowed_hosts, **kw: Any) -> Any
     """Issue a request, following at most ``MAX_REDIRECTS`` redirects by hand.
 
     The host allowlist is checked on the original URL and on every redirect target
-    before anything is requested from it, and the initial URL and every hop must be https (an
-    http to https upgrade hop is the one allowed change). The host is resolved first and
-    refused when any address is not public. Returns the final (non-redirect) response.
+    before anything is requested from it, and the initial URL and every hop must be https. The
+    host is resolved first and refused when any address is not public. Returns the final (non-redirect) response.
     """
     current = url
     for hop in range(MAX_REDIRECTS + 1):
         if hop == 0:
             check_scheme(current)
-        check_host(current, allowed_hosts)
-        addresses = check_resolved(current, allowed_hosts)
-        resp = method(current, allow_redirects=False, **pinned(kw, current, addresses))
+        parsed = parse_url(current)  # parsed once; every check and the request go by it
+        check_host(parsed, allowed_hosts)
+        addresses = check_resolved(parsed, allowed_hosts)
+        resp = method(parsed.url, allow_redirects=False, **pinned(kw, parsed, addresses))
         location = (getattr(resp, "headers", None) or {}).get("location")
         if getattr(resp, "status_code", 200) not in _REDIRECT_STATUSES or not location:
             return resp
@@ -171,7 +176,7 @@ def head_asset(url: Any, allowed_hosts: Collection[str] | AnyHost) -> HeadResult
         if resp.status_code >= 400:
             return HeadResult((None, None, None))
         # A compressed response's length is not the stored (decoded) size: report none, and
-        # flag it so the caller falls back to the validators instead of refetching every poll.
+        # flag it so the caller fetches and hashes instead of trusting the validators.
         encoded = _encoded(resp)
         cl = None if encoded else resp.headers.get("content-length")
         return HeadResult(
@@ -209,33 +214,43 @@ def fetch_asset(
     file. Each violation raises ``FetchLimitError``.
     """
     dest = Path(dest)
-    require_disk(dest, expected_bytes(known_size, max_bytes, SIZE_GROWTH_FACTOR))
-    # curl_cffi's streamed Response is not a context manager, so it is closed
-    # explicitly; the close releases the connection even when the read fails.
-    resp = _open(
-        cffi_requests.get,
-        str(url),
-        allowed_hosts,
-        impersonate="chrome",
-        timeout=TOTAL_CEILING_S,
-        stream=True,
-        curl_options={_CURLOPT_LOW_SPEED_LIMIT: 1, _CURLOPT_LOW_SPEED_TIME: IDLE_TIMEOUT_S},
-    )
+    planned = expected_bytes(known_size, max_bytes, SIZE_GROWTH_FACTOR)
+    resp = None
+    done = False
     try:
+        require_disk(dest, planned)
+        # curl_cffi's streamed Response is not a context manager, so it is closed
+        # explicitly; the close releases the connection even when the read fails.
+        resp = _open(
+            cffi_requests.get,
+            str(url),
+            allowed_hosts,
+            impersonate="chrome",
+            timeout=TOTAL_CEILING_S,
+            stream=True,
+            curl_options={_CURLOPT_LOW_SPEED_LIMIT: 1, _CURLOPT_LOW_SPEED_TIME: IDLE_TIMEOUT_S},
+        )
         resp.raise_for_status()
         declared = _declared_length(resp)
         if declared is not None and declared > max_bytes:
             raise FetchOverCapError(observed=declared, cap=max_bytes, declared=True)
         if declared is not None:
+            planned = declared
             require_disk(dest, declared)
-        return _stream_to(resp, dest, max_bytes)
-    except (OSError, InsufficientDiskError) as exc:
-        dest.unlink(missing_ok=True)
-        if isinstance(exc, OSError) and exc.errno == errno.ENOSPC:
-            raise InsufficientDiskError(need=DISK_MARGIN_BYTES, free=0) from exc
+        result = _stream_to(resp, dest, max_bytes)
+        done = True
+        return result
+    except OSError as exc:
+        if exc.errno == errno.ENOSPC:
+            written = dest.stat().st_size if dest.exists() else 0
+            free = shutil.disk_usage(dest.parent).free
+            raise InsufficientDiskError(need=max(planned, written) + DISK_MARGIN_BYTES, free=free) from exc
         raise
     finally:
-        resp.close()
+        if resp is not None:
+            resp.close()
+        if not done:
+            dest.unlink(missing_ok=True)
 
 
 def _declared_length(resp: Any) -> int | None:
@@ -269,47 +284,3 @@ def _stream_to(resp: Any, dest: Path, max_bytes: int) -> tuple[str, int]:
                 since_check = 0
                 require_disk(dest, 0)
     return digest.hexdigest(), size
-
-
-def rows_for_asset(
-    rows: list[dict[str, Any]] | None, asset_url: Any, asset_filename: Any = None
-) -> list[dict[str, Any]]:
-    """The earlier rows of one asset (oldest first): those at the fetched URL, else the
-    card's rows of the same file type when the asset moved; empty means net-new."""
-    return rows_of_asset(rows, asset_url, asset_filename)
-
-
-def last_known_size(rows: list[dict[str, Any]]) -> int | None:
-    return rows[-1].get("byte_size") if rows else None
-
-
-def last_known_etag(rows: list[dict[str, Any]]) -> str | None:
-    return rows[-1].get("upstream_etag") if rows else None
-
-
-def head_identical(
-    rows: list[dict[str, Any]],
-    cl: int | None,
-    etag: str | None,
-    last_modified: str | None = None,
-    *,
-    encoded: bool = False,
-) -> bool:
-    """True only when HEAD agrees with the last row's recorded validators.
-
-    With an ETag on both sides, size and ETag must be equal. Without one, the
-    fallback is Content-Length plus Last-Modified: both present and equal to the
-    values recorded on the last row (a row without Last-Modified cannot use it).
-
-    ``encoded`` (a content-encoded response, whose length is not the stored size) drops the size
-    condition and leaves the ETag / Last-Modified rules, so such an asset is not refetched daily.
-    """
-    if not rows or (not encoded and (cl is None or cl != last_known_size(rows))):
-        return False
-    recorded_etag = last_known_etag(rows)
-    if etag is not None and recorded_etag is not None:
-        return etag == recorded_etag
-    if etag is not None or recorded_etag is not None:
-        return False  # one side has an ETag and the other does not: not comparable
-    recorded_lm = rows[-1].get("upstream_last_modified")
-    return last_modified is not None and last_modified == recorded_lm

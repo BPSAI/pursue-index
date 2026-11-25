@@ -11,18 +11,13 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlsplit
 
-_DEFAULT_PORTS = {"http": 80, "https": 443}
 # libcurl's CURLOPT_RESOLVE (curl_cffi's CurlOpt.RESOLVE), inlined like the other option numbers.
 CURLOPT_RESOLVE = 10203
 
 # Test-only seam (see _r2_local_seam): on only inside ``allow_local_for_tests()``.
 from _r2_local_seam import _ALLOW_LOCAL, allow_local_for_tests  # noqa: F401
-
-
-class FetchLimitError(Exception):
-    """A fetch broke a bound: too large, too many redirects, or a host off the allowlist."""
+from _r2_url import _DEFAULT_PORTS, FetchLimitError, ParsedUrl, _scheme_of, parse_url
 
 
 class ApprovedHostsError(Exception):
@@ -43,16 +38,8 @@ def for_card(card_id: str) -> Iterator[None]:
 
 
 def log_hop(current: str, target: str, status: int) -> None:
-    """One line per redirect hop: hosts only, never a path or query string.
-
-    An http to https upgrade says so on the same line."""
-    upgrade = ""
-    if urlsplit(current).scheme == "http" and urlsplit(target).scheme == "https":
-        upgrade = " scheme upgrade http -> https"
-    print(
-        f"[r2-archive] redirect: {_CARD.get()} {host_of(current)} -> {host_of(target)} "
-        f"({status}){upgrade}"
-    )
+    """One line per redirect hop: hosts only, never a path or query string."""
+    print(f"[r2-archive] redirect: {_CARD.get()} {host_of(current)} -> {host_of(target)} ({status})")
 
 
 class AnyHost:
@@ -66,7 +53,11 @@ ANY_HOST = AnyHost()
 
 
 def host_of(url: Any) -> str:
-    return (urlsplit(str(url)).hostname or "").lower()
+    """The strictly parsed, normalized host of ``url``; empty when the URL is refused."""
+    try:
+        return parse_url(url).host
+    except FetchLimitError:
+        return ""
 
 
 def allowed_hosts_from_urls(urls: Iterable[Any]) -> frozenset[str]:
@@ -91,7 +82,10 @@ def load_approved_hosts(path: Path) -> frozenset[str]:
 def unlisted_card_hosts(card: Any, approved: Collection[str], where: Any) -> bool:
     """True, after naming the card and its host on stderr, when the card's asset host is not
     on the approved list. That refuses this card's row only; the run goes on."""
-    unlisted = sorted(allowed_hosts_from_urls([card.asset_url]) - set(approved))
+    url = card.asset_url
+    unlisted = sorted(allowed_hosts_from_urls([url]) - set(approved))
+    if url and not host_of(url):
+        unlisted = ["<refused url>"]  # fail closed: a URL the strict parse refuses is never listed
     if unlisted:
         print(
             f"[r2-archive] ERROR: manifest asset host(s) {', '.join(unlisted)} not listed in "
@@ -102,17 +96,21 @@ def unlisted_card_hosts(card: Any, approved: Collection[str], where: Any) -> boo
     return bool(unlisted)
 
 
-def check_host(url: str, allowed_hosts: Collection[str] | AnyHost | None) -> None:
+def _parsed(url: str | ParsedUrl) -> ParsedUrl:
+    return url if isinstance(url, ParsedUrl) else parse_url(url)
+
+
+def check_host(url: str | ParsedUrl, allowed_hosts: Collection[str] | AnyHost | None) -> None:
+    host = _parsed(url).host
     if allowed_hosts is ANY_HOST:
         return
-    host = host_of(url)
     if allowed_hosts is None or host not in allowed_hosts:
         raise FetchLimitError(f"host {host or '(none)'!r} is not a manifest or approved asset host")
 
 
 def check_scheme(url: str) -> None:
     """The URL a fetch starts from must be https (plain http only through the test seam)."""
-    scheme = urlsplit(url).scheme
+    scheme = _scheme_of(url)
     if scheme != "https" and not (_ALLOW_LOCAL.get() and scheme == "http"):
         raise FetchLimitError(f"scheme {scheme or '(none)'!r} is refused: a fetch must start on https")
 
@@ -134,7 +132,7 @@ def _public(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
 
 
 def check_resolved(
-    url: str, allowed_hosts: Collection[str] | AnyHost | None = None
+    url: str | ParsedUrl, allowed_hosts: Collection[str] | AnyHost | None = None
 ) -> list[str]:
     """Refuse a URL whose host resolves to any address that is not globally routable.
 
@@ -143,12 +141,12 @@ def check_resolved(
     connection to, so the request cannot resolve the name a second time to something else.
     Skipped, returning ``[]``, with ``ANY_HOST`` (the explicit no-restriction opt-out) and
     through the test seam."""
+    parts = _parsed(url)
     if allowed_hosts is ANY_HOST or _ALLOW_LOCAL.get():
         return []
-    parts = urlsplit(url)
-    host = (parts.hostname or "").lower()
+    host = parts.host
     try:
-        infos = socket.getaddrinfo(host, parts.port or _DEFAULT_PORTS.get(parts.scheme, 443))
+        infos = socket.getaddrinfo(host, parts.port)
     except (OSError, UnicodeError) as exc:
         raise FetchLimitError(f"host {host!r} could not be resolved: {exc}") from exc
     checked: list[str] = []
@@ -167,7 +165,7 @@ def check_resolved(
     return checked
 
 
-def pinned(kw: dict[str, Any], url: str, addresses: list[str]) -> dict[str, Any]:
+def pinned(kw: dict[str, Any], url: str | ParsedUrl, addresses: list[str]) -> dict[str, Any]:
     """``kw`` with curl told to connect to the addresses that passed the check.
 
     ``CURLOPT_RESOLVE`` only fixes where the name goes: TLS still validates the certificate
@@ -175,26 +173,21 @@ def pinned(kw: dict[str, Any], url: str, addresses: list[str]) -> dict[str, Any]
     if not addresses:
         return kw
     options = dict(kw.get("curl_options") or {})
-    parts = urlsplit(url)
-    port = parts.port or _DEFAULT_PORTS.get(parts.scheme, 443)
+    parts = _parsed(url)
     shown = ",".join(f"[{a}]" if ":" in a else a for a in addresses)
-    options[CURLOPT_RESOLVE] = [f"{(parts.hostname or '').lower()}:{port}:{shown}"]
+    options[CURLOPT_RESOLVE] = [f"{parts.host}:{parts.port}:{shown}"]
     return {**kw, "curl_options": options}
 
 
-def _port(url: str) -> int | None:
-    parts = urlsplit(url)
-    return parts.port or _DEFAULT_PORTS.get(parts.scheme)
-
-
 def check_hop(current: str, target: str) -> None:
-    """A redirect stays on https (an http to https upgrade is the one scheme change allowed),
-    and stays on the port it came from (or the default)."""
-    cur, nxt = urlsplit(current), urlsplit(target)
-    if nxt.scheme not in _DEFAULT_PORTS or (cur.scheme == "https" and nxt.scheme != "https"):
-        raise FetchLimitError(f"redirect to scheme {nxt.scheme!r} from {cur.scheme!r} is refused")
-    if _port(target) not in (_DEFAULT_PORTS[nxt.scheme], _port(current)):
-        raise FetchLimitError(f"redirect to port {_port(target)} is refused")
+    """A redirect must stay on https (plain http only through the test seam) and on the port it
+    came from, or the default. There is no http to https upgrade: a fetch starts on https."""
+    scheme = _scheme_of(target)
+    if scheme != "https" and not (_ALLOW_LOCAL.get() and scheme == "http"):
+        raise FetchLimitError(f"redirect to scheme {scheme or '(none)'!r} is refused: https only")
+    new, old = parse_url(target), parse_url(current)
+    if new.port not in (_DEFAULT_PORTS[scheme], old.port):
+        raise FetchLimitError(f"redirect to port {new.port} is refused")
 
 
 def type_change_line(card_id: str, prev: dict[str, Any], old: str, new: str, new_url: Any) -> str:

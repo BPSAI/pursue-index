@@ -195,32 +195,29 @@ def test_head_does_not_flag_a_plain_response(monkeypatch):
     assert got == (7, '"e1"', None) and got.encoded is False
 
 
-def test_an_encoded_response_with_a_matching_etag_is_identical_without_a_size():
-    assert _r2_fetch.head_identical(_rows(), None, '"e1"', None, encoded=True)
-
-
-def test_an_encoded_response_with_a_different_etag_is_not_identical():
-    assert not _r2_fetch.head_identical(_rows(), None, '"e2"', None, encoded=True)
-
-
-def test_an_encoded_response_falls_back_to_last_modified_without_etags():
+def test_an_encoded_response_never_counts_as_identical():
+    """The encoding flag comes from the upstream, so it cannot buy the HEAD shortcut."""
+    assert not _r2_fetch.head_identical(_rows(), None, '"e1"', None, encoded=True)
+    assert not _r2_fetch.head_identical(_rows(), 5000, '"e1"', None, encoded=True)
     lm = "Wed, 01 Jul 2026 00:00:00 GMT"
-    rows = _rows(upstream_etag=None, upstream_last_modified=lm)
-    assert _r2_fetch.head_identical(rows, None, None, lm, encoded=True)
-    assert not _r2_fetch.head_identical(rows, None, None, None, encoded=True)
-    assert not _r2_fetch.head_identical(rows, None, None, "Thu, 02 Jul 2026 00:00:00 GMT", encoded=True)
+    assert not _r2_fetch.head_identical(_rows(upstream_etag=None, upstream_last_modified=lm), None, None, lm, encoded=True)
 
 
-def test_a_missing_size_on_a_plain_response_still_forces_a_fetch():
-    assert not _r2_fetch.head_identical(_rows(), None, '"e1"', None)
-
-
-def test_an_encoded_unchanged_asset_is_not_refetched_on_the_daily_poll(tmp_path, monkeypatch, capsys):
+def test_an_encoded_asset_is_fetched_and_hashed_on_the_daily_poll(tmp_path, monkeypatch, capsys):
     w = World(tmp_path, monkeypatch)
-    w.add_card(1, prior=OLD_BODY, body=NEW_BODY, head_matches_prior=False)
+    w.add_card(1, prior=OLD_BODY, body=OLD_BODY, head_matches_prior=False)
     monkeypatch.setattr(
         r2, "head_asset", lambda u, hosts=None: _r2_fetch.HeadResult((None, '"e1"', None), encoded=True)
     )
+    assert w.run() == 0
+    assert w.fetched == [w.cards[0]["asset_url"]]
+    out = capsys.readouterr().out
+    assert "head-unchanged (unverified)=0" in out and "unchanged=1" in out
+
+
+def test_an_unencoded_unchanged_head_still_takes_the_shortcut(tmp_path, monkeypatch, capsys):
+    w = World(tmp_path, monkeypatch)
+    w.add_card(1, prior=OLD_BODY, body=OLD_BODY)
     assert w.run() == 0
     assert w.fetched == []
     assert "head-unchanged (unverified)=1" in capsys.readouterr().out
