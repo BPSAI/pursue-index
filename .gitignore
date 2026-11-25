@@ -110,7 +110,10 @@ agent_pack.tgz
 # Untracked from the public repo: it carried internal working state, private
 # sibling-repo paths, infrastructure topology and per-run spend figures.
 # Files remain on the operator's disk; they are simply not published.
-/.paircoder/
+/.paircoder/*
+# Except the tool config: the merge-readiness check reads its reviewer list
+# from the base branch's copy, so it has to be tracked.
+!/.paircoder/config.yaml
 /.claude/
 
 
