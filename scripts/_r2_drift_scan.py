@@ -107,21 +107,29 @@ def drift_window_start(args, now: datetime | None = None) -> datetime:
     return min(starts) if starts else now - timedelta(days=BOOTSTRAP_WINDOW_DAYS)
 
 
-def registry_drift_since(
+def drift_and_coverage(
     registry: dict[str, list[dict[str, Any]]],
     since: datetime,
     rows_after: list[dict[str, Any]] | None = None,
 ):
-    """``(card_id, previous_sha, new_sha)`` for each row fetched at/after ``since`` whose sha
-    differs from the previous row of the same card AND the same ``asset_url``, or
-    (for a moved URL) the newest earlier row of the same file type. A first row with no
-    such earlier row is net-new, never drift (one whose file type changed with its URL is
-    printed as a ``TYPE CHANGE`` warning).
+    """The one place a registry row is evaluated, and so the only producer of covered ids.
+
+    Returns ``(drift, covered, skipped)``. ``drift`` is ``(card_id, previous_sha, new_sha)``
+    for each row fetched at/after ``since`` whose sha differs from the previous row of the
+    same card AND the same ``asset_url``, or (for a moved URL) the newest earlier row of the
+    same file type. A first row with no such earlier row is net-new, never drift (one whose
+    file type changed with its URL is printed as a ``TYPE CHANGE`` warning).
+
+    ``covered`` holds the ids of exactly the rows whose comparison ran (``when >= since``).
+    ``skipped`` maps the id of each row looked at but not evaluated to ``(card_id, reason)``:
+    ``"outside the window"`` or ``"unparseable time"``.
 
     ``rows_after`` (row objects of ``registry``, as ``load_registry`` returns them) limits the
     scan to those rows: the ones a passing gate has not covered yet. ``None`` scans them all."""
     fresh = None if rows_after is None else {id(r) for r in rows_after}
-    out = []
+    out: list[tuple[str, str, str]] = []
+    covered: set[str] = set()
+    skipped: dict[str, tuple[str, str]] = {}
     for card_id, rows in registry.items():
         for i, row in enumerate(rows):
             if fresh is not None and id(row) not in fresh:
@@ -129,30 +137,65 @@ def registry_drift_since(
             try:
                 when = datetime.fromisoformat(row["fetched_at"])
             except (KeyError, ValueError, TypeError):
+                skipped[row_id(row)] = (card_id, "unparseable time")
                 continue
             if when.tzinfo is None:
                 when = when.replace(tzinfo=UTC)
+            if when < since:
+                skipped[row_id(row)] = (card_id, "outside the window")
+                continue
+            covered.add(row_id(row))
             earlier = rows_of_asset(rows[:i], row.get("asset_url"), row.get("asset_filename"))
             prev = earlier[-1] if earlier else None
             if prev is None:
                 change = type_change(rows[:i], row.get("asset_url"), row.get("asset_filename"))
-                if change and when >= since and not any(
+                if change and not any(
                     r.get("asset_url") == change[0].get("asset_url") for r in rows[i + 1 :]
                 ):
                     print(type_change_line(card_id, *change, row.get("asset_url")))
                 continue
             old, new = prev.get("byte_sha256"), row.get("byte_sha256")
-            if when >= since and old and new and old != new:
+            if old and new and old != new:
                 out.append((card_id, old, new))
-    return out
+    return out, covered, {k: v for k, v in skipped.items() if k not in covered}
+
+
+def registry_drift_since(
+    registry: dict[str, list[dict[str, Any]]],
+    since: datetime,
+    rows_after: list[dict[str, Any]] | None = None,
+):
+    """The drift list of ``drift_and_coverage`` (see there)."""
+    return drift_and_coverage(registry, since, rows_after)[0]
+
+
+def _report_ungated(skipped: dict[str, tuple[str, str]]) -> None:
+    """One line: how many rows stay ungated, why, and the first few card ids."""
+    if not skipped:
+        return
+    groups: dict[str, list[str]] = {}
+    for card_id, reason in skipped.values():
+        groups.setdefault(reason, []).append(card_id)
+    parts = [
+        f"{len(cards)} {reason} (e.g. {', '.join(sorted(set(cards))[:3])})"
+        for reason, cards in sorted(groups.items())
+    ]
+    print(f"[r2-archive] {len(skipped)} registry rows left ungated: " + "; ".join(parts))
 
 
 def scan_registry(args, since: datetime, gated: set[str] | None) -> tuple[Any, list[str]]:
-    """``(drift rows, ids of every registry row)``: drift among the rows no passing gate has
-    covered yet (``gated`` ids are skipped wherever they sit; ``None`` scans them all)."""
+    """``(drift rows, ids for the next gate marker)``.
+
+    ``gated`` ids (``None`` scans every row) are skipped wherever they sit and stay covered
+    while still in the registry; the only other ids are those ``drift_and_coverage`` evaluated.
+    Rows it skipped stay ungated and are reported."""
     if not args.fail_on_drift:
         return (), []
     rows = load_registry_rows(args.registry)
     ids = [row_id(r) for r in rows]
+    present = set(ids)
+    keep = set() if gated is None else gated & present
     after = None if gated is None else [r for r, i in zip(rows, ids, strict=True) if i not in gated]
-    return registry_drift_since(group_registry(rows), since, after), sorted(set(ids))
+    drift, covered, skipped = drift_and_coverage(group_registry(rows), since, after)
+    _report_ungated({k: v for k, v in skipped.items() if k not in keep})
+    return drift, sorted(keep | covered)

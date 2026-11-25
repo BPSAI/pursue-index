@@ -216,8 +216,8 @@ def test_hard_ceiling_for_an_unknown_size_is_the_absolute_ceiling():
     assert _r2_fetch.hard_ceiling([{"byte_size": None}]) == _r2_fetch.MAX_ASSET_BYTES
 
 
-def test_hard_ceiling_for_a_small_known_asset_is_ten_times_with_a_64_mib_floor():
-    assert _r2_fetch.hard_ceiling([{"byte_size": 1000}]) == 64 * 1024**2
+def test_hard_ceiling_for_a_small_known_asset_is_never_below_the_configured_maximum():
+    assert _r2_fetch.hard_ceiling([{"byte_size": 1000}]) == _r2_fetch.MAX_ASSET_BYTES
 
 
 def test_a_known_asset_larger_than_the_absolute_ceiling_is_not_refused():

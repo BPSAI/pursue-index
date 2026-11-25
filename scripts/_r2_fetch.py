@@ -62,9 +62,6 @@ SIZE_GROWTH_FACTOR = 2
 # The hard ceiling for an asset of known size: growth past this many times its
 # last recorded size fails the card. Growth past SIZE_GROWTH_FACTOR only alerts.
 HARD_GROWTH_FACTOR = 10
-# A small asset still gets this much room, so ten times a tiny size is not a trap; it is far
-# below ``MAX_ASSET_BYTES``, so the ceiling stays a real bound for small assets.
-HARD_CEILING_FLOOR = 64 * 1024**2
 # Free space is re-read after this many written bytes (``disk_usage`` per chunk is wasteful).
 DISK_CHECK_EVERY_BYTES = 64 * 1024**2
 MAX_REDIRECTS = 5
@@ -97,14 +94,14 @@ def byte_cap(rows: list[dict[str, Any]]) -> int:
 def hard_ceiling(rows: list[dict[str, Any]]) -> int:
     """The most bytes a fetch may read before the card fails.
 
-    ``MAX_ASSET_BYTES`` for an asset with no recorded size; otherwise
-    ``HARD_GROWTH_FACTOR`` times the last recorded size, never below ``HARD_CEILING_FLOOR``.
-    The ceiling follows the asset, so one already bigger than ``MAX_ASSET_BYTES`` is never
-    refused for its own size and a small one cannot grow to gigabytes.
+    ``MAX_ASSET_BYTES`` for an asset with no recorded size; otherwise the higher of
+    ``MAX_ASSET_BYTES`` and ``HARD_GROWTH_FACTOR`` times the last recorded size, so a small
+    asset may be replaced by a larger one up to the configured maximum, and one already bigger
+    than ``MAX_ASSET_BYTES`` gets its own measured ceiling rather than being refused for its size.
     """
     known = last_known_size(rows)
     if isinstance(known, int) and known > 0:
-        return max(HARD_CEILING_FLOOR, known * HARD_GROWTH_FACTOR)
+        return max(MAX_ASSET_BYTES, known * HARD_GROWTH_FACTOR)
     return MAX_ASSET_BYTES
 
 

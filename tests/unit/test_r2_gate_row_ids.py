@@ -93,9 +93,10 @@ def test_a_missing_or_unreadable_marker_rescans_everything(tmp_path):
     assert _r2_drift_scan.gated_row_ids(args) is None
 
 
-def test_a_passing_gate_writes_the_ids_of_every_registry_row(tmp_path, monkeypatch):
+def test_a_passing_gate_writes_the_ids_of_the_rows_it_scanned(tmp_path, monkeypatch):
     w = World(tmp_path, monkeypatch)
     w.add_card(1, prior=OLD_BODY, body=OLD_BODY)
+    w.rows[0]["fetched_at"] = NOW.isoformat()  # inside the window; a row before it would stay ungated
     flags = ["--fail-on-drift", "--dispositions", str(w.dispositions), "--run-record", str(w.record)]
     assert w.run(*flags) == 0
     last = json.loads((tmp_path / "drift-gate-passes.jsonl").read_text().splitlines()[-1])

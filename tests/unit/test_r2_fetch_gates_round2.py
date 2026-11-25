@@ -225,10 +225,12 @@ def test_real_client_refuses_loopback_without_the_test_seam(local, tmp_path, mon
 # --- 4. ceilings -----------------------------------------------------------------------
 
 
-def test_a_known_small_asset_gets_ten_times_its_size_with_a_64_mib_floor():
+def test_the_ceiling_is_the_higher_of_the_configured_and_the_measured_one():
     ceiling = _r2_fetch.hard_ceiling
-    assert ceiling([{"byte_size": 1000}]) == 64 * MIB
-    assert ceiling([{"byte_size": 10 * MIB}]) == 100 * MIB
+    assert ceiling([{"byte_size": 1000}]) == _r2_fetch.MAX_ASSET_BYTES
+    assert ceiling([{"byte_size": 10 * MIB}]) == _r2_fetch.MAX_ASSET_BYTES
+    assert ceiling([{"byte_size": 150 * MIB}]) == _r2_fetch.MAX_ASSET_BYTES
+    assert ceiling([{"byte_size": 400 * MIB}]) == 4000 * MIB
     assert ceiling([{"byte_size": 3_212_900_000}]) == 32_129_000_000
     assert ceiling([]) == _r2_fetch.MAX_ASSET_BYTES
     assert ceiling([{"byte_size": None}]) == _r2_fetch.MAX_ASSET_BYTES
