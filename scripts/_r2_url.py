@@ -38,10 +38,19 @@ def _clean_host(authority: str) -> str:
     return host if ok else ""
 
 
+def _without_userinfo(url: str) -> str:
+    """``url`` with everything up to the last ``@`` of its authority removed, so a fingerprint
+    never depends on a credential."""
+    m = _URL_RE.match(url)
+    if not m or "@" not in m["authority"]:
+        return url
+    return url[: m.start("authority")] + m["authority"].rpartition("@")[2] + m["rest"]
+
+
 def _redacted(url: str) -> str:
     """The scheme, the host if it parsed cleanly (else ``<unparsed>``) and a short fingerprint:
     never userinfo, port, path, query, fragment or any other raw text."""
-    fingerprint = hashlib.sha256(url.encode("utf-8", "replace")).hexdigest()[:12]
+    fingerprint = hashlib.sha256(_without_userinfo(url).encode("utf-8", "replace")).hexdigest()[:12]
     m = None if "\\" in url or any(ord(c) <= 0x20 or ord(c) == 0x7F for c in url) else _URL_RE.fullmatch(url)
     scheme = _SCHEME_RE.match(url)
     shown_scheme = scheme[0].lower() if scheme and url[scheme.end() :].startswith("://") else "<none>"

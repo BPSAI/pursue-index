@@ -75,15 +75,15 @@ def test_a_second_asset_of_another_type_is_not_a_type_change(tmp_path, monkeypat
     assert "TYPE CHANGE" not in capsys.readouterr().out and cid
 
 
-def test_the_scan_side_emits_the_same_warning_and_no_drift(capsys):
+def test_the_scan_side_reports_no_drift_and_leaves_the_warning_to_the_run(capsys):
     old, new = _row("c1", OLD_BODY, NOW - timedelta(days=3)), _row(
         "c1", NEW_BODY, NOW - timedelta(days=1), u="https://cdn.example.com/c1.mp4", asset_filename="c1.mp4"
     )
     assert r2.registry_drift_since({"c1": [old, new]}, NOW - timedelta(days=2)) == []
-    assert "[r2-archive] TYPE CHANGE: c1 pdf -> mp4 (www.war.gov -> cdn.example.com)" in capsys.readouterr().out
+    assert "TYPE CHANGE" not in capsys.readouterr().out
 
 
-def test_the_scan_side_is_quiet_for_rows_before_the_window(capsys):
+def test_the_scan_side_is_quiet_for_old_rows_too(capsys):
     old, new = _row("c1", OLD_BODY, NOW - timedelta(days=9)), _row(
         "c1", NEW_BODY, NOW - timedelta(days=8), u="https://www.war.gov/c1.mp4", asset_filename="c1.mp4"
     )
@@ -92,7 +92,7 @@ def test_the_scan_side_is_quiet_for_rows_before_the_window(capsys):
 
 
 def test_a_type_change_prints_exactly_one_warning(tmp_path, monkeypatch, capsys):
-    """The scan side sees every row, so it is the only place the warning is emitted."""
+    """The run emits the warning once, from one function; the scan does not repeat it."""
     w = World(tmp_path, monkeypatch)
     w.add_card(1, prior=OLD_BODY, body=NEW_BODY, head_matches_prior=False)
     new_url = "https://www.war.gov/medialink/ufo/c1.mp4"

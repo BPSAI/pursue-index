@@ -277,7 +277,7 @@ def _process_card(
             print(f"[r2-archive] fetch fail {card.card_id}: {exc}")
             return "fail"
         state.note_growth(card.card_id, last_known_size(rows), size, byte_cap(rows))
-        state.bytes_hashed += size
+        state.note_hashed(size, encoded=getattr(head, "encoded", False))
         # Only the LATEST row decides: bytes equal to an older row are a revert.
         if rows and rows[-1].get("byte_sha256") == byte_sha:
             return "unchanged"
@@ -529,9 +529,9 @@ def main(argv: list[str] | None = None) -> int:
 
     state = RunState.for_run(args, manifest, approved, started)
     eligible = _select_cards(manifest, args, state)
-    state.cards_hashed = len(eligible)
-    print(f"[r2-archive] processing {len(eligible)} eligible cards")
+    state.begin(registry, manifest.cards, eligible)
     _run_cards(args, eligible, registry, client, state, approved)
+    print(state.summary_line())
 
     c = state.counts
     print(

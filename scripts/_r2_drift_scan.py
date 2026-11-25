@@ -13,7 +13,6 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from _r2_hosts import type_change_line
 from _r2_registry import group_registry, load_registry_rows
 from _r2_run_state import (
     BOOTSTRAP_WINDOW_DAYS,
@@ -22,7 +21,7 @@ from _r2_run_state import (
     newest_complete_run,
 )
 
-from pursue_index.asset_rows import rows_of_asset, type_change
+from pursue_index.asset_rows import rows_of_asset
 
 
 def gate_marker_path(args) -> Path:
@@ -119,8 +118,8 @@ def drift_and_coverage(
     Returns ``(drift, covered, skipped)``. ``drift`` is ``(card_id, previous_sha, new_sha)``
     for each row fetched at/after ``since`` whose sha differs from the previous row of the
     same card AND the same ``asset_url``, or (for a moved URL) the newest earlier row of the
-    same file type. A first row with no such earlier row is net-new, never drift (one whose
-    file type changed with its URL is printed as a ``TYPE CHANGE`` warning).
+    same file type. A first row with no such earlier row is net-new, never drift (the file-type
+    warning is ``_r2_type_change``'s, on every lane).
 
     ``covered`` holds the ids of exactly the rows whose comparison ran (``when >= since``).
     ``skipped`` maps the id of each row looked at but not evaluated to ``(card_id, reason)``:
@@ -157,11 +156,6 @@ def drift_and_coverage(
             earlier = rows_of_asset(rows[:i], row.get("asset_url"), row.get("asset_filename"))
             prev = earlier[-1] if earlier else None
             if prev is None:
-                change = type_change(rows[:i], row.get("asset_url"), row.get("asset_filename"))
-                if in_window and change and not any(
-                    r.get("asset_url") == change[0].get("asset_url") for r in rows[i + 1 :]
-                ):
-                    print(type_change_line(card_id, *change, row.get("asset_url")))
                 continue
             old, new = prev.get("byte_sha256"), row.get("byte_sha256")
             if old and new and old != new:
