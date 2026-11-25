@@ -204,6 +204,56 @@ def test_write_atomic_lands_the_document(tmp_path) -> None:
     assert os.path.exists(target)
 
 
+def test_write_atomic_keeps_the_existing_mode(tmp_path) -> None:
+    target = tmp_path / "card.json"
+    target.write_text("{}", encoding="utf-8")
+    target.chmod(0o644)
+    supersede.write_atomic(target, {"a": 1})
+    assert target.stat().st_mode & 0o777 == 0o644
+    assert json.loads(target.read_text()) == {"a": 1}
+
+
+def test_write_atomic_keeps_a_non_default_mode(tmp_path) -> None:
+    target = tmp_path / "card.json"
+    target.write_text("{}", encoding="utf-8")
+    target.chmod(0o640)
+    supersede.write_atomic(target, {"a": 1})
+    assert target.stat().st_mode & 0o777 == 0o640
+
+
+def test_write_atomic_creates_a_new_file_0644(tmp_path) -> None:
+    target = tmp_path / "card.json"
+    supersede.write_atomic(target, {"a": 1})
+    assert target.stat().st_mode & 0o777 == 0o644
+    assert json.loads(target.read_text()) == {"a": 1}
+
+
+def test_write_atomic_syncs_the_file_and_the_directory(tmp_path, monkeypatch) -> None:
+    import stat as stat_mod
+
+    kinds: list[bool] = []
+    real = os.fsync
+
+    def spy(fd):
+        kinds.append(stat_mod.S_ISDIR(os.fstat(fd).st_mode))
+        real(fd)
+
+    monkeypatch.setattr(supersede.os, "fsync", spy)
+    supersede.write_atomic(tmp_path / "card.json", {"a": 1})
+    assert kinds == [False, True]  # the file before the replace, the directory after
+
+
+def test_write_card_refuses_when_the_planned_copy_is_missing(tmp_path) -> None:
+    from pursue_index.vision.redescribe import RedescribePlan, _write_card
+
+    path = _sidecar(tmp_path, CARD, [])
+    before = path.read_bytes()
+    with pytest.raises(RuntimeError, match=CARD):
+        _write_card(RedescribePlan(), CARD, path, [], "m", "now")
+    assert path.read_bytes() == before
+    assert sorted(p.name for p in tmp_path.iterdir()) == [path.name]
+
+
 # ---- row 7: placeholders follow the page model -----------------------------
 
 def test_schema_change_fails_the_dry_run(monkeypatch) -> None:
