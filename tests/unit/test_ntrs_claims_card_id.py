@@ -29,7 +29,7 @@ def test_bad_ids_are_refused_counted_and_resolve_no_card() -> None:
     assert [c.card_id for c in loaded.claims] == [GOOD]
     assert loaded.refused_claims == 4
     for card in ({"card_id": ""}, {}, {"card_id": "not-a-card-id"}):
-        assert positive_claims(card, (), loaded.claims) == []
+        assert positive_claims(card, (), loaded.claims, row_key="#0") == []
 
 
 def test_all_valid_claims_count_no_refusals() -> None:

@@ -38,7 +38,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 from pathlib import Path
 from typing import Any, NamedTuple
@@ -50,6 +50,7 @@ from pursue_index.provenance import (
     ProvenanceTier,
     is_citable_prior_source,
 )
+from pursue_index.row_key import row_keys
 
 __all__ = [
     "OUTPUT_PATH",
@@ -63,7 +64,7 @@ __all__ = [
 #: Tracked output artifact (under ``data/``, never an ignored directory).
 OUTPUT_PATH = Path("data") / "provenance" / "tier0-manifest-claims.json"
 
-_SCHEMA = "tier0-manifest-provenance/v1"
+_SCHEMA = "tier0-manifest-provenance/v2"
 _SOURCE = "war.gov CSV manifest description"
 
 _MONTHS = {
@@ -102,6 +103,7 @@ class Tier0Claim:
     source: str = _SOURCE
     stated_date: date | None = None
     date_basis: DateBasis | None = None
+    row_key: str = ""
 
     def __post_init__(self) -> None:
         if not isinstance(self.tier, ProvenanceTier):
@@ -128,6 +130,7 @@ class Tier0Claim:
         return {
             "kind": "tier0_manifest_claim",
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "identifier": self.identifier,
             "title": self.title,
             "tier": self.tier.value,
@@ -308,14 +311,10 @@ class SweepResult(NamedTuple):
 
 def sweep(manifest: dict[str, Any]) -> SweepResult:
     """Emit a Tier-0 claim for every card whose description asserts one."""
-    claims: list[Tier0Claim] = []
-    uncitable = 0
-    for card in manifest.get("cards", []):
-        detection = _detect(card)
-        if detection.claim is not None:
-            claims.append(detection.claim)
-        uncitable += int(detection.uncitable_prior_source)
-    return SweepResult(claims, uncitable)
+    cards = manifest.get("cards", [])
+    found = [_detect(card) for card in cards]
+    claims = [replace(d.claim, row_key=k) for d, k in zip(found, row_keys(cards), strict=True) if d.claim]
+    return SweepResult(claims, sum(d.uncitable_prior_source for d in found))
 
 
 def _sweep_file(path: Path) -> SweepResult:
@@ -330,7 +329,7 @@ def build_output(manifest: dict[str, Any], result: SweepResult) -> dict[str, Any
         "tier": "tier-0",
         "corpus_manifest_url": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
-        "card_count": len(manifest.get("cards", [])),
+        "card_row_count": len(manifest.get("cards", [])),
         "claim_count": len(result.claims),
         "uncitable_prior_source_skipped": {
             "count": result.uncitable_prior_source,

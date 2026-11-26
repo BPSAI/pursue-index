@@ -1,9 +1,9 @@
 {
-  "schema": "ntrs-claims/v1",
+  "schema": "ntrs-claims/v2",
   "source": "NASA NTRS",
   "corpus_manifest_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
   "csv_sha256": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247",
-  "card_count": 521,
+  "card_row_count": 521,
   "searched_count": 38,
   "fetch": {
     "requests": 38,
@@ -19,6 +19,7 @@
   "searches": [
     {
       "card_id": "5d9d3147f0b62d0c",
+      "row_key": "5d9d3147f0b62d0c#0",
       "source": "NASA NTRS",
       "query": "Apollo 12 Transcript, 1969",
       "searched_date": "2026-11-25",
@@ -28,6 +29,7 @@
     },
     {
       "card_id": "78dc972c0c143d1e",
+      "row_key": "78dc972c0c143d1e#0",
       "source": "NASA NTRS",
       "query": "Apollo 17 Transcript, 1972",
       "searched_date": "2026-11-25",
@@ -37,6 +39,7 @@
     },
     {
       "card_id": "48e4bc1bdb5a66e8",
+      "row_key": "48e4bc1bdb5a66e8#0",
       "source": "NASA NTRS",
       "query": "Gemini 7 Transcript, 1965",
       "searched_date": "2026-11-25",
@@ -46,6 +49,7 @@
     },
     {
       "card_id": "167f6a21c7238d0c",
+      "row_key": "167f6a21c7238d0c#0",
       "source": "NASA NTRS",
       "query": "Gemini 7 Audio Excerpt, 1965",
       "searched_date": "2026-11-25",
@@ -55,6 +59,7 @@
     },
     {
       "card_id": "d14e0371a5bf0f5e",
+      "row_key": "d14e0371a5bf0f5e#0",
       "source": "NASA NTRS",
       "query": "Apollo 11 Technical Crew Debriefing, 1969",
       "searched_date": "2026-11-25",
@@ -64,6 +69,7 @@
     },
     {
       "card_id": "63c47bad93af4c92",
+      "row_key": "63c47bad93af4c92#0",
       "source": "NASA NTRS",
       "query": "Apollo 17 Crew Debriefing for Science, 1973",
       "searched_date": "2026-11-25",
@@ -73,6 +79,7 @@
     },
     {
       "card_id": "0b298cfc9c65a4d6",
+      "row_key": "0b298cfc9c65a4d6#0",
       "source": "NASA NTRS",
       "query": "Apollo 17 Technical Crew Debriefing, 1973",
       "searched_date": "2026-11-25",
@@ -82,6 +89,7 @@
     },
     {
       "card_id": "8bb54e0aec5e91ad",
+      "row_key": "8bb54e0aec5e91ad#0",
       "source": "NASA NTRS",
       "query": "Skylab Technical Crew Debriefing 1973",
       "searched_date": "2026-11-25",
@@ -91,6 +99,7 @@
     },
     {
       "card_id": "9ed140b9186c20c5",
+      "row_key": "9ed140b9186c20c5#0",
       "source": "NASA NTRS",
       "query": "Apollo 12 Medical Debriefing - Tape 12, 1969",
       "searched_date": "2026-11-25",
@@ -100,6 +109,7 @@
     },
     {
       "card_id": "002eaa383e76a277",
+      "row_key": "002eaa383e76a277#0",
       "source": "NASA NTRS",
       "query": "Apollo 17 Audio Excerpt, December 7, 1972",
       "searched_date": "2026-11-25",
@@ -109,6 +119,7 @@
     },
     {
       "card_id": "1bc28d0e03b79e35",
+      "row_key": "1bc28d0e03b79e35#0",
       "source": "NASA NTRS",
       "query": "Mercury Atlas 9 Audio Excerpt, May 15, 1963",
       "searched_date": "2026-11-25",
@@ -118,6 +129,7 @@
     },
     {
       "card_id": "ef779c3f0f7ba4d3",
+      "row_key": "ef779c3f0f7ba4d3#0",
       "source": "NASA NTRS",
       "query": "Mercury Atlas 9 Audio Excerpt, May 15, 1963",
       "searched_date": "2026-11-25",
@@ -127,6 +139,7 @@
     },
     {
       "card_id": "35e0a7cff95a3e93",
+      "row_key": "35e0a7cff95a3e93#0",
       "source": "NASA NTRS",
       "query": "Mercury Atlas 8 Audio Excerpt, October 3, 1962",
       "searched_date": "2026-11-25",
@@ -136,6 +149,7 @@
     },
     {
       "card_id": "6b12c3ddc6a96008",
+      "row_key": "6b12c3ddc6a96008#0",
       "source": "NASA NTRS",
       "query": "Mercury Atlas 7, May 24, 1962",
       "searched_date": "2026-11-25",
@@ -145,6 +159,7 @@
     },
     {
       "card_id": "01765a63bbd3f02f",
+      "row_key": "01765a63bbd3f02f#0",
       "source": "NASA NTRS",
       "query": "Mercury-Redstone 4, July 21, 1961",
       "searched_date": "2026-11-25",
@@ -154,6 +169,7 @@
     },
     {
       "card_id": "765a28effad5ab93",
+      "row_key": "765a28effad5ab93#0",
       "source": "NASA NTRS",
       "query": "Astronaut Scientific Debriefings, 1962-1963",
       "searched_date": "2026-11-25",
@@ -163,6 +179,7 @@
     },
     {
       "card_id": "56bd12ff7be6f4ee",
+      "row_key": "56bd12ff7be6f4ee#0",
       "source": "NASA NTRS",
       "query": "Preliminary Gemini 4 Crew Debriefing, Part I, 1965",
       "searched_date": "2026-11-25",
@@ -172,6 +189,7 @@
     },
     {
       "card_id": "e6d06ce60662cdcf",
+      "row_key": "e6d06ce60662cdcf#0",
       "source": "NASA NTRS",
       "query": "Preliminary Gemini 4 Crew Debriefing, Part II, 1965",
       "searched_date": "2026-11-25",
@@ -181,6 +199,7 @@
     },
     {
       "card_id": "c8d89f235e487961",
+      "row_key": "c8d89f235e487961#0",
       "source": "NASA NTRS",
       "query": "Gemini 4 Experiment Debriefing, 1967",
       "searched_date": "2026-11-25",
@@ -190,6 +209,7 @@
     },
     {
       "card_id": "662eb9fef6e109d2",
+      "row_key": "662eb9fef6e109d2#0",
       "source": "NASA NTRS",
       "query": "Gemini 5 Technical Debriefing, Part I, 1965",
       "searched_date": "2026-11-25",
@@ -199,6 +219,7 @@
     },
     {
       "card_id": "f6935b10dea56aa5",
+      "row_key": "f6935b10dea56aa5#0",
       "source": "NASA NTRS",
       "query": "Gemini 5 Technical Debriefing, Part II, 1965",
       "searched_date": "2026-11-25",
@@ -208,6 +229,7 @@
     },
     {
       "card_id": "e18cac08048b6c28",
+      "row_key": "e18cac08048b6c28#0",
       "source": "NASA NTRS",
       "query": "Gemini 7 Technical Debriefing, 1965",
       "searched_date": "2026-11-25",
@@ -217,6 +239,7 @@
     },
     {
       "card_id": "a3672ccd47d5503a",
+      "row_key": "a3672ccd47d5503a#0",
       "source": "NASA NTRS",
       "query": "Gemini 9 Debriefing, 1966",
       "searched_date": "2026-11-25",
@@ -226,6 +249,7 @@
     },
     {
       "card_id": "79efc12f4c2ebae9",
+      "row_key": "79efc12f4c2ebae9#0",
       "source": "NASA NTRS",
       "query": "Interview Excerpt with Astronaut Gordon Cooper, 1962",
       "searched_date": "2026-11-25",
@@ -235,6 +259,7 @@
     },
     {
       "card_id": "5ef405481cb69a03",
+      "row_key": "5ef405481cb69a03#0",
       "source": "NASA NTRS",
       "query": "Apollo 16 Scientific Debriefing",
       "searched_date": "2026-11-25",
@@ -244,6 +269,7 @@
     },
     {
       "card_id": "a7455a1d0c406174",
+      "row_key": "a7455a1d0c406174#0",
       "source": "NASA NTRS",
       "query": "Apollo 16 Scientific Debriefing",
       "searched_date": "2026-11-25",
@@ -253,6 +279,7 @@
     },
     {
       "card_id": "ffd9dfd4bceb163f",
+      "row_key": "ffd9dfd4bceb163f#0",
       "source": "NASA NTRS",
       "query": "Apollo 14 Debriefing, 1971",
       "searched_date": "2026-11-25",
@@ -262,6 +289,7 @@
     },
     {
       "card_id": "69f1874d972fb44c",
+      "row_key": "69f1874d972fb44c#0",
       "source": "NASA NTRS",
       "query": "Apollo 14 Debriefing (Continued), 1971",
       "searched_date": "2026-11-25",
@@ -271,6 +299,7 @@
     },
     {
       "card_id": "ed534f618f0c3501",
+      "row_key": "ed534f618f0c3501#0",
       "source": "NASA NTRS",
       "query": "Apollo 17 Crew Medical Debriefing, 1972",
       "searched_date": "2026-11-25",
@@ -280,6 +309,7 @@
     },
     {
       "card_id": "aa2e4d84861d5006",
+      "row_key": "aa2e4d84861d5006#0",
       "source": "NASA NTRS",
       "query": "Apollo 17 Crew Medical Debriefing (Continued), 1972",
       "searched_date": "2026-11-25",
@@ -289,6 +319,7 @@
     },
     {
       "card_id": "2681dbf5da52e042",
+      "row_key": "2681dbf5da52e042#0",
       "source": "NASA NTRS",
       "query": "STS-80 Unidentified Object Image 1, 1996",
       "searched_date": "2026-11-25",
@@ -298,6 +329,7 @@
     },
     {
       "card_id": "90a8c6493f04d6e3",
+      "row_key": "90a8c6493f04d6e3#0",
       "source": "NASA NTRS",
       "query": "STS-80 Unidentified Object Image 2, 1996",
       "searched_date": "2026-11-25",
@@ -307,6 +339,7 @@
     },
     {
       "card_id": "07214d7d1343a4b4",
+      "row_key": "07214d7d1343a4b4#0",
       "source": "NASA NTRS",
       "query": "STS-80 Unidentified Object Image 3, 1996",
       "searched_date": "2026-11-25",
@@ -316,6 +349,7 @@
     },
     {
       "card_id": "303ad110cb5fa8b4",
+      "row_key": "303ad110cb5fa8b4#0",
       "source": "NASA NTRS",
       "query": "Apollo 12, 1969",
       "searched_date": "2026-11-25",
@@ -325,6 +359,7 @@
     },
     {
       "card_id": "bd9411951868bc3e",
+      "row_key": "bd9411951868bc3e#0",
       "source": "NASA NTRS",
       "query": "Apollo 12, 1969",
       "searched_date": "2026-11-25",
@@ -334,6 +369,7 @@
     },
     {
       "card_id": "19b18b71420602c5",
+      "row_key": "19b18b71420602c5#0",
       "source": "NASA NTRS",
       "query": "Apollo 12, 1969",
       "searched_date": "2026-11-25",
@@ -343,6 +379,7 @@
     },
     {
       "card_id": "34f3278ad20d348f",
+      "row_key": "34f3278ad20d348f#0",
       "source": "NASA NTRS",
       "query": "Apollo 12, 1969",
       "searched_date": "2026-11-25",
@@ -352,6 +389,7 @@
     },
     {
       "card_id": "784dc42f885dc12e",
+      "row_key": "784dc42f885dc12e#0",
       "source": "NASA NTRS",
       "query": "Apollo 12, 1969",
       "searched_date": "2026-11-25",

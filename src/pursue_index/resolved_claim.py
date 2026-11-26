@@ -42,10 +42,12 @@ from pursue_index.provenance import (
     is_citable_prior_source,
     require_web_url,
 )
+from pursue_index.row_key import row_keys
 
 __all__ = [
     "ResolutionSource",
     "ResolvedClaim",
+    "row_keys",  # re-exported: the resolver keys its claims with it
 ]
 
 _STRONG_TIERS = frozenset(
@@ -77,6 +79,8 @@ class ResolvedClaim:
     date_basis: DateBasis | None = None
     prior_publication: str = ""
     needs_page_image_comparison: bool = False
+    row_key: str = ""
+    row_key_migrated_from: str = ""
 
     def __post_init__(self) -> None:
         self._check_tier_and_source()
@@ -140,6 +144,7 @@ class ResolvedClaim:
         return {
             "kind": "resolved_claim",
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "tier": self.tier.value,
             "source": self.source.value,
             "identifier_kind": self.identifier_kind,
@@ -149,6 +154,7 @@ class ResolvedClaim:
             "date_basis": self.date_basis.value if self.date_basis else None,
             "prior_publication": self.prior_publication,
             "needs_page_image_comparison": self.needs_page_image_comparison,
+            **({"row_key_migrated_from": self.row_key_migrated_from} if self.row_key_migrated_from else {}),
         }
 
     @classmethod
@@ -166,4 +172,6 @@ class ResolvedClaim:
             date_basis=DateBasis(raw_basis) if raw_basis else None,
             prior_publication=data.get("prior_publication", ""),
             needs_page_image_comparison=bool(data.get("needs_page_image_comparison", False)),
+            row_key=data.get("row_key", ""),
+            row_key_migrated_from=data.get("row_key_migrated_from", ""),
         )

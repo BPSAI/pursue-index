@@ -135,9 +135,9 @@ def test_build_output_publishes_the_suppressions_and_their_count() -> None:
     manifest = {"cards": [card, _modern_card(card_id="modern-002")]}
     result = bucket(manifest)
     output = build_output(manifest, result)
-    assert output["superseded_by_claim_count"] == 1
+    assert output["superseded_by_claim_row_count"] == 1
     assert [row["card_id"] for row in output["superseded_by_claim"]] == ["modern-001"]
-    assert output["no_prior_release_count"] == 1
+    assert output["no_prior_release_file_count"] == 1
 
 
 def test_real_manifest_supersedes_the_cards_the_government_describes() -> None:
@@ -206,7 +206,7 @@ def test_bucketing_and_the_coverage_report_agree_on_the_same_catalogue() -> None
     """
     card = _catalogue_only_card()
     catalogue = [_catalogue_entry()]
-    outcome = classify(card, catalogue)
+    outcome = classify(card, catalogue, row_key=f"{card['card_id']}#0")
     result = bucket({"cards": [card]}, catalogue=catalogue)
     assert outcome.resolved_by == RESOLVED_BY_CLAIM
     assert outcome.primary_tier == result.superseded[0]["superseding_tier"]
@@ -230,13 +230,14 @@ def test_a_modern_negative_needs_a_document_date_and_says_so_without_assert() ->
         _no_prior_release(undated)
 
 
-def _external_claim(card_id: str):
+def _external_claim(card_id: str, row_key: str | None = None):
     from datetime import date
 
     from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 
     return ResolvedClaim(
         card_id=card_id,
+        row_key=row_key if row_key is not None else f"{card_id}#0",
         tier=ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED,
         source=ResolutionSource.NTRS_METADATA,
         identifier_kind="ntrs_citation_id",
@@ -253,7 +254,7 @@ def test_an_extra_positive_claim_outranks_the_era_negative() -> None:
     assert [row["card_id"] for row in result.superseded] == ["modern-001"]
     assert [c.card_id for c in result.claims] == ["modern-002"]
     output = build_output(manifest, result)
-    assert output["no_prior_release_count"] == 1
+    assert output["no_prior_release_file_count"] == 1
     assert output["superseded_by_claim"][0]["superseding_source"] == "ntrs_metadata"
 
 

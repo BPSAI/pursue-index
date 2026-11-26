@@ -23,6 +23,9 @@ from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root
 from pursue_index.provenance_report import (
     POSITIVE_TIER_PRECEDENCE,
+    RESOLVED_BY_CLAIM,
+    RESOLVED_BY_ERA,
+    UNRESOLVED,
     CoverageReport,
     build_report,
     load_catalogue,
@@ -54,10 +57,10 @@ def _reject_web_path(path: Path) -> None:
 
 
 def _print_coverage(report: CoverageReport) -> None:
-    """Render the headline split and the per-tier / per-era breakdowns."""
-    table = Table(title=f"Provenance coverage — {report.card_count} cards")
+    """Render the split and the per-tier breakdown in files, then the row totals."""
+    table = Table(title=f"Provenance coverage — {report.file_count} files")
     table.add_column("Resolution route")
-    table.add_column("Cards", justify="right")
+    table.add_column("Files", justify="right")
     table.add_row("prior-release claim (Tier-0 + identifier resolver + NTRS)", str(report.resolved_by_claim))
     for tier in POSITIVE_TIER_PRECEDENCE:
         count = report.tier_counts.get(tier.value)
@@ -67,9 +70,15 @@ def _print_coverage(report: CoverageReport) -> None:
     table.add_row("unresolved", str(report.unresolved))
     console.print(table)
     console.print(
-        f"Of {report.card_count} cards, [bold]{report.resolved_by_claim}[/bold] carry a "
-        f"provenance claim; [bold]{report.page_image_flagged}[/bold] are flagged for "
+        f"Of {report.file_count} files, [bold]{report.resolved_by_claim}[/bold] carry a "
+        f"provenance claim; [bold]{report.page_image_flagged}[/bold] files are flagged for "
         "page-image comparison (Phase B)."
+    )
+    split = report.row_counts
+    console.print(
+        f"Rows: {report.card_row_count} rows in total; rows by route: "
+        f"claim {split.get(RESOLVED_BY_CLAIM, 0)}, era {split.get(RESOLVED_BY_ERA, 0)}, "
+        f"unresolved {split.get(UNRESOLVED, 0)}."
     )
 
 
@@ -79,10 +88,11 @@ def _print_unresolved(report: CoverageReport) -> None:
         console.print("[green]No unresolved cards — every card was resolved.[/green]")
         return
     console.print(
-        f"\n[bold]{report.unresolved} unresolved[/bold] "
-        f"(by era: {report.unresolved_by_era})"
+        f"\n[bold]{report.unresolved} unresolved files[/bold] "
+        f"(by era, in files: {report.unresolved_by_era}); "
+        f"{len(report.unresolved_rows())} unresolved rows listed"
     )
-    for outcome in report.unresolved_cards():
+    for outcome in report.unresolved_rows():
         # Era, card_id and title are all government-CSV text, printed as the
         # characters they contain: console_text drops the control bytes a
         # terminal would read as instructions, and escape() hands the result to

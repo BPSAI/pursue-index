@@ -1,9 +1,9 @@
 {
-  "schema": "tier0-manifest-provenance/v1",
+  "schema": "tier0-manifest-provenance/v2",
   "tier": "tier-0",
   "corpus_manifest_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
   "csv_sha256": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247",
-  "card_count": 521,
+  "card_row_count": 521,
   "claim_count": 23,
   "uncitable_prior_source_skipped": {
     "count": 0,
@@ -13,6 +13,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "973c1f75f55d0d39",
+      "row_key": "973c1f75f55d0d39#0",
       "identifier": "255_413270_ufo's_and_defense_what_should_we_prepare_for.pdf",
       "title": "255_413270_UFO's_and_Defense_What_Should_we_Prepare_For",
       "tier": "content_previously_published",
@@ -25,6 +26,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "bcf2e688dfbc220d",
+      "row_key": "bcf2e688dfbc220d#0",
       "identifier": "65_hs1-834228961_62-hq-83894_section_1.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Section_001",
       "tier": "previously_released_in_part",
@@ -37,6 +39,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "4844321219e306af",
+      "row_key": "4844321219e306af#0",
       "identifier": "65_hs1-834228961_62-hq-83894_section_2.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Section_002",
       "tier": "previously_released_in_part",
@@ -49,6 +52,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "99c12a9c49a91750",
+      "row_key": "99c12a9c49a91750#0",
       "identifier": "65_hs1-834228961_62-hq-83894_section_3.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Section_003",
       "tier": "previously_released_in_part",
@@ -61,6 +65,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "5ecebc7c28a8d8c7",
+      "row_key": "5ecebc7c28a8d8c7#0",
       "identifier": "65_hs1-834228961_62-hq-83894_section_4.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Section_004",
       "tier": "previously_released_in_part",
@@ -73,6 +78,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "b246c782b16be168",
+      "row_key": "b246c782b16be168#0",
       "identifier": "65_hs1-834228961_62-hq-83894_section_5.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Section_005",
       "tier": "previously_released_in_part",
@@ -85,6 +91,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "13f86e95aed52840",
+      "row_key": "13f86e95aed52840#0",
       "identifier": "65_hs1-834228961_62-hq-83894_section_6.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Section_006",
       "tier": "previously_released_in_part",
@@ -97,6 +104,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "f85532f0514320be",
+      "row_key": "f85532f0514320be#0",
       "identifier": "65_hs1-834228961_62-hq-83894_section_7.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Section_007",
       "tier": "previously_released_in_part",
@@ -109,6 +117,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "ad721de274bb7d6c",
+      "row_key": "ad721de274bb7d6c#0",
       "identifier": "65_hs1-834228961_62-hq-83894_section_8.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Section_008",
       "tier": "previously_released_in_part",
@@ -121,6 +130,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "8bfd94484138d59b",
+      "row_key": "8bfd94484138d59b#0",
       "identifier": "65_hs1-834228961_62-hq-83894_section_9.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Section_009",
       "tier": "previously_released_in_part",
@@ -133,6 +143,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "7d58f0cac741650a",
+      "row_key": "7d58f0cac741650a#0",
       "identifier": "65_hs1-834228961_62-hq-83894_section_10.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Section_010",
       "tier": "previously_released_in_part",
@@ -145,6 +156,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "108379f8a86dbe9c",
+      "row_key": "108379f8a86dbe9c#0",
       "identifier": "65_hs1-834228961_62-hq-83894_serial_130.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Serial_130",
       "tier": "previously_released_in_part",
@@ -157,6 +169,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "67c2ef13cc69891c",
+      "row_key": "67c2ef13cc69891c#0",
       "identifier": "65_hs1-834228961_62-hq-83894_serial_153.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Serial_153",
       "tier": "previously_released_in_part",
@@ -169,6 +182,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "fa24eb58219a8dff",
+      "row_key": "fa24eb58219a8dff#0",
       "identifier": "65_hs1-834228961_62-hq-83894_serial_164.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Serial_164",
       "tier": "previously_released_in_part",
@@ -181,6 +195,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "4b68726be4af8ff9",
+      "row_key": "4b68726be4af8ff9#0",
       "identifier": "65_hs1-834228961_62-hq-83894_serial_220.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Serial_220",
       "tier": "previously_released_in_part",
@@ -193,6 +208,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "954d1e1944bc6d17",
+      "row_key": "954d1e1944bc6d17#0",
       "identifier": "65_hs1-834228961_62-hq-83894_serial_403.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Serial_403",
       "tier": "previously_released_in_part",
@@ -205,6 +221,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "af42a6774881c110",
+      "row_key": "af42a6774881c110#0",
       "identifier": "65_hs1-834228961_62-hq-83894_serial_438.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Serial_438",
       "tier": "previously_released_in_part",
@@ -217,6 +234,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "f42c11ca158aeffc",
+      "row_key": "f42c11ca158aeffc#0",
       "identifier": "65_hs1-834228961_62-hq-83894_serial_449.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_Serial_449",
       "tier": "previously_released_in_part",
@@ -229,6 +247,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "e897e67f95bc1e1b",
+      "row_key": "e897e67f95bc1e1b#0",
       "identifier": "65_hs1-834228961_62-hq-83894_sub_a.pdf",
       "title": "65_HS1-834228961_62-HQ-83894_SUB_A",
       "tier": "previously_released_in_part",
@@ -241,6 +260,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "e2371ff7657d231e",
+      "row_key": "e2371ff7657d231e#0",
       "identifier": "CIA-UAP-019-Australian_Dept_of_Defense_Scientific_and_Intel_Aspects_of_the_UFO_Problem.pdf",
       "title": "CIA-UAP-019, Australian Dept of Defense Scientific and Intel Aspects of the UFO Problem",
       "tier": "previously_released",
@@ -253,6 +273,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "7e0b4624ee81788e",
+      "row_key": "7e0b4624ee81788e#0",
       "identifier": "DOE-UAP-D005_Pantex-Unidentified-Object-Incident-Report_2015.pdf",
       "title": "DOE-UAP-D005, Pantex Unidentified Object Incident Report, 2015",
       "tier": "previously_released_in_part",
@@ -265,6 +286,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "3deb237b1d68e203",
+      "row_key": "3deb237b1d68e203#0",
       "identifier": "nasa-uap-vm6-apollo-17-1972.jpg",
       "title": "NASA-UAP-VM006, Apollo 17, 1972",
       "tier": "previously_released",
@@ -277,6 +299,7 @@
     {
       "kind": "tier0_manifest_claim",
       "card_id": "fd342b7508668b0e",
+      "row_key": "fd342b7508668b0e#0",
       "identifier": "ODNI-UAP-D001_USPER_Narrative_Senior_USIC.pdf",
       "title": "ODNI-UAP-D001, USPER Narrative, Senior USIC Official",
       "tier": "previously_released",

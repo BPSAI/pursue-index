@@ -94,10 +94,12 @@ class CardEra:
     year: int | None
     date_source: str | None
     raw_date: str | None
+    row_key: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "identifier": self.identifier,
             "title": self.title,
             "agency": self.agency,
@@ -127,16 +129,19 @@ class EraNoPriorRelease:
     date_source: str
     established_date: str
     rationale: str
+    row_key: str = ""
 
     era: ClassVar[Era] = Era.MODERN_OPERATIONAL
     tier: ClassVar[ProvenanceTier] = ProvenanceTier.NO_PRIOR_RELEASE_FOUND
     disclaimer: ClassVar[str] = NO_PRIOR_RELEASE_DISCLAIMER
 
     def __post_init__(self) -> None:
-        for name in ("card_id", "identifier", "date_source", "rationale"):
+        for name in ("identifier", "date_source", "rationale"):
             value = getattr(self, name)
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"an era no-prior-release record requires non-blank {name}")
+        if not (isinstance(self.card_id, str) and self.card_id.strip()) and not self.row_key.strip():
+            raise ValueError("an era no-prior-release record requires a card_id, or a row_key for a row with none")
         if not isinstance(self.established_year, int) or self.established_year < MODERN_MIN_YEAR:
             raise ValueError(
                 "an era no-prior-release record is only for 2015+ cards; "
@@ -156,6 +161,7 @@ class EraNoPriorRelease:
             "tier": self.tier.value,
             "era": self.era.value,
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "identifier": self.identifier,
             "title": self.title,
             "agency": self.agency,

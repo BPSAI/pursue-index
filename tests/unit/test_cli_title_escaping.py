@@ -69,7 +69,7 @@ def _outcome(title: str) -> CardOutcome:
 
 def _report(outcome: CardOutcome) -> CoverageReport:
     return CoverageReport(
-        card_count=1,
+        card_row_count=1,
         resolved_by_claim=0,
         resolved_by_era=0,
         unresolved=1,

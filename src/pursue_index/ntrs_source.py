@@ -53,6 +53,7 @@ from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import NO_PRIOR_RELEASE_DISCLAIMER, ProvenanceTier
 from pursue_index.provenance_report import build_report
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
+from pursue_index.row_key import row_keys
 from pursue_index.source_index import SourceEntry
 
 __all__ = [
@@ -68,12 +69,12 @@ __all__ = [
     "run_searches",
     "title_matches",
     "token_set_ratio",
-    "unresolved_nasa_cards",
+    "unresolved_nasa_rows",
     "write_output",
 ]
 
 OUTPUT_PATH = Path("data") / "provenance" / "ntrs-claims.json"
-SCHEMA = "ntrs-claims/v1"
+SCHEMA = "ntrs-claims/v2"
 SOURCE_LABEL = "NASA NTRS"
 
 RESULT_CLAIM = "claim"
@@ -102,10 +103,12 @@ class CardSearch:
     result: str
     claim: ResolvedClaim | None = None
     copies: tuple[dict[str, Any], ...] = field(default_factory=tuple)
+    row_key: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "source": SOURCE_LABEL,
             "query": self.query,
             "searched_date": self.searched_date.isoformat(),
@@ -115,7 +118,9 @@ class CardSearch:
         }
 
 
-def evaluate_card(card: dict[str, Any], response: dict[str, Any], searched_date: date) -> CardSearch:
+def evaluate_card(
+    card: dict[str, Any], response: dict[str, Any], searched_date: date, row_key: str
+) -> CardSearch:
     """Turn one search response into the card's claim or search record."""
     card_id = str(card.get("card_id") or "")
     query = normalize_query(str(card.get("title") or ""))
@@ -123,7 +128,7 @@ def evaluate_card(card: dict[str, Any], response: dict[str, Any], searched_date:
     rows = tuple(c.to_dict() for c in copies)
 
     def record(result: str, claim: ResolvedClaim | None = None) -> CardSearch:
-        return CardSearch(card_id, query, searched_date, result, claim, rows)
+        return CardSearch(card_id, query, searched_date, result, claim, rows, row_key)
 
     if not copies:
         return record(RESULT_NO_COPY)
@@ -135,6 +140,7 @@ def evaluate_card(card: dict[str, Any], response: dict[str, Any], searched_date:
         best = min(prior, key=lambda c: (c.established, c.ntrs_id))  # type: ignore[type-var]
         claim = ResolvedClaim(
             card_id=card_id,
+            row_key=row_key,
             tier=ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED,
             source=ResolutionSource.NTRS_METADATA,
             identifier_kind="ntrs_citation_id",
@@ -149,13 +155,14 @@ def evaluate_card(card: dict[str, Any], response: dict[str, Any], searched_date:
     return record(RESULT_UNDATED)
 
 
-def unresolved_nasa_cards(
+def unresolved_nasa_rows(
     manifest: dict[str, Any], catalogue: Sequence[SourceEntry] = ()
-) -> list[dict[str, Any]]:
-    """The NASA cards the coverage report leaves unresolved, in manifest order."""
+) -> list[tuple[str, dict[str, Any]]]:
+    """The NASA rows the coverage report leaves unresolved, as (row_key, card), in manifest order."""
     report = build_report(manifest, catalogue)
-    wanted = {o.card_id for o in report.unresolved_cards() if o.agency.strip().casefold() == "nasa"}
-    return [c for c in manifest.get("cards", []) if str(c.get("card_id") or "") in wanted]
+    wanted = {o.row_key for o in report.unresolved_rows() if o.agency.strip().casefold() == "nasa"}
+    cards = manifest.get("cards", [])
+    return [(key, card) for key, card in zip(row_keys(cards), cards, strict=True) if key in wanted]
 
 
 def run_searches(
@@ -166,13 +173,13 @@ def run_searches(
 ) -> list[CardSearch]:
     """Search NTRS once per unresolved NASA card. A fetch abort propagates."""
     searches: list[CardSearch] = []
-    for card in unresolved_nasa_cards(manifest, catalogue):
+    for key, card in unresolved_nasa_rows(manifest, catalogue):
         query = normalize_query(str(card.get("title") or ""))
         if not query:
             card_id = str(card.get("card_id") or "")
-            searches.append(CardSearch(card_id, query, searched_date, RESULT_NOT_SEARCHED))
+            searches.append(CardSearch(card_id, query, searched_date, RESULT_NOT_SEARCHED, row_key=key))
             continue
-        searches.append(evaluate_card(card, fetcher.search(query), searched_date))
+        searches.append(evaluate_card(card, fetcher.search(query), searched_date, key))
     return searches
 
 
@@ -186,7 +193,7 @@ def build_output(
         "source": SOURCE_LABEL,
         "corpus_manifest_url": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
-        "card_count": len(manifest.get("cards", [])),
+        "card_row_count": len(manifest.get("cards", [])),
         "searched_count": len(searches),
         "fetch": fetch_counts,
         "result_counts": dict(sorted(Counter(s.result for s in searches).items())),
