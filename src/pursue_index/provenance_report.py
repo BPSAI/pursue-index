@@ -262,10 +262,10 @@ def build_report(
         outcomes=tuple(outcomes),
         catalogue_entries=len(loaded.entries),
         catalogue_rows_dropped=loaded.dropped_rows,
-        file_count=len(best),
+        file_count=len(file_era),
         row_counts={route: row_routes[route] for route in (RESOLVED_BY_CLAIM, RESOLVED_BY_ERA, UNRESOLVED)},
         claims_without_row_key=unkeyed_claims(extra_claims),
         unresolved_files=tuple(k for k, o in best.items() if o.resolved_by == UNRESOLVED),
         page_image_flagged_files=tuple(flagged),
-        ntrs_claims_applied_row_count=sum(1 for claim in extra_claims if claim.row_key),
+        ntrs_claims_applied_row_count=len({claim.row_key for claim in extra_claims} & {era.row_key for era in eras}),
     )

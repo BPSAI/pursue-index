@@ -18,15 +18,20 @@ from pursue_index.claim_precedence import unkeyed_claims
 from pursue_index.era_models import CardEra, Era, EraNoPriorRelease
 from pursue_index.resolved_claim import ResolvedClaim
 
-__all__ = ["MIXED", "count_fields", "file_eras", "file_key", "tallies"]
+__all__ = ["MIXED", "count_fields", "file_eras", "file_key", "file_key_of", "tallies"]
 
 #: The per-file era of a file whose rows land in different eras.
 MIXED = "mixed"
 
 
+def file_key_of(card_id: str, row_key: str) -> str:
+    """The file identity rule: the ``card_id``, or the row's own key when it has none."""
+    return card_id or row_key
+
+
 def file_key(card: CardEra | EraNoPriorRelease) -> str:
     """The file a row belongs to: its ``card_id``, or its own key when it has none."""
-    return card.card_id or card.row_key
+    return file_key_of(card.card_id, card.row_key)
 
 
 def file_eras(cards: Sequence[CardEra]) -> dict[str, str]:
@@ -38,10 +43,10 @@ def file_eras(cards: Sequence[CardEra]) -> dict[str, str]:
 
 
 def tallies(cards: Sequence[CardEra]) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
-    """Era counts per file (every era and ``mixed`` present), per row, and agency counts per row."""
+    """Era counts per file and per row (the same keys, ``mixed`` included), and agency counts per row."""
     per_file = {era.value: 0 for era in Era} | {MIXED: 0}
     per_file.update(Counter(file_eras(cards).values()))
-    per_row = {era.value: 0 for era in Era}
+    per_row = {era.value: 0 for era in Era} | {MIXED: 0}
     per_row.update(Counter(card.era.value for card in cards))
     return per_file, per_row, dict(sorted(Counter(card.agency for card in cards).items()))
 
@@ -56,7 +61,7 @@ def count_fields(
     return {
         "era_file_counts": era_file_counts,
         "era_row_counts": era_row_counts,
-        "file_count": sum(era_file_counts.values()),
+        "file_count": len(file_eras(cards)),
         "no_prior_release_files": list(dict.fromkeys(file_key(claim) for claim in claims)),
         "claims_without_row_key": unkeyed_claims(external),
         "agency_row_counts": agency_row_counts,

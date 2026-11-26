@@ -77,7 +77,7 @@ _REPORT: dict[str, tuple[str, str]] = {
     "page_image_flagged": ("ids", "page_image_flagged_files"),
 }
 #: Counts that summarise no array in the output (what was searched, not what is listed).
-_EXEMPT = {"catalogue_rows_dropped.count", "ntrs_claims_applied_row_count"}
+_EXEMPT = {"catalogue_rows_dropped.count", "ntrs_claims_applied_row_count", "ntrs_claims_migration_ambiguous_count"}
 _ROW_NAMED = re.compile(r"_row_counts?$")
 
 
@@ -185,7 +185,7 @@ def test_a_file_with_one_modern_row_and_one_undated_row_counts_once_as_mixed() -
     assert [r["row_key"] for r in out["no_prior_release_rows"]] == ["aaaa#0"]
     assert [r["row_key"] for r in out["undated_triage"]] == ["aaaa#1"]
     assert out["era_row_counts"]["2015_plus"] == 1 and out["era_row_counts"]["undated"] == 1
-    assert "mixed" not in out["era_row_counts"]
+    assert out["era_row_counts"]["mixed"] == 0
     assert [c["era"] for c in out["cards"]] == ["2015_plus", "undated"]
 
 
