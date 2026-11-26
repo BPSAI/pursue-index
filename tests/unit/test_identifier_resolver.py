@@ -307,7 +307,7 @@ def test_build_output_reports_counts_and_catalogue_state() -> None:
     for card in manifest["cards"]:
         claims.extend(resolve_card(card))
     out = build_output(manifest, claims, catalogue_entries=0)
-    assert out["card_count"] == len(manifest["cards"])
+    assert out["card_row_count"] == len(manifest["cards"])
     assert out["claim_count"] == len(claims)
     assert out["catalogue_entries"] == 0
     # With no catalogue, COMETA still resolves from the government description.

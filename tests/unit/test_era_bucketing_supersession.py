@@ -135,7 +135,7 @@ def test_build_output_publishes_the_suppressions_and_their_count() -> None:
     manifest = {"cards": [card, _modern_card(card_id="modern-002")]}
     result = bucket(manifest)
     output = build_output(manifest, result)
-    assert output["superseded_by_claim_count"] == 1
+    assert output["superseded_by_claim_row_count"] == 1
     assert [row["card_id"] for row in output["superseded_by_claim"]] == ["modern-001"]
     assert output["no_prior_release_count"] == 1
 
@@ -230,13 +230,14 @@ def test_a_modern_negative_needs_a_document_date_and_says_so_without_assert() ->
         _no_prior_release(undated)
 
 
-def _external_claim(card_id: str):
+def _external_claim(card_id: str, row_key: str | None = None):
     from datetime import date
 
     from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 
     return ResolvedClaim(
         card_id=card_id,
+        row_key=row_key if row_key is not None else f"{card_id}#0",
         tier=ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED,
         source=ResolutionSource.NTRS_METADATA,
         identifier_kind="ntrs_citation_id",

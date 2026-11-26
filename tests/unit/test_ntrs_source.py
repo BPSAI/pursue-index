@@ -23,7 +23,6 @@ from pursue_index.ntrs_source import (
     normalize_query,
     run_searches,
     title_matches,
-    unresolved_nasa_cards,
 )
 from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.provenance_report import RESOLVED_BY_CLAIM, UNRESOLVED, build_report
@@ -31,6 +30,8 @@ from pursue_index.resolved_claim import ResolutionSource
 from tests.support.ntrs_fakes import TODAY, Net, Resp, card, sample, variant
 
 # --- selection and query -----------------------------------------------------
+
+ROW_KEY = "a0a0a0a0a0a0a012#0"
 
 
 def test_query_strips_prefix_collapses_whitespace_and_drops_quotes() -> None:
@@ -42,19 +43,6 @@ def test_query_strips_prefix_collapses_whitespace_and_drops_quotes() -> None:
 
 def _pre2015_nasa(card_id: str, title: str, **over: Any) -> dict[str, Any]:
     return card(card_id=card_id, title=title, **over)
-
-
-def test_only_unresolved_nasa_cards_are_selected() -> None:
-    manifest = {
-        "cards": [
-            _pre2015_nasa("n1", "NASA-UAP-D001, Apollo 12 Transcript, 1969"),
-            _pre2015_nasa("n2", "NASA-UAP-D030, STS-80 Unidentified Object Image 1, 1996", incident_date="1996"),
-            _pre2015_nasa("n3", "NASA-UAP-D090, Modern Thing, 2019", incident_date="2019"),
-            _pre2015_nasa("f1", "FBI-UAP-D001, Some File, 1969", agency="FBI"),
-        ]
-    }
-    ids = [c["card_id"] for c in unresolved_nasa_cards(manifest)]
-    assert ids == ["n1", "n2"]
 
 
 # --- matching ----------------------------------------------------------------
@@ -109,7 +97,7 @@ def test_the_real_sample_with_one_extra_result_token_matches() -> None:
 
 
 def test_the_real_sample_post_dating_the_release_gives_no_claim() -> None:
-    search = evaluate_card(card(), sample(), TODAY)
+    search = evaluate_card(card(), sample(), TODAY, ROW_KEY)
     assert search.claim is None
     assert search.result == RESULT_POST_DATING
     assert search.copies[0]["established_date"] == "2026-07-21"
@@ -119,14 +107,14 @@ def test_the_real_sample_post_dating_the_release_gives_no_claim() -> None:
 
 def test_a_copy_dated_on_the_release_date_gives_no_claim() -> None:
     data = variant(distributionDate="2026-05-08T04:00:00.0000000+00:00")
-    search = evaluate_card(card(), data, TODAY)
+    search = evaluate_card(card(), data, TODAY, ROW_KEY)
     assert search.claim is None
     assert search.result == RESULT_POST_DATING
 
 
 def test_a_copy_dated_before_the_release_gives_content_previously_published() -> None:
     data = variant(distributionDate="2026-04-01T04:00:00.0000000+00:00")
-    search = evaluate_card(card(), data, TODAY)
+    search = evaluate_card(card(), data, TODAY, ROW_KEY)
     claim = search.claim
     assert claim is not None
     assert search.result == RESULT_CLAIM
@@ -141,7 +129,7 @@ def test_a_copy_dated_before_the_release_gives_content_previously_published() ->
 
 def test_created_is_the_fallback_date_with_its_own_basis() -> None:
     data = variant(distributionDate=None, created="2026-03-02T14:23:08.0729640+00:00")
-    claim = evaluate_card(card(), data, TODAY).claim
+    claim = evaluate_card(card(), data, TODAY, ROW_KEY).claim
     assert claim is not None
     assert claim.established_date == date(2026, 3, 2)
     assert claim.date_basis is DateBasis.NTRS_CREATED_DATE
@@ -151,9 +139,9 @@ def test_publication_date_is_never_the_established_date() -> None:
     # The sample's publicationDate is 1969-12-01: the document's own date, which
     # would pre-date any release. It must not turn a post-dating copy into a claim.
     assert sample()["results"][0]["publications"][0]["publicationDate"].startswith("1969")
-    assert evaluate_card(card(), sample(), TODAY).claim is None
+    assert evaluate_card(card(), sample(), TODAY, ROW_KEY).claim is None
     data = variant(distributionDate=None, created=None)
-    search = evaluate_card(card(), data, TODAY)
+    search = evaluate_card(card(), data, TODAY, ROW_KEY)
     assert search.claim is None
 
 
@@ -163,7 +151,7 @@ def test_the_earliest_prior_matching_copy_is_the_one_cited() -> None:
     other["id"] = 20250000001
     other["distributionDate"] = "2025-01-15T04:00:00.0000000+00:00"
     data["results"].append(other)
-    claim = evaluate_card(card(), data, TODAY).claim
+    claim = evaluate_card(card(), data, TODAY, ROW_KEY).claim
     assert claim is not None
     assert claim.identifier_value == "20250000001"
     assert claim.established_date == date(2025, 1, 15)
@@ -171,7 +159,7 @@ def test_the_earliest_prior_matching_copy_is_the_one_cited() -> None:
 
 def test_an_unrelated_result_dated_before_the_release_gives_no_claim() -> None:
     data = variant(title="Apollo 12 Mission Report on Medical Supplies", distributionDate="2020-01-01T00:00:00+00:00")
-    search = evaluate_card(card(), data, TODAY)
+    search = evaluate_card(card(), data, TODAY, ROW_KEY)
     assert search.claim is None
     assert search.result == RESULT_NO_COPY
 
@@ -180,7 +168,7 @@ def test_an_unrelated_result_dated_before_the_release_gives_no_claim() -> None:
 
 
 def test_no_result_is_recorded_as_searched_with_the_literal_query() -> None:
-    search = evaluate_card(card(), {"stats": {"total": 0}, "results": []}, TODAY)
+    search = evaluate_card(card(), {"stats": {"total": 0}, "results": []}, TODAY, ROW_KEY)
     assert search.claim is None
     assert search.result == RESULT_NO_COPY
     row = search.to_dict()
@@ -217,14 +205,14 @@ def test_run_searches_queries_each_unresolved_nasa_card_once() -> None:
     assert "q=Gemini+7+Transcript&" in net.urls[1]
 
 
-def test_output_has_schema_card_count_fetch_counts_and_claims() -> None:
+def test_output_has_schema_card_row_count_fetch_counts_and_claims() -> None:
     manifest = {"cards": [card(), card(card_id="f", agency="FBI")]}
     net = Net(Resp(200, variant(distributionDate="2026-04-01T04:00:00.0000000+00:00")))
     fetcher = net.fetcher()
     searches = run_searches(manifest, fetcher, TODAY)
     out = build_output(manifest, searches, fetcher.fetch_counts())
     assert out["schema"] == ntrs_source.SCHEMA
-    assert out["card_count"] == 2
+    assert out["card_row_count"] == 2
     assert out["fetch"] == {"requests": 1, "status_counts": {"200": 1}}
     assert out["claim_count"] == 1
     assert out["claims"][0]["tier"] == "content_previously_published"
@@ -253,7 +241,7 @@ def test_a_positive_ntrs_claim_moves_a_card_from_unresolved_to_claim() -> None:
     assert before.unresolved == 1
     assert before.outcomes[0].resolved_by == UNRESOLVED
 
-    claim = evaluate_card(card(), variant(distributionDate="2026-04-01T00:00:00+00:00"), TODAY).claim
+    claim = evaluate_card(card(), variant(distributionDate="2026-04-01T00:00:00+00:00"), TODAY, ROW_KEY).claim
     assert claim is not None
     after = build_report(manifest, extra_claims=[claim])
     assert after.outcomes[0].resolved_by == RESOLVED_BY_CLAIM
@@ -265,7 +253,7 @@ def test_a_positive_ntrs_claim_moves_a_card_from_unresolved_to_claim() -> None:
 
 def test_an_ntrs_claim_for_another_card_does_not_resolve_this_one() -> None:
     claim = evaluate_card(
-        card(card_id="someone-else"), variant(distributionDate="2026-04-01T00:00:00+00:00"), TODAY
+        card(card_id="someone-else"), variant(distributionDate="2026-04-01T00:00:00+00:00"), TODAY, ROW_KEY
     ).claim
     assert claim is not None
     report = build_report({"cards": [card()]}, extra_claims=[claim])
@@ -275,9 +263,9 @@ def test_an_ntrs_claim_for_another_card_does_not_resolve_this_one() -> None:
 def test_the_precedence_helper_sees_ntrs_claims() -> None:
     from pursue_index.claim_precedence import positive_claims
 
-    claim = evaluate_card(card(), variant(distributionDate="2026-04-01T00:00:00+00:00"), TODAY).claim
+    claim = evaluate_card(card(), variant(distributionDate="2026-04-01T00:00:00+00:00"), TODAY, ROW_KEY).claim
     assert claim is not None
-    found = positive_claims(card(), (), [claim])
+    found = positive_claims(card(), (), [claim], row_key=ROW_KEY)
     assert [(c.tier, c.source, c.evidence) for c in found] == [
         (
             ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED,

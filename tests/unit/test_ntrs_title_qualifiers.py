@@ -14,6 +14,8 @@ from tests.support.ntrs_fakes import TODAY, card, sample
 
 D008 = "NASA-UAP-D008, Apollo 12 Medical Debriefing - Tape 12, 1969"
 
+ROW_KEY = "a0a0a0a0a0a0a012#0"
+
 
 @pytest.mark.parametrize(
     ("title", "expected"),
@@ -58,7 +60,7 @@ def test_a_title_with_a_year_only_inside_it_is_unchanged() -> None:
 def test_d008_matches_the_real_sample_and_is_a_post_dating_copy_without_a_claim() -> None:
     result_title = sample()["results"][0]["title"]
     assert title_matches(D008, result_title)
-    search = evaluate_card(card(title=D008, release_date="5/8/2026"), sample(), TODAY)
+    search = evaluate_card(card(title=D008, release_date="5/8/2026"), sample(), TODAY, ROW_KEY)
     assert search.result == RESULT_POST_DATING
     assert search.claim is None
     assert search.query == "Apollo 12 Medical Debriefing"

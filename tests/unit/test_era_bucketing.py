@@ -203,14 +203,15 @@ def test_real_manifest_every_card_bucketed() -> None:
     manifest = _manifest()
     result = bucket(manifest)
     assert len(result.cards) == len(manifest["cards"])
-    assert sum(result.era_counts.values()) == len(manifest["cards"])
+    assert sum(result.era_row_counts.values()) == len(manifest["cards"])
+    assert sum(result.era_counts.values()) == len({c["card_id"] for c in manifest["cards"]})
 
 
 def test_real_manifest_historical_anchors_match_4a() -> None:
     # pre-1970 and 1970-1989 are fully incident-dated in the §4a-era corpus,
     # so bucketing its committed snapshot reproduces the reference exactly and
     # pins the parser + boundaries independent of later corpus growth.
-    counts = bucket(json.loads(_SNAPSHOT_4A.read_text())).era_counts
+    counts = bucket(json.loads(_SNAPSHOT_4A.read_text())).era_row_counts
     assert counts["pre_1970"] == REFERENCE_4A["pre_1970"]
     assert counts["1970_1989"] == REFERENCE_4A["1970_1989"]
 
@@ -223,10 +224,12 @@ def test_real_manifest_no_release_date_bucketed_as_modern() -> None:
 def test_build_output_shape_and_reconciliation() -> None:
     manifest = _manifest()
     out = build_output(manifest, bucket(manifest))
-    assert out["card_count"] == len(manifest["cards"])
-    assert set(out["era_counts"]) == {e.value for e in Era}
+    assert out["card_row_count"] == len(manifest["cards"])
+    assert set(out["era_counts"]) == {e.value for e in Era} | {"mixed"}
+    assert set(out["era_row_counts"]) == {e.value for e in Era}
     recon = out["reconciliation_4a"]
     assert recon["reference_4a"] == REFERENCE_4A
     assert set(recon["delta"]) == set(REFERENCE_4A)
-    assert out["no_prior_release_count"] == len(out["no_prior_release"])
-    assert out["undated_triage_count"] == len(out["undated_triage"])
+    assert out["no_prior_release_row_count"] == len(out["no_prior_release_rows"])
+    assert out["no_prior_release_count"] == len({r["card_id"] for r in out["no_prior_release_rows"]})
+    assert out["undated_triage_row_count"] == len(out["undated_triage"])
