@@ -80,7 +80,9 @@ def _from_resolved(claim: ResolvedClaim) -> PositiveClaim:
 
 
 def positive_claims(
-    card: dict[str, Any], catalogue: Sequence[SourceEntry] = ()
+    card: dict[str, Any],
+    catalogue: Sequence[SourceEntry] = (),
+    external: Sequence[ResolvedClaim] = (),
 ) -> list[PositiveClaim]:
     """Every positive prior-release claim the chain asserts for one card."""
     claims: list[PositiveClaim] = []
@@ -107,7 +109,9 @@ def primary_tier(tiers: set[ProvenanceTier]) -> ProvenanceTier | None:
 
 
 def primary_positive_claim(
-    card: dict[str, Any], catalogue: Sequence[SourceEntry] = ()
+    card: dict[str, Any],
+    catalogue: Sequence[SourceEntry] = (),
+    external: Sequence[ResolvedClaim] = (),
 ) -> PositiveClaim | None:
     """The strongest positive claim on a card, with what backs it, or ``None``.
 
@@ -116,7 +120,7 @@ def primary_positive_claim(
     still gets a truthful answer for the cards those routes cover. A stage that
     *does* have a catalogue passes it, so that every stage reads the same chain.
     """
-    claims = positive_claims(card, catalogue)
+    claims = positive_claims(card, catalogue, external)
     for tier in POSITIVE_TIER_PRECEDENCE:
         for claim in claims:
             if claim.tier is tier:
@@ -125,8 +129,10 @@ def primary_positive_claim(
 
 
 def primary_positive_tier(
-    card: dict[str, Any], catalogue: Sequence[SourceEntry] = ()
+    card: dict[str, Any],
+    catalogue: Sequence[SourceEntry] = (),
+    external: Sequence[ResolvedClaim] = (),
 ) -> ProvenanceTier | None:
     """The strongest positive tier on a card, or ``None`` if it carries none."""
-    claim = primary_positive_claim(card, catalogue)
+    claim = primary_positive_claim(card, catalogue, external)
     return claim.tier if claim is not None else None

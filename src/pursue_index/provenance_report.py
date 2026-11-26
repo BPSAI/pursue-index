@@ -39,6 +39,7 @@ from pursue_index.claim_precedence import POSITIVE_TIER_PRECEDENCE, primary_posi
 from pursue_index.era_bucketing import classify_card
 from pursue_index.era_models import Era
 from pursue_index.provenance import ProvenanceTier
+from pursue_index.resolved_claim import ResolvedClaim
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
 
 __all__ = [
@@ -84,9 +85,13 @@ class CardOutcome:
         }
 
 
-def classify(card: dict[str, Any], catalogue: Sequence[SourceEntry] = ()) -> CardOutcome:
+def classify(
+    card: dict[str, Any],
+    catalogue: Sequence[SourceEntry] = (),
+    external: Sequence[ResolvedClaim] = (),
+) -> CardOutcome:
     """Resolve one card through the chain and place it in exactly one route."""
-    primary = primary_positive_tier(card, catalogue)
+    primary = primary_positive_tier(card, catalogue, external)
     card_era = classify_card(card)
     if primary is not None:
         resolved_by = RESOLVED_BY_CLAIM
@@ -145,6 +150,7 @@ class CoverageReport:
 def build_report(
     manifest: dict[str, Any],
     catalogue: Sequence[SourceEntry] | LoadedCatalogue = (),
+    ntrs_claims: Sequence[ResolvedClaim] = (),
 ) -> CoverageReport:
     """Run the chain over every card and aggregate the coverage split.
 

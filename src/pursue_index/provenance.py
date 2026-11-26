@@ -94,6 +94,8 @@ class DateBasis(StrEnum):
     HTTP_LAST_MODIFIED = "http_last_modified"
     PUBLISHER_DATE = "publisher_date"
     PDF_CREATION_DATE = "pdf_creation_date"
+    NTRS_DISTRIBUTION_DATE = "ntrs_distribution_date"
+    NTRS_CREATED_DATE = "ntrs_created_date"
 
 
 #: The wording every ``no_prior_release_found`` record serialises with.
