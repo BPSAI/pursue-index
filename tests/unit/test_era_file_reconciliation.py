@@ -71,7 +71,7 @@ def test_conflicting_eras_reconcile_nothing_and_say_why() -> None:
     (entry,) = result.triage
     assert entry["reason"] == (
         "conflicting document dates across rows of the same file: "
-        "aaaa#0=2015_plus, aaaa#1=1970_1989"
+        "aaaa#0=2015_plus/2022, aaaa#1=1970_1989/1975"
     )
 
 

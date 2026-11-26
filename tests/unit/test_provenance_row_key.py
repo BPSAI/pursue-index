@@ -96,7 +96,7 @@ def test_tier0_claims_carry_the_key_of_their_row_in_the_real_manifest() -> None:
 def test_a_lone_classified_row_carries_its_real_key_and_a_keyed_claim_resolves_it() -> None:
     from pursue_index.provenance import ProvenanceTier
     from pursue_index.provenance_report import RESOLVED_BY_CLAIM, classify
-    from pursue_index.resolved_claim import ResolvedClaim, ResolutionSource
+    from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 
     card = _card("aaaa", "first")
     assert classify(card).row_key == "aaaa#0"

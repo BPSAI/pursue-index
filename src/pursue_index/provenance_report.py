@@ -36,7 +36,7 @@ from typing import Any
 
 from pursue_index.catalogue_load import LoadedCatalogue, load_catalogue
 from pursue_index.claim_precedence import POSITIVE_TIER_PRECEDENCE, primary_positive_tier
-from pursue_index.era_bucketing import classify_card, classify_rows
+from pursue_index.era_bucketing import classify_rows
 from pursue_index.era_models import CardEra, Era
 from pursue_index.provenance import ProvenanceTier
 from pursue_index.resolved_claim import ResolvedClaim
@@ -98,7 +98,7 @@ def classify(
     ``card_era`` is the row's reconciled era, keyed; without it the row is read
     on its own, as a lone row.
     """
-    card_era = card_era if card_era is not None else classify_card(card)
+    card_era = card_era if card_era is not None else classify_rows([card]).cards[0]
     primary = primary_positive_tier(card, catalogue, external, card_era.row_key)
     if primary is not None:
         resolved_by = RESOLVED_BY_CLAIM

@@ -2,9 +2,9 @@
 
 Rows sharing a ``card_id`` name one file. Each row is resolved on its own first
 (with the same two-digit-year guard as everywhere else). If the file's dated rows
-agree on one era, each undated row takes that era, the year and the date source
+agree on one era and year, each undated row takes that era, the year and the date source
 from the dated row, and is labelled with that row's key. Upstream fields are not
-touched. If dated rows disagree, nothing is reconciled and the undated rows say
+touched. If dated rows disagree on either, nothing is reconciled and the undated rows say
 why they stayed undated.
 """
 
@@ -29,7 +29,7 @@ class FileEras(NamedTuple):
 
 
 def _conflict_reason(dated: Sequence[CardEra]) -> str:
-    found = ", ".join(f"{c.row_key}={c.era.value}" for c in dated)
+    found = ", ".join(f"{c.row_key}={c.era.value}/{c.year}" for c in dated)
     return f"conflicting document dates across rows of the same file: {found}"
 
 
@@ -47,7 +47,7 @@ def reconcile_file_eras(cards: Sequence[dict[str, Any]], resolved: Sequence[Card
         undated = [i for i in indexes if keyed[i].era is Era.UNDATED]
         if not dated or not undated:
             continue
-        if len({c.era for c in dated}) > 1:
+        if len({(c.era, c.year) for c in dated}) > 1:
             reason = _conflict_reason(dated)
             conflicts.update({keyed[i].row_key: reason for i in undated})
             continue
