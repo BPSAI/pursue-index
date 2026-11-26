@@ -100,10 +100,12 @@ def positive_claims(
 
 
 def positive_tiers(
-    card: dict[str, Any], catalogue: Sequence[SourceEntry] = ()
+    card: dict[str, Any],
+    catalogue: Sequence[SourceEntry] = (),
+    external: Sequence[ResolvedClaim] = (),
 ) -> set[ProvenanceTier]:
     """Every positive prior-release tier the chain asserts for one card."""
-    return {claim.tier for claim in positive_claims(card, catalogue)}
+    return {claim.tier for claim in positive_claims(card, catalogue, external)}
 
 
 def primary_tier(tiers: set[ProvenanceTier]) -> ProvenanceTier | None:
