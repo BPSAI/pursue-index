@@ -72,11 +72,7 @@ def test_strictness_is_unchanged_for_a_short_card_title() -> None:
     )
 
 
-def test_the_year_is_kept_aside_and_is_not_a_match_token() -> None:
-    assert hasattr(ntrs_match, "card_year")
-    assert ntrs_match.card_year(D008) == "1969"
-    assert ntrs_match.card_year("NASA-UAP-D040, Gemini 7 Audio Excerpt, 1962-1964") == "1962-1964"
-    assert ntrs_match.card_year("NASA-UAP-D050, Apollo 16 Scientific Debriefing") is None
+def test_a_year_on_the_result_title_is_not_a_free_match() -> None:
     # a result title carrying the year is an extra token, not a free match
     assert not title_matches(
         "Apollo 12 Medical Debriefing, 1969", "Apollo 12 Medical Debriefing 1969 Notes Extra"

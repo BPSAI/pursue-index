@@ -20,7 +20,6 @@ __all__ = [
     "MAX_EXTRA_RESULT_TOKENS",
     "MIN_SHARED_TOKENS",
     "Copy",
-    "card_year",
     "established_date",
     "matched_copies",
     "normalize_query",
@@ -86,11 +85,6 @@ def normalize_query(title: str) -> str:
     card, not the record's title.
     """
     return _strip_qualifiers(_clean(title))[0]
-
-
-def card_year(title: str) -> str | None:
-    """The year or year range the card title ends with, kept aside; not a match token."""
-    return _strip_qualifiers(_clean(title))[1]
 
 
 def utc_today(clock: Callable[[tzinfo], datetime] = datetime.now) -> date:
