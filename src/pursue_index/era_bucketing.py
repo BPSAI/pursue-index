@@ -293,7 +293,8 @@ def main() -> int:
         print(ntrs.notice)
     result = bucket(manifest, catalogue.entries, ntrs.claims)
     out_path = repo_root / OUTPUT_PATH
-    write_text_atomic(out_path, json.dumps(build_output(manifest, result, catalogue), indent=2) + "\n")
+    output = {**build_output(manifest, result, catalogue), **ntrs.summary_fields()}
+    write_text_atomic(out_path, json.dumps(output, indent=2) + "\n")
     labelled = ", ".join(f"{ERA_LABELS[era]}={result.era_counts[era.value]}" for era in Era)
     print(f"era bucketing: {len(result.cards)} cards -> {labelled}")
     print(f"  {len(result.claims)} no_prior_release (2015+); {len(result.triage)} undated (triage)\n  {len(result.superseded)} superseded by a prior-release claim")
