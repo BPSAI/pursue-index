@@ -39,6 +39,7 @@ from pursue_index.claim_precedence import POSITIVE_TIER_PRECEDENCE, primary_posi
 from pursue_index.era_bucketing import classify_card
 from pursue_index.era_models import Era
 from pursue_index.provenance import ProvenanceTier
+from pursue_index.resolved_claim import ResolvedClaim
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
 
 __all__ = [
@@ -84,9 +85,13 @@ class CardOutcome:
         }
 
 
-def classify(card: dict[str, Any], catalogue: Sequence[SourceEntry] = ()) -> CardOutcome:
+def classify(
+    card: dict[str, Any],
+    catalogue: Sequence[SourceEntry] = (),
+    external: Sequence[ResolvedClaim] = (),
+) -> CardOutcome:
     """Resolve one card through the chain and place it in exactly one route."""
-    primary = primary_positive_tier(card, catalogue)
+    primary = primary_positive_tier(card, catalogue, external)
     card_era = classify_card(card)
     if primary is not None:
         resolved_by = RESOLVED_BY_CLAIM
@@ -145,6 +150,7 @@ class CoverageReport:
 def build_report(
     manifest: dict[str, Any],
     catalogue: Sequence[SourceEntry] | LoadedCatalogue = (),
+    extra_claims: Sequence[ResolvedClaim] = (),
 ) -> CoverageReport:
     """Run the chain over every card and aggregate the coverage split.
 
@@ -153,9 +159,12 @@ def build_report(
     carries how many stored rows could not be read, and the report publishes
     that: a coverage figure is a statement about how much was searched, so the
     part of the catalogue that was unreadable belongs in it.
+
+    ``extra_claims`` are positive claims from any further source (e.g. the NTRS
+    metadata search); one resolves its card in the ``claim`` route like any other positive claim.
     """
     loaded = catalogue if isinstance(catalogue, LoadedCatalogue) else LoadedCatalogue(list(catalogue), 0)
-    outcomes = [classify(card, loaded.entries) for card in manifest.get("cards", [])]
+    outcomes = [classify(card, loaded.entries, extra_claims) for card in manifest.get("cards", [])]
     routes = Counter(o.resolved_by for o in outcomes)
     tier_counts = Counter(o.primary_tier for o in outcomes if o.primary_tier is not None)
     unresolved_by_era = Counter(o.era for o in outcomes if o.resolved_by == UNRESOLVED)

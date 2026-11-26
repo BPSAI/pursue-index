@@ -18,6 +18,8 @@ from rich.console import Console
 from rich.markup import escape
 from rich.table import Table
 
+from pursue_index import ntrs_source
+from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root
 from pursue_index.provenance_report import (
     POSITIVE_TIER_PRECEDENCE,
@@ -56,7 +58,7 @@ def _print_coverage(report: CoverageReport) -> None:
     table = Table(title=f"Provenance coverage — {report.card_count} cards")
     table.add_column("Resolution route")
     table.add_column("Cards", justify="right")
-    table.add_row("prior-release claim (Tier-0 + identifier resolver)", str(report.resolved_by_claim))
+    table.add_row("prior-release claim (Tier-0 + identifier resolver + NTRS)", str(report.resolved_by_claim))
     for tier in POSITIVE_TIER_PRECEDENCE:
         count = report.tier_counts.get(tier.value)
         if count:
@@ -108,10 +110,22 @@ def provenance_report_cmd(
     """Run the resolution chain and report Phase-A coverage. Report only."""
     if json_out is not None:
         _reject_web_path(json_out)
-    report = build_report(json.loads(manifest.read_text()), load_catalogue(repo_root()))
+    manifest_data = json.loads(manifest.read_text())
+    ntrs = resolve_ntrs_claims(repo_root(), manifest_data)
+    if ntrs.notice:
+        console.print(escape(ntrs.notice), soft_wrap=True)
+    report = build_report(manifest_data, load_catalogue(repo_root()), ntrs.claims)
     _print_coverage(report)
     _print_unresolved(report)
     if json_out is not None:
         json_out.parent.mkdir(parents=True, exist_ok=True)
-        json_out.write_text(json.dumps(report.to_dict(), indent=2) + "\n")
+        json_out.write_text(json.dumps({**report.to_dict(), **ntrs.summary_fields()}, indent=2) + "\n")
         console.print(f"\n[green]✔[/green] summary written to {json_out}")
+
+
+@provenance_app.command("ntrs")
+def provenance_ntrs_cmd() -> None:
+    """Search NASA NTRS for unresolved NASA cards and write data/provenance/ntrs-claims.json."""
+    code = ntrs_source.main()
+    if code:
+        raise typer.Exit(code=code)

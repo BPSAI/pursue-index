@@ -33,8 +33,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from pursue_index.atomic_text import write_text_atomic
 from pursue_index.catalogue_load import LoadedCatalogue, load_catalogue
-from pursue_index.claim_precedence import PositiveClaim, primary_positive_claim
+from pursue_index.claim_precedence import primary_positive_claim
 from pursue_index.era_dates import ResolvedEraDate, resolve_era_date
 from pursue_index.era_models import (
     DOCUMENT_DATE_FIELDS,
@@ -45,7 +46,10 @@ from pursue_index.era_models import (
     era_for_year,
     era_rationale,
 )
+from pursue_index.era_supersession import SUPERSEDED_REASON, superseded_entry
+from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root as _resolve_repo_root
+from pursue_index.resolved_claim import ResolvedClaim
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
 
 __all__ = [
@@ -57,13 +61,6 @@ __all__ = [
     "build_output",
     "classify_card",
 ]
-
-#: Why a modern card can lose its negative — recorded on every suppression row.
-SUPERSEDED_REASON = (
-    "A positive prior-release claim was found for this card, so the era-based "
-    "no-prior-release conclusion does not apply: the claim is evidence the "
-    "record did appear before this archive was assembled."
-)
 
 #: Tracked output artifact (under ``data/``, never an ignored directory).
 OUTPUT_PATH = Path("data") / "provenance" / "era-buckets.json"
@@ -155,29 +152,6 @@ def _triage_entry(card_era: CardEra, card: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _superseded_entry(card_era: CardEra, claim: PositiveClaim) -> dict[str, Any]:
-    """Record a negative that a positive claim outranked — never a silent drop.
-
-    The row states what outranked the era conclusion, not just that something
-    did: the tier, where the claim came from, and the evidence it rests on. A
-    reader deciding whether the suppression was right has it all here, rather
-    than having to match this card against another artifact by hand.
-    """
-    return {
-        "card_id": card_era.card_id,
-        "identifier": card_era.identifier,
-        "title": card_era.title,
-        "agency": card_era.agency,
-        "era": card_era.era.value,
-        "era_year": card_era.year,
-        "date_source": card_era.date_source,
-        "superseding_tier": claim.tier.value,
-        "superseding_source": claim.source,
-        "superseding_evidence": claim.evidence,
-        "reason": SUPERSEDED_REASON,
-    }
-
-
 @dataclass
 class BucketResult:
     """The full outcome: per-card assignments, 2015+ negatives, triage, counts.
@@ -196,17 +170,22 @@ class BucketResult:
 
 
 def _modern_outcome(
-    card_era: CardEra, card: dict[str, Any], catalogue: Sequence[SourceEntry]
+    card_era: CardEra,
+    card: dict[str, Any],
+    catalogue: Sequence[SourceEntry],
+    extra_claims: Sequence[ResolvedClaim] = (),
 ) -> tuple[EraNoPriorRelease | None, dict[str, Any] | None]:
     """For one modern card: its negative, or the claim row that supersedes it."""
-    claim = primary_positive_claim(card, catalogue)
+    claim = primary_positive_claim(card, catalogue, extra_claims)
     if claim is not None:
-        return None, _superseded_entry(card_era, claim)
+        return None, superseded_entry(card_era, claim)
     return _no_prior_release(card_era), None
 
 
 def bucket(
-    manifest: dict[str, Any], catalogue: Sequence[SourceEntry] = ()
+    manifest: dict[str, Any],
+    catalogue: Sequence[SourceEntry] = (),
+    extra_claims: Sequence[ResolvedClaim] = (),
 ) -> BucketResult:
     """Bucket every card by era and agency; emit 2015+ negatives + triage.
 
@@ -219,6 +198,10 @@ def bucket(
     because the Tier-0 and CREST routes need none — but a card whose *only*
     positive claim is a catalogue match is exactly the card the two artifacts
     would describe differently if this stage were the one that could not see it.
+
+    ``extra_claims`` are the claims from any further source (the NTRS claims),
+    the same ones the coverage report receives: a positive claim wins even when
+    the card is also a 2015+ document.
     """
     raw_cards = manifest.get("cards", [])
     classified = [classify_card(card) for card in raw_cards]
@@ -227,7 +210,7 @@ def bucket(
     triage: list[dict[str, Any]] = []
     for card_era, card in zip(classified, raw_cards, strict=True):
         if card_era.era is Era.MODERN_OPERATIONAL:
-            claim, row = _modern_outcome(card_era, card, catalogue)
+            claim, row = _modern_outcome(card_era, card, catalogue, extra_claims)
             claims.extend([claim] if claim is not None else [])
             superseded.extend([row] if row is not None else [])
         elif card_era.era is Era.UNDATED:
@@ -305,16 +288,16 @@ def main() -> int:
     repo_root = _resolve_repo_root()
     manifest = json.loads((repo_root / "data" / "manifests" / "latest.json").read_text())
     catalogue = load_catalogue(repo_root)
-    result = bucket(manifest, catalogue.entries)
+    ntrs = resolve_ntrs_claims(repo_root, manifest)
+    if ntrs.notice:
+        print(ntrs.notice)
+    result = bucket(manifest, catalogue.entries, ntrs.claims)
     out_path = repo_root / OUTPUT_PATH
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(build_output(manifest, result, catalogue), indent=2) + "\n")
+    write_text_atomic(out_path, json.dumps(build_output(manifest, result, catalogue), indent=2) + "\n")
     labelled = ", ".join(f"{ERA_LABELS[era]}={result.era_counts[era.value]}" for era in Era)
     print(f"era bucketing: {len(result.cards)} cards -> {labelled}")
-    print(f"  {len(result.claims)} no_prior_release (2015+); {len(result.triage)} undated (triage)")
-    print(f"  {len(result.superseded)} superseded by a prior-release claim")
-    print(f"  catalogue: {len(catalogue.entries)} entries, {catalogue.dropped_rows} row(s) skipped")
-    print(f"  wrote {out_path.relative_to(repo_root)}")
+    print(f"  {len(result.claims)} no_prior_release (2015+); {len(result.triage)} undated (triage)\n  {len(result.superseded)} superseded by a prior-release claim")
+    print(f"  catalogue: {len(catalogue.entries)} entries, {catalogue.dropped_rows} row(s) skipped\n  wrote {out_path.relative_to(repo_root)}")
     return 0
 
 

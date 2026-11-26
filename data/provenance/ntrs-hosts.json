@@ -1,0 +1,6 @@
+{
+  "comment": "Hosts the NASA NTRS metadata search may request from. Exact hostname match only (no wildcards, no suffix match); https only; redirects are never followed. Any other host is refused before a request is made.",
+  "hosts": [
+    "ntrs.nasa.gov"
+  ]
+}

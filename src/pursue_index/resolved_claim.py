@@ -59,6 +59,7 @@ class ResolutionSource(StrEnum):
     CATALOGUE = "catalogue"
     KNOWN_ARCHIVE = "known_archive"
     GOVERNMENT_DESCRIPTION = "government_description"
+    NTRS_METADATA = "ntrs_metadata"
     SEARCH_SNIPPET = "search_snippet"
 
 
