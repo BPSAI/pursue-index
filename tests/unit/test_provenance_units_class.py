@@ -192,7 +192,25 @@ def test_classify_accepts_a_prebuilt_report_and_does_not_rebuild(monkeypatch: py
     monkeypatch.setattr("pursue_index.provenance_report.build_report", boom)
     for outcome in report.outcomes:
         card = manifest["cards"][report.outcomes.index(outcome)]
-        assert classify(card, external=claims, row_key=outcome.row_key, manifest=manifest, report=report) == outcome
+        assert classify(card, row_key=outcome.row_key, manifest=manifest, report=report) == outcome
+
+
+def test_classify_refuses_a_report_together_with_its_own_inputs() -> None:
+    manifest, claims = _manifest(), [_claim("aaaa#0")]
+    report = build_report(manifest, extra_claims=claims)
+    card = manifest["cards"][0]
+    with pytest.raises(ValueError, match="report"):
+        classify(card, external=claims, row_key="aaaa#0", manifest=manifest, report=report)
+    with pytest.raises(ValueError, match="report"):
+        classify(card, catalogue=[object()], row_key="aaaa#0", manifest=manifest, report=report)  # type: ignore[list-item]
+
+
+def test_classify_with_a_report_alone_matches_a_fresh_build() -> None:
+    manifest, claims = _manifest(), [_claim("aaaa#0")]
+    report = build_report(manifest, extra_claims=claims)
+    for outcome, card in zip(report.outcomes, manifest["cards"], strict=True):
+        assert classify(card, row_key=outcome.row_key, manifest=manifest, report=report) == outcome
+        assert classify(card, external=claims, row_key=outcome.row_key, manifest=manifest) == outcome
 
 
 def test_classify_raises_when_the_card_is_not_the_row_of_its_key() -> None:
