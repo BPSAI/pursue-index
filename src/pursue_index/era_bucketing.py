@@ -94,15 +94,19 @@ def _identifier(card: dict[str, Any]) -> str:
 def classify_card(card: dict[str, Any]) -> CardEra:
     """Assign a card its era (via the display-date precedence) and agency."""
     resolved = resolve_era_date(card)
+    era = _era_of(resolved)
+    # An undated card carries no date at all: release_date is a publication
+    # date, never a document era, so it must not surface as year/source/raw.
+    dated = era is not Era.UNDATED
     return CardEra(
         card_id=str(card.get("card_id") or ""),
         identifier=_identifier(card),
         title=str(card.get("title") or ""),
         agency=str(card.get("agency") or "").strip() or "Unknown",
-        era=_era_of(resolved),
-        year=resolved.year,
-        date_source=resolved.source_field,
-        raw_date=resolved.raw,
+        era=era,
+        year=resolved.year if dated else None,
+        date_source=resolved.source_field if dated else None,
+        raw_date=resolved.raw if dated else None,
     )
 
 
