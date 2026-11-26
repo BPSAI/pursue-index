@@ -22,7 +22,8 @@
     "1990_2014": 76,
     "1970_1989": 19,
     "pre_1970": 120,
-    "undated": 84
+    "undated": 84,
+    "mixed": 0
   },
   "agency_row_counts": {
     "CIA": 29,
@@ -10450,5 +10451,6 @@
     }
   ],
   "ntrs_claims_applied": true,
-  "ntrs_claims_csv_sha256": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247"
+  "ntrs_claims_csv_sha256": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247",
+  "ntrs_claims_migration_ambiguous_count": 0
 }
