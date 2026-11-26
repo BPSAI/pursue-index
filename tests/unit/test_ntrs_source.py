@@ -25,6 +25,7 @@ from pursue_index.ntrs_source import (
     title_matches,
     unresolved_nasa_cards,
 )
+from pursue_index import ntrs_match
 from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.provenance_report import RESOLVED_BY_CLAIM, UNRESOLVED, build_report
 from pursue_index.resolved_claim import ResolutionSource
@@ -77,6 +78,32 @@ def test_a_keyword_only_overlap_does_not_match() -> None:
 
 def test_a_different_document_with_the_same_topic_does_not_match() -> None:
     assert not title_matches("Apollo 12 Medical Debriefing", "Apollo 12 Technical Crew Debriefing")
+
+
+def test_the_title_match_limits_are_named_constants() -> None:
+    assert ntrs_match.MAX_EXTRA_RESULT_TOKENS == 2
+    assert ntrs_match.MAX_EXTRA_CARD_TOKENS == 1
+    assert ntrs_match.MIN_SHARED_TOKENS == 3
+
+
+def test_an_exact_title_matches() -> None:
+    assert title_matches("Apollo 12 Medical Debriefing", "Apollo 12 Medical Debriefing")
+
+
+def test_a_short_card_title_does_not_match_a_longer_document() -> None:
+    assert not title_matches("Apollo 12", "Apollo 12 Lunar Surface Journal Index")
+
+
+def test_a_result_with_three_extra_tokens_does_not_match() -> None:
+    assert not title_matches("Apollo 12 Medical Debriefing", "Apollo 12 Medical Debriefing Transcription Of Crew")
+
+
+def test_a_card_with_two_tokens_missing_from_the_result_does_not_match() -> None:
+    assert not title_matches("Apollo 12 Medical Debriefing Report Summary", "Apollo 12 Medical Debriefing")
+
+
+def test_the_real_sample_with_one_extra_result_token_matches() -> None:
+    assert title_matches("Apollo 12 Medical Debriefing", "Apollo 12 Medical Debriefing Transcription")
 
 
 # --- dates and claims --------------------------------------------------------
