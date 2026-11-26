@@ -132,7 +132,7 @@ def test_a_copy_dated_before_the_release_gives_content_previously_published() ->
     assert search.result == RESULT_CLAIM
     assert claim.tier is ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED
     assert claim.source is ResolutionSource.NTRS_METADATA
-    assert claim.card_id == "c-apollo12"
+    assert claim.card_id == "a0a0a0a0a0a0a012"
     assert claim.identifier_value == "20260006073"
     assert claim.artifact_url == "https://ntrs.nasa.gov/citations/20260006073"
     assert claim.established_date == date(2026, 4, 1)
@@ -186,7 +186,7 @@ def test_no_result_is_recorded_as_searched_with_the_literal_query() -> None:
     row = search.to_dict()
     assert row["query"] == "Apollo 12 Medical Debriefing"
     assert row["searched_date"] == "2026-11-25"
-    assert row["card_id"] == "c-apollo12"
+    assert row["card_id"] == "a0a0a0a0a0a0a012"
 
 
 def test_nothing_written_claims_novelty() -> None:
@@ -240,7 +240,7 @@ def test_claims_in_the_output_round_trip_into_the_report_loader() -> None:
     searches = run_searches(manifest, net.fetcher(), TODAY)
     out = build_output(manifest, searches, {})
     loaded = load_ntrs_claims(out)
-    assert [c.card_id for c in loaded.claims] == ["c-apollo12"]
+    assert [c.card_id for c in loaded.claims] == ["a0a0a0a0a0a0a012"]
     assert load_ntrs_claims({"claims": []}).claims == []
 
 
@@ -321,4 +321,4 @@ def test_the_report_cli_reads_the_stored_claims(tmp_path: Path) -> None:
     ntrs_source.run(tmp_path, net.fetcher(), TODAY)
     stored = read_ntrs_claims(tmp_path)
     assert stored is not None
-    assert [c.card_id for c in stored.claims] == ["c-apollo12"]
+    assert [c.card_id for c in stored.claims] == ["a0a0a0a0a0a0a012"]

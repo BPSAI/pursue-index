@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from pursue_index.card_id import CARD_ID_PATTERN
 from pursue_index.resolved_claim import ResolvedClaim
 
 __all__ = [
@@ -35,17 +36,26 @@ class NtrsClaims:
     claims: list[ResolvedClaim]
     csv_sha256: str | None
     corpus_manifest_url: str | None
+    refused_claims: int = 0
 
 
 def load_ntrs_claims(data: dict[str, Any]) -> NtrsClaims:
     """The positive claims held by a parsed ``ntrs-claims.json``, with their markers."""
     # Files written before the key was renamed carry ``source_manifest``.
     url = data.get("corpus_manifest_url", data.get("source_manifest"))
+    rows = data.get("claims", [])
+    kept = [row for row in rows if _valid_card_id(row.get("card_id"))]
     return NtrsClaims(
-        claims=[ResolvedClaim.from_dict(row) for row in data.get("claims", [])],
+        claims=[ResolvedClaim.from_dict(row) for row in kept],
         csv_sha256=data.get("csv_sha256"),
         corpus_manifest_url=url,
+        refused_claims=len(rows) - len(kept),
     )
+
+
+def _valid_card_id(card_id: object) -> bool:
+    """A claim is indexed by card_id, so one without a valid id is never loaded."""
+    return isinstance(card_id, str) and CARD_ID_PATTERN.fullmatch(card_id) is not None
 
 
 def read_ntrs_claims(repo_root: Path) -> NtrsClaims | None:

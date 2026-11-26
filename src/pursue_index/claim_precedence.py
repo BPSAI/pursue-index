@@ -94,7 +94,8 @@ def positive_claims(
         claims.append(_from_tier0(tier0))
     claims.extend(_from_resolved(claim) for claim in resolve_card(card, catalogue=catalogue))
     card_id = str(card.get("card_id") or "")
-    claims.extend(_from_resolved(claim) for claim in external if claim.card_id == card_id)
+    if card_id:
+        claims.extend(_from_resolved(claim) for claim in external if claim.card_id == card_id)
     return claims
 
 

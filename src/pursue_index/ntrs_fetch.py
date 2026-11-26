@@ -90,14 +90,22 @@ def search_url(query: str) -> str:
 def default_get(url: str, headers: Mapping[str, str]) -> httpx.Response:
     """One GET, redirects not followed, body read only up to the size cap.
 
-    A body past :data:`MAX_RESPONSE_BYTES` aborts while streaming. Only the CLI
-    uses this.
+    The request asks for ``Accept-Encoding: identity`` and a reply that still
+    declares any other ``Content-Encoding`` is refused unread. The cap counts the
+    raw bytes off the wire, before any decoding. Only the CLI uses this.
     """
+    sent = {**headers, "Accept-Encoding": "identity"}
     with httpx.stream(
-        "GET", url, headers=dict(headers), follow_redirects=False, timeout=_TIMEOUT_SECONDS
+        "GET", url, headers=sent, follow_redirects=False, timeout=_TIMEOUT_SECONDS
     ) as raw:
+        encoding = raw.headers.get("content-encoding", "").strip().lower()
+        if encoding and encoding != "identity":
+            raise NtrsFetchError(
+                f"aborting: {url} replied with Content-Encoding {encoding!r}; "
+                "only identity is accepted; not parsed"
+            )
         body = bytearray()
-        for chunk in raw.iter_bytes():
+        for chunk in raw.iter_raw():
             body.extend(chunk)
             if len(body) > MAX_RESPONSE_BYTES:
                 raise NtrsFetchError(_too_large(url))
