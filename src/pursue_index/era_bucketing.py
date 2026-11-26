@@ -57,7 +57,7 @@ from pursue_index.era_models import (
 from pursue_index.era_reconcile import FileEras, reconcile_file_eras
 from pursue_index.era_supersession import SUPERSEDED_REASON, superseded_entry
 from pursue_index.era_triage import triage_entry as _triage_entry
-from pursue_index.file_basis import count_fields, effective_claims
+from pursue_index.file_basis import Route, count_fields, effective_claims, row_route
 from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.resolved_claim import ResolvedClaim
@@ -216,14 +216,15 @@ def bucket(
     triage: list[dict[str, Any]] = []
     row_claims = effective_claims(raw_cards, classified, catalogue, extra_claims)
     for card_era, card, row_claim in zip(classified, raw_cards, row_claims, strict=True):
-        if card_era.row_key in reconciled.conflicts:
-            triage.append(_triage_entry(card_era, card, reconciled.conflicts[card_era.row_key]))
-        elif card_era.era is Era.MODERN_OPERATIONAL:
-            if row_claim is None:
-                claims.append(_no_prior_release(card_era))
-            else:
-                superseded.append(superseded_entry(card_era, row_claim))
-        elif card_era.era is Era.UNDATED:
+        conflict = reconciled.conflicts.get(card_era.row_key)
+        route = row_route(row_claim is not None, card_era.era, conflict is not None)
+        if route is Route.ERA:
+            claims.append(_no_prior_release(card_era))
+        elif route is Route.CLAIM and card_era.era is Era.MODERN_OPERATIONAL:
+            superseded.append(superseded_entry(card_era, row_claim))
+        elif conflict is not None and route is Route.UNRESOLVED:
+            triage.append(_triage_entry(card_era, card, conflict))
+        elif conflict is None and card_era.era is Era.UNDATED:
             triage.append(_triage_entry(card_era, card))
     counts = count_fields(classified, claims, extra_claims, reconciled.conflicts)
     return BucketResult(classified, claims, triage, superseded=superseded, **counts)

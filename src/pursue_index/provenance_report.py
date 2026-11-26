@@ -50,8 +50,8 @@ from pursue_index.claim_precedence import (
     unkeyed_claims,
 )
 from pursue_index.era_bucketing import classify_rows
-from pursue_index.era_models import CardEra, Era
-from pursue_index.file_basis import effective_claims, file_eras, file_key
+from pursue_index.era_models import CardEra
+from pursue_index.file_basis import Route, effective_claims, file_eras, file_key, row_route
 from pursue_index.provenance import ProvenanceTier
 from pursue_index.resolved_claim import ResolvedClaim
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
@@ -117,18 +117,16 @@ def classify(
     return _outcome(card_era, claim)
 
 
+_RESOLVED_BY = {Route.CLAIM: RESOLVED_BY_CLAIM, Route.ERA: RESOLVED_BY_ERA, Route.UNRESOLVED: UNRESOLVED}
+
+
 def _outcome(card_era: CardEra, claim: PositiveClaim | None, conflicted: bool = False) -> CardOutcome:
     """Place one reconciled, keyed row in exactly one route, given its strongest claim.
 
     A row of a file whose dated rows conflict has no era conclusion to rest on.
     """
     primary = claim.tier if claim is not None else None
-    if primary is not None:
-        resolved_by = RESOLVED_BY_CLAIM
-    elif card_era.era is Era.MODERN_OPERATIONAL and not conflicted:
-        resolved_by = RESOLVED_BY_ERA
-    else:
-        resolved_by = UNRESOLVED
+    resolved_by = _RESOLVED_BY[row_route(claim is not None, card_era.era, conflicted)]
     return CardOutcome(
         card_id=card_era.card_id,
         title=card_era.title,

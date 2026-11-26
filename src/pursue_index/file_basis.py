@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Collection, Sequence
+from enum import Enum
 from typing import Any
 
 from pursue_index.claim_precedence import (
@@ -27,7 +28,24 @@ from pursue_index.era_models import CardEra, Era, EraNoPriorRelease
 from pursue_index.resolved_claim import ResolvedClaim
 from pursue_index.source_index import SourceEntry
 
-__all__ = ["count_fields", "effective_claims", "file_eras", "file_key", "tallies"]
+__all__ = ["Route", "count_fields", "effective_claims", "file_eras", "file_key", "row_route", "tallies"]
+
+
+class Route(Enum):
+    """Where a row lands: resolved by a claim, by its era, or left unresolved."""
+
+    CLAIM = "claim"
+    ERA = "era"
+    UNRESOLVED = "unresolved"
+
+
+def row_route(has_claim: bool, era: Era, conflicted: bool) -> Route:
+    """The one precedence for a row: a claim, else (no conflict and a modern era), else unresolved."""
+    if has_claim:
+        return Route.CLAIM
+    if not conflicted and era is Era.MODERN_OPERATIONAL:
+        return Route.ERA
+    return Route.UNRESOLVED
 
 
 def file_key(card: CardEra) -> str:
