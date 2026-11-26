@@ -129,9 +129,12 @@ def classify(
 
     With a ``manifest``, ``card`` must be the manifest row ``row_key`` names, else
     ``ValueError``. Building the report is the cost of a call, so a caller classifying
-    many rows passes the ``report`` it built once from that manifest (with the same
-    catalogue and claims); it is then not rebuilt.
+    many rows passes the ``report`` it built once from that manifest; it is then not
+    rebuilt, and its own catalogue and claims are the ones used. Passing ``catalogue``
+    or ``external`` together with ``report`` is ambiguous and raises ``ValueError``.
     """
+    if report is not None and (catalogue or external):
+        raise ValueError("report carries its own catalogue and claims; do not pass catalogue or external with it")
     if manifest is not None:
         built = report if report is not None else build_report(manifest, catalogue, external)
         cards = manifest.get("cards", [])
