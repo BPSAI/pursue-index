@@ -24,7 +24,7 @@ from typing import NamedTuple
 import pytest
 
 from pursue_index.provenance import DateBasis
-from pursue_index.sitemap_fetch import CourteousFetcher
+from pursue_index.sitemap_fetch import CourteousFetcher, SitemapFetchError
 from pursue_index.source_index import (
     UFOFILES_EXCLUSION_REASON,
     SourceEntry,
@@ -281,3 +281,53 @@ def test_build_output_is_json_serialisable_and_carries_exclusion_reason() -> Non
     assert restored["entry_count"] == 2
     assert restored["date_basis"] == DateBasis.SITEMAP_LASTMOD.value
     assert len(restored["entries"]) == 2
+
+
+# --------------------------------------------------------------------------
+# Redirect hop through the whole walk: pinned hosts apply, counts are published.
+# --------------------------------------------------------------------------
+
+
+class _HopNet(_FixtureNet):
+    def get(self, url: str) -> _FixtureResp:
+        if url == "https://host/sitemap-index-1.xml":
+            self.requested.append(url)
+            return _FixtureResp(302, "", {"Location": "https://host/moved.xml"})
+        return super().get(url)
+
+
+def _hop_build():
+    robots = "Sitemap: https://host/sitemap-index-1.xml\n"
+    net = _HopNet({"https://host/robots.txt": robots, "https://host/moved.xml": _SITEMAP_INDEX_EMPTY})
+    fetcher = CourteousFetcher(get=net.get, sleep=net.sleep, delay=0.0)
+    return net, fetcher, build_catalogue_from_fetcher(fetcher, "https://host/robots.txt", allowed_hosts={"host"})
+
+
+_SITEMAP_INDEX_EMPTY = (
+    '<?xml version="1.0"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>'
+)
+
+
+def test_walk_follows_a_pinned_host_redirect_and_publishes_the_counts() -> None:
+    net, _fetcher, catalogue = _hop_build()
+    assert net.requested == ["https://host/robots.txt", "https://host/sitemap-index-1.xml", "https://host/moved.xml"]
+    output = build_output(catalogue, robots_url="https://host/robots.txt")
+    assert output["fetch"] == {"requests": 3, "redirects_followed": 1, "redirects_refused": 0}
+
+
+def test_walk_applies_the_pinned_allowlist_to_a_redirect_target() -> None:
+    robots = "Sitemap: https://host/sitemap-index-1.xml\n"
+
+    class _Off(_HopNet):
+        def get(self, url: str) -> _FixtureResp:
+            if url == "https://host/sitemap-index-1.xml":
+                self.requested.append(url)
+                return _FixtureResp(302, "", {"Location": "https://evil.example/moved.xml"})
+            return super().get(url)
+
+    net = _Off({"https://host/robots.txt": robots})
+    fetcher = CourteousFetcher(get=net.get, sleep=net.sleep, delay=0.0)
+    with pytest.raises(SitemapFetchError, match="redirect"):
+        build_catalogue_from_fetcher(fetcher, "https://host/robots.txt", allowed_hosts={"host"})
+    assert "https://evil.example/moved.xml" not in net.requested
+    assert fetcher.redirects_refused == 1

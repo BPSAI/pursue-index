@@ -47,6 +47,7 @@ from pursue_index.era_dates import parse_year
 from pursue_index.era_models import era_for_year
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import DateBasis, require_web_url
+from pursue_index.redirect_hop import fetch_counts
 from pursue_index.sitemap_fetch import (
     DEFAULT_ROBOTS_URL,
     CourteousFetcher,
@@ -270,6 +271,7 @@ class Catalogue:
     excluded_ufofiles: int
     sitemap_index_urls: tuple[str, ...] = field(default_factory=tuple)
     excluded_invalid_url: int = 0
+    fetch_stats: dict[str, int] = field(default_factory=dict)
 
 
 def build_catalogue(
@@ -321,7 +323,8 @@ def build_catalogue_from_fetcher(
         allowed_hosts = load_source_hosts(_resolve_repo_root() / SOURCE_HOSTS_PATH)
     rows, index_urls, dropped = walk_sitemaps(fetcher, robots_url, allowed_hosts)
     catalogue = build_catalogue(rows, index_urls)
-    return replace(catalogue, excluded_invalid_url=catalogue.excluded_invalid_url + dropped)
+    stats = fetch_counts(fetcher)
+    return replace(catalogue, excluded_invalid_url=catalogue.excluded_invalid_url + dropped, fetch_stats=stats)
 
 
 def build_output(catalogue: Catalogue, robots_url: str) -> dict[str, Any]:
@@ -340,6 +343,7 @@ def build_output(catalogue: Catalogue, robots_url: str) -> dict[str, Any]:
             "count": catalogue.excluded_invalid_url,
             "reason": INVALID_URL_EXCLUSION_REASON,
         },
+        "fetch": dict(catalogue.fetch_stats),
         "entry_count": len(catalogue.entries),
         "agency_counts": dict(Counter(e.agency for e in catalogue.entries)),
         "era_counts": dict(Counter(e.era for e in catalogue.entries)),
@@ -350,11 +354,8 @@ def build_output(catalogue: Catalogue, robots_url: str) -> dict[str, Any]:
 def _default_get(url: str) -> httpx.Response:
     """Live HTTP GET for a listing — one request, courteous UA, no retries.
 
-    ``follow_redirects=False`` is load-bearing. ``_fetchable`` decides the host
-    before the request is made; a redirect is decided by the response, after
-    that check, so following one would move the scope decision out of this
-    module and into the server. A 3xx is surfaced to the caller instead, which
-    aborts on any non-2xx.
+    ``follow_redirects=False`` is load-bearing: a 3xx is surfaced so the
+    fetcher can apply the pinned-host and listing rules to its target.
     """
     return httpx.get(
         url,
@@ -368,8 +369,7 @@ def main() -> int:
     """CLI: enumerate the published sitemap indexes live → the tracked artifact.
 
     This is the operator's regeneration step; it makes real (but courteous,
-    listing-only) requests. On a non-2xx it aborts with a clear message rather
-    than retrying in a loop.
+    listing-only) requests; a non-2xx aborts, with no retry loop.
     """
     repo_root = _resolve_repo_root()
     out_path = repo_root / OUTPUT_PATH
@@ -386,7 +386,7 @@ def main() -> int:
         f"({catalogue.excluded_ufofiles} UFOFiles rows excluded per §2a) "
         f"from {catalogue.total_urls} URLs"
     )
-    print(f"  wrote {out_path.relative_to(repo_root)}")
+    print(f"  fetch: {catalogue.fetch_stats}\n  wrote {out_path.relative_to(repo_root)}")
     return 0
 
 

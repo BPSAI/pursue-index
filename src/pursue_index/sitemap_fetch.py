@@ -33,6 +33,8 @@ from typing import NamedTuple, Protocol
 from urllib.parse import urlparse
 from xml.etree import ElementTree as ET
 
+from pursue_index.redirect_hop import REDIRECT_STATUSES, RedirectRefusedError, redirect_target
+
 __all__ = [
     "DEFAULT_DELAY_SECONDS",
     "DEFAULT_ROBOTS_URL",
@@ -138,6 +140,11 @@ class CourteousFetcher:
     get: Callable[[str], _Response]
     sleep: Callable[[float], None] = time.sleep
     delay: float = DEFAULT_DELAY_SECONDS
+    #: Normalised hostnames a redirect may land on; empty means none.
+    allowed_hosts: Collection[str] = ()
+    requests: int = 0
+    redirects_followed: int = 0
+    redirects_refused: int = 0
 
     def fetch(self, url: str, declared: Collection[str] = ()) -> FetchedListing:
         """Fetch a single listing, or raise :class:`SitemapFetchError`.
@@ -153,13 +160,29 @@ class CourteousFetcher:
                 f"refusing to fetch non-listing URL {url!r}: this stage indexes "
                 "sitemaps only and never downloads a PDF or other asset"
             )
-        if self.delay:
-            self.sleep(self.delay)
-        response = self.get(url)
-        status = response.status_code
-        if not 200 <= status < 300:
+        listing_ok = lambda u: is_listing_url(u) or (is_text_sitemap_url(u) and u in declared)  # noqa: E731
+        for hop in (0, 1):
+            if self.delay:
+                self.sleep(self.delay)
+            self.requests += 1
+            response = self.get(url)
+            if response.status_code not in REDIRECT_STATUSES:
+                break
+            try:
+                if hop:
+                    raise RedirectRefusedError("second redirect hop")
+                target = redirect_target(url, response.headers, self.allowed_hosts, listing_ok)
+            except RedirectRefusedError as exc:
+                self.redirects_refused += 1
+                raise SitemapFetchError(
+                    f"aborting: refusing redirect from {url}: {exc}; no request made to the target"
+                ) from exc
+            print(f"sitemap-fetch: following redirect {url} -> {target}")
+            self.redirects_followed += 1
+            url = target
+        if not 200 <= response.status_code < 300:
             raise SitemapFetchError(
-                f"aborting: {url} returned HTTP {status} (likely rate-limited or "
+                f"aborting: {url} returned HTTP {response.status_code} (likely rate-limited or "
                 "blocked); not retrying in a loop — re-run later"
             )
         return FetchedListing(url=url, body=response.text, last_modified=_last_modified(response))

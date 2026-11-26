@@ -70,6 +70,7 @@ def walk_sitemaps(
         raise SitemapFetchError("no pinned source hosts; refusing to run")
     if not host_allowed(robots_url, hosts):
         raise SitemapFetchError(f"refusing robots URL {robots_url!r}: not an https URL on a pinned source host")
+    fetcher.allowed_hosts = hosts  # a redirect may land only on a pinned host
     index_urls = parse_robots_sitemaps(fetcher.fetch(robots_url).body)
     declared = frozenset(u for u in index_urls if is_text_sitemap_url(u))
     rows: list[Any] = []
