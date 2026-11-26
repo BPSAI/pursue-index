@@ -39,7 +39,7 @@ from typing import Any
 from pursue_index.atomic_text import write_text_atomic
 from pursue_index.catalogue_dates import card_release_date
 from pursue_index.catalogue_load import load_catalogue
-from pursue_index.ntrs_fetch import NTRS_HOSTS_PATH, NtrsFetcher, default_get
+from pursue_index.ntrs_fetch import NtrsFetcher, NtrsFetchError, default_get, load_ntrs_hosts
 from pursue_index.ntrs_match import (
     MATCH_THRESHOLD,
     MIN_SHARED_TOKENS,
@@ -52,8 +52,6 @@ from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import NO_PRIOR_RELEASE_DISCLAIMER, ProvenanceTier
 from pursue_index.provenance_report import build_report
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
-from pursue_index.sitemap_fetch import SitemapFetchError
-from pursue_index.source_hosts import load_source_hosts
 from pursue_index.source_index import SourceEntry
 
 __all__ = [
@@ -214,7 +212,7 @@ def run(repo_root: Path, fetcher: NtrsFetcher, searched_date: date) -> int:
     catalogue = load_catalogue(repo_root)
     try:
         searches = run_searches(manifest, fetcher, searched_date, catalogue.entries)
-    except SitemapFetchError as exc:
+    except NtrsFetchError as exc:
         kept = "; previous file kept" if (repo_root / OUTPUT_PATH).exists() else ""
         print(f"ntrs-source: aborted — {exc}\n  fetch: {fetcher.fetch_counts()}\n  nothing written{kept}")
         return 1
@@ -229,8 +227,8 @@ def main() -> int:
     """CLI: search NTRS metadata for unresolved NASA cards → the tracked artifact."""
     repo_root = _resolve_repo_root()
     try:
-        hosts = load_source_hosts(repo_root / NTRS_HOSTS_PATH)
-    except SitemapFetchError as exc:
+        hosts = load_ntrs_hosts(repo_root)
+    except NtrsFetchError as exc:
         print(f"ntrs-source: aborted — {exc}")
         return 1
     return run(repo_root, NtrsFetcher(get=default_get, hosts=hosts), date.today())

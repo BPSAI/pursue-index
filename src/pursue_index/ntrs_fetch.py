@@ -33,7 +33,7 @@ from urllib.parse import urlencode, urlparse
 import httpx
 
 from pursue_index.sitemap_fetch import SitemapFetchError, normalize_host
-from pursue_index.source_hosts import host_allowed
+from pursue_index.source_hosts import host_allowed, load_source_hosts
 
 __all__ = [
     "DELAY_SECONDS",
@@ -45,6 +45,7 @@ __all__ = [
     "NtrsFetchError",
     "NtrsFetcher",
     "default_get",
+    "load_ntrs_hosts",
     "search_url",
 ]
 
@@ -101,6 +102,14 @@ def default_get(url: str, headers: Mapping[str, str]) -> httpx.Response:
             if len(body) > MAX_RESPONSE_BYTES:
                 raise NtrsFetchError(_too_large(url))
         return httpx.Response(raw.status_code, headers=raw.headers, content=bytes(body))
+
+
+def load_ntrs_hosts(repo_root: Path) -> frozenset[str]:
+    """The pinned NTRS hosts under ``repo_root``; an unusable file raises :class:`NtrsFetchError`."""
+    try:
+        return load_source_hosts(repo_root / NTRS_HOSTS_PATH)
+    except SitemapFetchError as exc:
+        raise NtrsFetchError(str(exc)) from exc
 
 
 def _too_large(url: str) -> str:
