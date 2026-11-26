@@ -225,8 +225,8 @@ def test_build_output_shape_and_reconciliation() -> None:
     manifest = _manifest()
     out = build_output(manifest, bucket(manifest))
     assert out["card_row_count"] == len(manifest["cards"])
-    assert set(out["era_file_counts"]) == {e.value for e in Era} | {"mixed"}
-    assert set(out["era_row_counts"]) == {e.value for e in Era} | {"mixed"}
+    assert set(out["era_file_counts"]) == {e.value for e in Era}
+    assert set(out["era_row_counts"]) == {e.value for e in Era}
     recon = out["reconciliation_4a"]
     assert recon["reference_4a"] == REFERENCE_4A
     assert set(recon["delta"]) == set(REFERENCE_4A)

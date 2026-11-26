@@ -51,10 +51,10 @@ def test_era_file_and_row_counts_have_identical_key_sets() -> None:
     cards = [_row("aaaa", "A1", incident_date="2022-05-06"), _row("aaaa", "A2"), _row("bbbb", "B1")]
     out = build_output({"cards": cards}, bucket({"cards": cards}))
     assert set(out["era_row_counts"]) == set(out["era_file_counts"])
-    assert out["era_row_counts"]["mixed"] == 0 and out["era_file_counts"]["mixed"] == 1
+    assert "mixed" not in out["era_row_counts"] and "mixed" not in out["era_file_counts"]
 
 
-def test_era_row_counts_still_sum_to_the_row_count_with_mixed_zero() -> None:
+def test_era_row_counts_still_sum_to_the_row_count() -> None:
     cards = [_row("aaaa", "A1", incident_date="2022-05-06"), _row("aaaa", "A2")]
     out = build_output({"cards": cards}, bucket({"cards": cards}))
     assert sum(out["era_row_counts"].values()) == out["card_row_count"] == 2
