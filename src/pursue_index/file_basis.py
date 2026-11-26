@@ -101,8 +101,9 @@ class RowBasis:
 
 def _strongest(claims: list[tuple[str, PositiveClaim]]) -> tuple[str, PositiveClaim] | None:
     """The strongest claim by tier precedence; the lowest row index (numeric) wins a tie."""
+    ordered = sorted(claims, key=lambda item: (row_index(item[0]), item[0]))
     for tier in POSITIVE_TIER_PRECEDENCE:
-        for entry in sorted(claims, key=lambda item: (row_index(item[0]), item[0])):
+        for entry in ordered:
             if entry[1].tier is tier:
                 return entry
     return None

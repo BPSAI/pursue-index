@@ -75,8 +75,8 @@ def test_unkeyed_claims_are_counted_in_the_report_and_resolve_nothing() -> None:
 
     manifest = {"cards": [_card("aaaa", "first")]}
     report = build_report(manifest, extra_claims=[_ntrs_claim("aaaa"), _ntrs_claim("aaaa", "aaaa#0")])
-    assert report.claims_without_row_key == 1
-    assert report.to_dict()["claims_without_row_key"] == 1
+    assert report.unkeyed_claim_count == 1
+    assert report.to_dict()["unkeyed_claim_count"] == 1
     assert report.outcomes[0].resolved_by != UNRESOLVED  # the keyed claim still resolves its row
     only_unkeyed = build_report(manifest, extra_claims=[_ntrs_claim("aaaa")])
     assert only_unkeyed.outcomes[0].resolved_by == UNRESOLVED

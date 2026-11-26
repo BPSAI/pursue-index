@@ -60,6 +60,7 @@ _BUCKETS: dict[str, tuple[str, str]] = {
     "file_count": ("files", "cards"),
     "era_file_counts": ("sum", "file_count"),
     "era_row_counts": ("sum", "card_row_count"),
+    "agency_file_counts": ("sum", "file_count"),
     "agency_row_counts": ("sum", "card_row_count"),
     "no_prior_release_file_count": ("ids", "no_prior_release_files"),
     "no_prior_release_row_count": ("rows", "no_prior_release_rows"),
@@ -82,7 +83,7 @@ _REPORT: dict[str, tuple[str, str]] = {
     "partially_resolved_file_count": ("ids", "partially_resolved_files"),
 }
 #: Counts that summarise no array in the output (what was searched, not what is listed).
-_EXEMPT = {"catalogue_rows_dropped.count", "ntrs_claims_applied_row_count", "ntrs_claims_migration_ambiguous_count"}
+_EXEMPT = {"catalogue_rows_dropped.count", "unkeyed_claim_count", "ntrs_claims_applied_row_count", "ntrs_migration_ambiguous_claim_count"}
 _ROW_NAMED = re.compile(r"_row_counts?$")
 
 
@@ -283,14 +284,14 @@ def test_an_old_shape_claim_for_a_file_not_in_the_manifest_stays_unkeyed_and_cou
     claims = _load(tmp_path, [_stored_claim("c0c0c0c0c0c0c012")])
     assert [c.row_key for c in claims] == [""]
     manifest = {"cards": _CARDS}
-    assert build_output(manifest, bucket(manifest, extra_claims=claims))["claims_without_row_key"] == 1
+    assert build_output(manifest, bucket(manifest, extra_claims=claims))["unkeyed_claim_count"] == 1
 
 
 def test_migrated_claims_resolve_their_rows_through_the_bucketing(tmp_path: Path) -> None:
     claims = _load(tmp_path, [_stored_claim(_FILE)])
     manifest = {"cards": [{**c, "incident_date": "2022-05-06"} for c in _CARDS]}
     result = bucket(manifest, extra_claims=claims)
-    assert build_output(manifest, result)["claims_without_row_key"] == 0
+    assert build_output(manifest, result)["unkeyed_claim_count"] == 0
     assert len(result.superseded) == 2 and len(result.claims) == 1
 
 

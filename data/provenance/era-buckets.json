@@ -23,6 +23,19 @@
     "pre_1970": 120,
     "undated": 72
   },
+  "agency_file_counts": {
+    "CIA": 29,
+    "Department of Energy": 5,
+    "Department of State": 9,
+    "Department of War": 307,
+    "Executive Office of the President": 2,
+    "FBI": 105,
+    "Intelligence Community Agency": 1,
+    "Local Law Enforcement": 8,
+    "NASA": 40,
+    "Office of the Director of National Intelligence": 1,
+    "U.S. Government": 2
+  },
   "agency_row_counts": {
     "CIA": 29,
     "Department of Energy": 5,
@@ -299,7 +312,7 @@
     "8d0b85ce46109d06"
   ],
   "no_prior_release_row_count": 232,
-  "claims_without_row_key": 0,
+  "unkeyed_claim_count": 0,
   "no_prior_release_rows": [
     {
       "kind": "era_no_prior_release",
@@ -11082,5 +11095,5 @@
   ],
   "ntrs_claims_applied": true,
   "ntrs_claims_csv_sha256": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247",
-  "ntrs_claims_migration_ambiguous_count": 0
+  "ntrs_migration_ambiguous_claim_count": 0
 }

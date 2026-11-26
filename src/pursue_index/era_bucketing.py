@@ -59,7 +59,7 @@ from pursue_index.era_negative import no_prior_release as _no_prior_release
 from pursue_index.era_reconcile import FileEras, reconcile_file_eras
 from pursue_index.era_supersession import SUPERSEDED_REASON, claim_resolved_entry, superseded_entry
 from pursue_index.era_triage import triage_entry as _triage_entry
-from pursue_index.file_basis import Route, assess, route_fields
+from pursue_index.file_basis import Route, RowBasis, assess, route_fields
 from pursue_index.file_counts import count_fields
 from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root as _resolve_repo_root
@@ -141,7 +141,7 @@ class BucketResult:
 
     ``era_file_counts`` and ``no_prior_release_files`` (the ids of the
     files holding a negative) are per source file; ``era_row_counts`` is the same
-    tally per manifest row. ``claims_without_row_key`` is how many loaded claims
+    tally per manifest row. ``unkeyed_claim_count`` is how many loaded claims
     named no row and so resolved nothing.
 
     ``superseded`` holds the modern cards that would have taken a negative but
@@ -156,13 +156,19 @@ class BucketResult:
     era_row_counts: dict[str, int] = field(default_factory=dict)
     file_count: int = 0
     no_prior_release_files: list[str] = field(default_factory=list)
-    claims_without_row_key: int = 0
+    unkeyed_claim_count: int = 0
+    agency_file_counts: dict[str, int] = field(default_factory=dict)
     agency_row_counts: dict[str, int] = field(default_factory=dict)
     superseded: list[dict[str, Any]] = field(default_factory=list)
     claim_resolved: list[dict[str, Any]] = field(default_factory=list)
     file_route_counts: dict[str, int] = field(default_factory=dict)
     row_route_counts: dict[str, int] = field(default_factory=dict)
     partially_resolved_files: list[str] = field(default_factory=list)
+
+
+def _inherited_conflict(row: RowBasis) -> str | None:
+    """The date-conflict reason of a row that inherits its claim, else ``None``."""
+    return row.conflict if row.inherited_from is not None else None
 
 
 def bucket(
@@ -203,9 +209,9 @@ def bucket(
             if row.claim is None:
                 continue
             if card_era.era is Era.MODERN_OPERATIONAL:
-                superseded.append(superseded_entry(card_era, row.claim, row.inherited_from))
+                superseded.append(superseded_entry(card_era, row.claim, row.inherited_from, _inherited_conflict(row)))
             else:
-                claim_resolved.append(claim_resolved_entry(card_era, row.claim, row.inherited_from))
+                claim_resolved.append(claim_resolved_entry(card_era, row.claim, row.inherited_from, _inherited_conflict(row)))
         elif row.conflict is not None:
             triage.append(_triage_entry(card_era, card, row.conflict))
         elif card_era.era is Era.UNDATED:
@@ -267,6 +273,7 @@ def build_output(
         "file_count": result.file_count,
         "era_file_counts": result.era_file_counts,
         "era_row_counts": result.era_row_counts,
+        "agency_file_counts": result.agency_file_counts,
         "agency_row_counts": result.agency_row_counts,
         "file_route_counts": result.file_route_counts,
         "row_route_counts": result.row_route_counts,
@@ -276,7 +283,7 @@ def build_output(
         "no_prior_release_file_count": len(result.no_prior_release_files),
         "no_prior_release_files": result.no_prior_release_files,
         "no_prior_release_row_count": len(result.claims),
-        "claims_without_row_key": result.claims_without_row_key,
+        "unkeyed_claim_count": result.unkeyed_claim_count,
         "no_prior_release_rows": [claim.to_dict() for claim in result.claims],
         "superseded_by_claim_row_count": len(result.superseded),
         "superseded_by_claim": result.superseded,
@@ -308,7 +315,7 @@ def main() -> int:
     print(f"era bucketing: {result.file_count} files / {len(result.cards)} rows -> {labelled} (files)")
     print(f"  routes, files: {result.file_route_counts}; rows: {result.row_route_counts}; {len(result.partially_resolved_files)} partially resolved file(s)")
     print(f"  {len(result.no_prior_release_files)} files ({len(result.claims)} rows) no_prior_release (2015+); {len(result.triage)} undated rows (triage)")
-    print(f"  {len(result.superseded)} rows superseded by a prior-release claim; {len(result.claim_resolved)} other rows claim-resolved; {result.claims_without_row_key} claim(s) without a row_key")
+    print(f"  {len(result.superseded)} rows superseded by a prior-release claim; {len(result.claim_resolved)} other rows claim-resolved; {result.unkeyed_claim_count} claim(s) without a row_key")
     print(f"  catalogue: {len(catalogue.entries)} entries, {catalogue.dropped_rows} row(s) skipped\n  wrote {out_path.relative_to(repo_root)}")
     return 0
 

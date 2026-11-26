@@ -11,7 +11,7 @@ from pursue_index.ntrs_claims_load import NtrsOutcome
 from pursue_index.provenance_report import build_report
 
 _DOC = (Path(__file__).resolve().parents[2] / "docs" / "provenance-artifacts-schema.md").read_text()
-_COUNT_KEY = re.compile(r"(^|_)(file|row)_counts?$")
+_COUNT_KEY = re.compile(r"(^|_)(file|row|claim)_counts?$")
 _SECTIONS = {"era-buckets.json": "## `era-buckets.json`", "coverage report": "## Coverage report"}
 
 
@@ -60,7 +60,8 @@ def test_a_documented_unit_matches_the_key_suffix() -> None:
     for name, out in _emitted().items():
         units = _documented(_SECTIONS[name])
         for key in _count_keys(out):
-            expected = "file" if re.search(r"(^|_)file_counts?$", key) else "row"
+            unit = re.search(r"(^|_)(file|row|claim)_counts?$", key)
+            expected = unit.group(2) if unit else "row"
             assert units[key] == expected, (name, key, units[key])
 
 
