@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Any
 
 from pursue_index.era_bucketing import bucket, build_output
-from pursue_index.ntrs_source import CardSearch, build_output as ntrs_output
+from pursue_index.ntrs_source import CardSearch
+from pursue_index.ntrs_source import build_output as ntrs_output
 from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.provenance_report import build_report
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
@@ -59,7 +60,7 @@ def test_the_doc_ntrs_table_gives_claim_count_its_unit() -> None:
     assert lines, "no claim_count row in the NTRS table"
     cells = [c.strip() for c in lines[0].strip("|").split("|")]
     assert cells[2] == "claim" and "stored" in cells[3] and "claims[]" in cells[3]
-    assert "unchanged from v1" in cells[3]
+    assert "unchanged from v1" in cells[3].lower()
 
 
 # --- (b) row_key of a row with no card_id ----------------------------------------

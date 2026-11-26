@@ -17,6 +17,7 @@ from typing import Any
 from pursue_index.claim_precedence import unkeyed_claims
 from pursue_index.era_models import CardEra, Era, EraNoPriorRelease
 from pursue_index.resolved_claim import ResolvedClaim
+from pursue_index.row_key import file_part
 
 __all__ = ["MIXED", "count_fields", "file_eras", "file_key", "file_key_of", "tallies"]
 
@@ -25,12 +26,12 @@ MIXED = "mixed"
 
 
 def file_key_of(card_id: str, row_key: str) -> str:
-    """The file identity rule: the ``card_id``, or the row's own key when it has none."""
-    return card_id or row_key
+    """The file identity rule: the ``card_id``, or the file part of the row's key when it has none."""
+    return card_id or file_part(row_key)
 
 
 def file_key(card: CardEra | EraNoPriorRelease) -> str:
-    """The file a row belongs to: its ``card_id``, or its own key when it has none."""
+    """The file a row belongs to: its ``card_id``, or its own ``no-card-id-<i>`` key when it has none."""
     return file_key_of(card.card_id, card.row_key)
 
 
