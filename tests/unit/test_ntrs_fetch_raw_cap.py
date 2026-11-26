@@ -16,6 +16,20 @@ from pursue_index.ntrs_fetch import NtrsFetchError, default_get
 URL = "https://ntrs.nasa.gov/api/citations/search?q=x"
 
 
+class _Chunks(httpx.SyncByteStream):
+    """A wire stream: iter_raw yields these chunks, as a real transport would."""
+
+    def __init__(self, *chunks: bytes) -> None:
+        self._chunks = chunks
+
+    def __iter__(self) -> Iterator[bytes]:
+        yield from self._chunks
+
+
+def _wire(*chunks: bytes, headers: dict[str, str] | None = None) -> httpx.Response:
+    return httpx.Response(200, headers=headers, stream=_Chunks(*chunks))
+
+
 def _install(monkeypatch: pytest.MonkeyPatch, handler: Any) -> None:
     transport = httpx.MockTransport(handler)
 
@@ -28,7 +42,7 @@ def _install(monkeypatch: pytest.MonkeyPatch, handler: Any) -> None:
 
 
 def test_a_plain_response_under_the_cap_still_parses(monkeypatch: pytest.MonkeyPatch) -> None:
-    _install(monkeypatch, lambda r: httpx.Response(200, json={"results": []}))
+    _install(monkeypatch, lambda r: _wire(b'{"results": []}'))
     assert default_get(URL, {}).json() == {"results": []}
 
 
@@ -37,7 +51,7 @@ def test_the_request_carries_accept_encoding_identity(monkeypatch: pytest.Monkey
 
     def handler(request: httpx.Request) -> httpx.Response:
         seen.append(request)
-        return httpx.Response(200, json={})
+        return _wire(b"{}")
 
     _install(monkeypatch, handler)
     default_get(URL, {"User-Agent": "t"})
@@ -50,7 +64,7 @@ def test_a_gzip_encoded_response_is_refused_before_decoding(
     body = gzip.compress(json.dumps({"results": []}).encode())
     _install(
         monkeypatch,
-        lambda r: httpx.Response(200, content=body, headers={"content-encoding": "gzip"}),
+        lambda r: _wire(body, headers={"content-encoding": "gzip"}),
     )
     with pytest.raises(NtrsFetchError, match="Content-Encoding"):
         default_get(URL, {})
@@ -59,10 +73,6 @@ def test_a_gzip_encoded_response_is_refused_before_decoding(
 def test_a_raw_stream_over_the_cap_aborts(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(ntrs_fetch, "MAX_RESPONSE_BYTES", 100)
 
-    def chunks() -> Iterator[bytes]:
-        yield b"a" * 60
-        yield b"a" * 60
-
-    _install(monkeypatch, lambda r: httpx.Response(200, content=chunks()))
+    _install(monkeypatch, lambda r: _wire(b"a" * 60, b"a" * 60))
     with pytest.raises(NtrsFetchError, match="too large"):
         default_get(URL, {})

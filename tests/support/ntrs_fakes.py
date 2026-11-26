@@ -22,7 +22,7 @@ def sample() -> dict[str, Any]:
 
 def card(**over: Any) -> dict[str, Any]:
     row = {
-        "card_id": "c-apollo12",
+        "card_id": "a0a0a0a0a0a0a012",
         "title": "NASA-UAP-D099, Apollo 12 Medical Debriefing",
         "agency": "NASA",
         "release_date": "5/8/2026",

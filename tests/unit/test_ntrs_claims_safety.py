@@ -44,7 +44,7 @@ def test_matching_shas_apply_the_claims(tmp_path: Path) -> None:
     _repo(tmp_path, _manifest())
     _run(tmp_path, Net(Resp(200, EARLY)))
     outcome = resolve_ntrs_claims(tmp_path, _manifest())
-    assert [c.card_id for c in outcome.claims] == ["c-apollo12"]
+    assert [c.card_id for c in outcome.claims] == ["a0a0a0a0a0a0a012"]
     assert outcome.applied is True
     assert outcome.notice is None
 
