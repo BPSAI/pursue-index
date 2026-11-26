@@ -311,6 +311,16 @@ def resolve_card(
     return claims
 
 
+def resolve_manifest(
+    manifest: dict[str, Any], catalogue: Sequence[SourceEntry] = ()
+) -> list[ResolvedClaim]:
+    """Every claim the resolver supports across the manifest, in row order."""
+    claims: list[ResolvedClaim] = []
+    for card in manifest.get("cards", []):
+        claims.extend(resolve_card(card, catalogue=catalogue))
+    return claims
+
+
 def build_output(
     manifest: dict[str, Any],
     claims: Sequence[ResolvedClaim],
@@ -353,9 +363,7 @@ def main() -> int:
     repo_root = _resolve_repo_root()
     manifest = json.loads((repo_root / "data" / "manifests" / "latest.json").read_text())
     catalogue = load_catalogue(repo_root)
-    claims: list[ResolvedClaim] = []
-    for card in manifest.get("cards", []):
-        claims.extend(resolve_card(card, catalogue=catalogue.entries))
+    claims = resolve_manifest(manifest, catalogue.entries)
     out_path = repo_root / OUTPUT_PATH
     out_path.parent.mkdir(parents=True, exist_ok=True)
     output = build_output(manifest, claims, len(catalogue.entries), catalogue.dropped_rows)

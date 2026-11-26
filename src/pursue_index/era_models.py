@@ -94,6 +94,8 @@ class CardEra:
     year: int | None
     date_source: str | None
     raw_date: str | None
+    row_key: str = ""
+    era_reconciled_from: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {

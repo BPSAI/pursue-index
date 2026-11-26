@@ -77,6 +77,7 @@ class ResolvedClaim:
     date_basis: DateBasis | None = None
     prior_publication: str = ""
     needs_page_image_comparison: bool = False
+    row_key: str = ""
 
     def __post_init__(self) -> None:
         self._check_tier_and_source()

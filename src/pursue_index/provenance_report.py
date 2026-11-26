@@ -72,6 +72,7 @@ class CardOutcome:
     primary_tier: str | None
     resolved_by: str
     needs_page_image_comparison: bool
+    row_key: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {

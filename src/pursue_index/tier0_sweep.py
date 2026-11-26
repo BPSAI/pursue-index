@@ -102,6 +102,7 @@ class Tier0Claim:
     source: str = _SOURCE
     stated_date: date | None = None
     date_basis: DateBasis | None = None
+    row_key: str = ""
 
     def __post_init__(self) -> None:
         if not isinstance(self.tier, ProvenanceTier):
