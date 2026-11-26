@@ -47,14 +47,69 @@ A name ending `_row_count` or `_row_counts` counts rows. Every other `*_count` i
 per file, except the claim and search tallies named in the last table, which count
 records. The corpus manifest is never de-duplicated or normalized.
 
-## Mixed-era files (a placeholder for PR-B)
+## The era of a source file
 
-Without reconciling a file's rows, a file whose rows land in different eras has no
-single era. In the per-file `era_file_counts` it is counted **once** under the key
-`mixed`. This is a placeholder that PR-B replaces when it reconciles the rows of a
-file. Rows are unchanged: each row keeps its own era, its own no-prior-release
-record or triage entry, exactly as in v1. Both era maps carry the same keys: `mixed` is in `era_row_counts` too, always
-`0` there, because a row has exactly one era.
+A file has exactly one era. Each row is first resolved on its own, with #201's
+century guard applied unchanged, then the file's rows are reconciled:
+
+- **One date.** If the file's dated rows resolve to exactly one distinct
+  `(era, year)`, every row of the file takes that era and year. Each undated row is
+  labelled `era_reconciled_from: <row_key of the dated row>` and
+  `date_source: "reconciled_from_sibling"`; its `year` and `raw_date` are the
+  sibling's. A dated row is never changed. Upstream manifest fields are never
+  touched.
+- **Conflicting dates.** If two or more distinct `(era, year)` pairs are present, the
+  file is a **conflict**. Nothing is reconciled and the file's era is `undated`. Each
+  row keeps the era it resolved to on its own (the per-row counts stay per row), and
+  each row's triage reason lists the conflicting `row_key=era/year` values.
+- **No resolvable date.** The file's era is `undated`.
+
+`mixed` is removed. Every file has exactly one era, so `era_file_counts` and
+`era_row_counts` carry the same keys (the five eras) and neither has `mixed`.
+`era_file_counts` sums to `file_count`; `era_row_counts` sums to `card_row_count`.
+
+## The route of a row, and of a file
+
+**`row_route`** is one function, shared by `era-buckets.json` and the coverage report,
+so the two cannot disagree. It places a row in exactly one route:
+
+- **claim**: the row has a positive claim, in a conflict file or not;
+- **era**: otherwise, the row is in a non-conflict file whose era is `2015_plus`;
+- **unresolved**: otherwise.
+
+**Inheritance.** A reconciled row has no date of its own, so it inherits its dated
+sibling's prior-release status. If that sibling has a positive claim, or was
+superseded by one, the reconciled row takes the claim: it routes `claim`, is listed in
+`superseded_by_claim`, and emits no `no_prior_release` negative. Otherwise it
+emits the negative, labelled `reconciled: true` (with `era_reconciled_from`) in
+`no_prior_release_rows[]`.
+
+**The file route** is the mixed-outcome partition. It places each file in exactly one
+route, so that no unresolved row is hidden behind a stronger sibling:
+
+- **claim**: **any** row of the file has a positive claim. A claim is about the
+  document, and every row is that document. *This is a chosen rule; Prime may require
+  all rows instead.*
+- **era**: no row has a claim and **every** row routes to `era`.
+- **unresolved**: otherwise (a conflict file with no claim, or a file where only some
+  rows reach `era`).
+
+The counts, each named for its unit:
+
+| Key | Unit | Meaning |
+|---|---|---|
+| `file_route_counts` | file | `claim`, `era`, `unresolved`. Sums to `file_count`. |
+| `row_route_counts` | row | The same three routes per row. Sums to `card_row_count`. |
+| `partially_resolved_file_count` | file | Unresolved files with at least one row that routes `era`. Equals `len(partially_resolved_files)`. |
+| `partially_resolved_files` | file | The `file_key()`s that count covers. |
+
+`era-buckets.json` carries all four. The coverage report carries the file partition as
+`resolved_by_claim`, `resolved_by_era` and `unresolved` (per file), the row partition
+as `row_counts`, and the two `partially_resolved_*` keys. `partially_resolved_file_count`
+is a visibility count. Reconciliation gives a non-conflict file one era for all its rows, so it is `0` unless a file splits; it is emitted so that a future upstream change that splits a file's rows between `era` and `unresolved` is visible rather than absorbed.
+
+**Triage.** `undated_triage` lists every undated row of a non-conflict file, and every
+row of a conflict file that no claim resolves.
 
 ## `era-buckets.json`
 
@@ -62,10 +117,10 @@ record or triage entry, exactly as in v1. Both era maps carry the same keys: `mi
 |---|---|---|---|
 | `card_count` | `card_row_count` | row | Manifest rows. Equals `len(cards)`. |
 | (new) | `file_count` | file | Distinct `file_key()` values (see Units). Equals the sum of `era_file_counts`, and the coverage report's `file_count` for the same manifest. |
-| `era_counts` | `era_file_counts` | file | **Renamed for its unit and re-semanticized**: files per era, plus `mixed` (see above). Sums to `file_count`. The key set is the same as `era_row_counts`. |
-| (new) | `era_row_counts` | row | Rows per era (the v1 meaning of `era_counts`), with the same keys as `era_file_counts`; `mixed` is always `0` because a row has exactly one era. Sums to `card_row_count`. |
+| `era_counts` | `era_file_counts` | file | **Renamed for its unit and re-semanticized**: files per era. Every file has one era (see above); no `mixed`. Sums to `file_count`. The key set is the same as `era_row_counts`. |
+| (new) | `era_row_counts` | row | Rows per era (the v1 meaning of `era_counts`), with the same keys as `era_file_counts`. Sums to `card_row_count`. |
 | `agency_counts` | `agency_row_counts` | row | Rows per agency. |
-| `reconciliation_4a` | `reconciliation_4a` | row | The value is unchanged. What changed: the comparison now reads `era_row_counts` (not the per-file counts) against the fixed per-row `reference_4a` baseline, and there is a new key `unit` with the value `"rows"`. `current` and `delta` are per row and cover only the reference eras (no `mixed`). |
+| `reconciliation_4a` | `reconciliation_4a` | row | The value is unchanged. What changed: the comparison now reads `era_row_counts` (not the per-file counts) against the fixed per-row `reference_4a` baseline, and there is a new key `unit` with the value `"rows"`. `current` and `delta` are per row and cover the reference eras. |
 | `no_prior_release_count` | `no_prior_release_file_count` | file | **Renamed for its unit and re-semanticized**: files holding a no-prior-release record. Equals `len(no_prior_release_files)`. |
 | (new) | `no_prior_release_files` | file | One `file_key()` (the `card_id`, or `no-card-id-<i>`) per file in `no_prior_release_file_count`. |
 | (new) | `no_prior_release_row_count` | row | Rows holding a record. Equals `len(no_prior_release_rows)`. |
@@ -74,6 +129,12 @@ record or triage entry, exactly as in v1. Both era maps carry the same keys: `mi
 | `undated_triage_count` | `undated_triage_row_count` | row | Equals `len(undated_triage)`. |
 | (new) | `claims_without_row_key` | claim | Loaded external claims that name no row. They match no row and are counted here. |
 | (new, per record) | `row_key` | row | See above. |
+| (new, per `cards[]` record) | `era_reconciled_from` | row | The `row_key` of the dated row an undated row took its era from; `null` otherwise. See *The era of a source file*. |
+| (new, per `no_prior_release_rows[]` record) | `reconciled` | row | Present only on the negative of a reconciled row: `true`, beside `era_reconciled_from` (the sibling's `row_key`). |
+| (new) | `file_route_counts` | file | `claim`, `era`, `unresolved` per file. Sums to `file_count`. See *The route of a row, and of a file*. |
+| (new) | `row_route_counts` | row | The same routes per row. Sums to `card_row_count`. |
+| (new) | `partially_resolved_file_count` | file | Unresolved files with at least one `era` row. Equals `len(partially_resolved_files)`. |
+| (new) | `partially_resolved_files` | file | The `file_key()`s that count covers. |
 
 `ntrs_claims_applied` and `ntrs_claims_csv_sha256` are unchanged. `ntrs_claims_migration_ambiguous_count` (unit: claims) is new, see below.
 
@@ -121,14 +182,16 @@ below), so a reader gates on that id.
 |---|---|---|---|
 | `card_count` | `card_row_count` | row | Manifest rows. |
 | (new) | `file_count` | file | Distinct `file_key()` values; equals `resolved_by_claim + resolved_by_era + unresolved`. |
-| `resolved_by_claim`, `resolved_by_era`, `unresolved` | same | file | **Re-semanticized**: a file takes the strongest route any of its rows has (claim, then era, then unresolved). |
-| `tier_counts` | `tier_file_counts` | file | **Renamed for its unit and re-semanticized**: counted over each file's representative row (its strongest route, then tier). |
+| `resolved_by_claim`, `resolved_by_era`, `unresolved` | same | file | **Re-semanticized**: the file route (the mixed-outcome partition, see *The route of a row, and of a file*). Never "the strongest row wins". |
+| `tier_counts` | `tier_file_counts` | file | **Renamed for its unit and re-semanticized**: counted over each file's representative row (its strongest-route row, then tier). Files routed `era` or `unresolved` have no tier. |
 | `page_image_flagged` | same | file | **Re-semanticized**: files with **any** row flagged for page-image comparison. Equals `len(page_image_flagged_files)`. |
 | (new) | `page_image_flagged_files` | file | The `file_key()`s `page_image_flagged` counts. |
 | (new) | `ntrs_claims_applied_row_count` | row | Distinct manifest rows with at least one applied NTRS claim (see above); not the stored `claim_count`. |
 | (new) | `ntrs_claims_migration_ambiguous_count` | claim | As above. |
-| `unresolved_by_era` | same | file | **Re-semanticized**: per-file era of each unresolved file, including `mixed`. |
-| (new) | `row_counts` | row | The same route split per row. Sums to `card_row_count`. |
+| `unresolved_by_era` | same | file | **Re-semanticized**: per-file era of each unresolved file (no `mixed`). |
+| (new) | `row_counts` | row | The same route split per row (`row_route`). Sums to `card_row_count`. |
+| (new) | `partially_resolved_file_count` | file | Equals `len(partially_resolved_files)`. The console `report` prints the file partition and the row partition, each labelled by unit, and this count. |
+| (new) | `partially_resolved_files` | file | The `file_key()`s that count covers. |
 | (new) | `unresolved_files` | file | The `file_key()`s `unresolved` counts. |
 | `unresolved_cards` | `unresolved_rows` | row | One record per unresolved row (renamed for its unit; `unresolved_files` is the per-file list). |
 | (new) | `unresolved_row_count` | row | Equals `len(unresolved_rows)`. |
