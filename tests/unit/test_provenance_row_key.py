@@ -91,3 +91,22 @@ def test_tier0_claims_carry_the_key_of_their_row_in_the_real_manifest() -> None:
     for claim in claims:
         assert claim.row_key in expected[claim.card_id]
     assert len({c.row_key for c in claims}) == len(claims)
+
+
+def test_a_lone_classified_row_carries_its_real_key_and_a_keyed_claim_resolves_it() -> None:
+    from pursue_index.provenance import ProvenanceTier
+    from pursue_index.provenance_report import RESOLVED_BY_CLAIM, classify
+    from pursue_index.resolved_claim import ResolvedClaim, ResolutionSource
+
+    card = _card("aaaa", "first")
+    assert classify(card).row_key == "aaaa#0"
+    claim = ResolvedClaim(
+        card_id="aaaa",
+        tier=ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED,
+        source=ResolutionSource.NTRS_METADATA,
+        prior_publication="ntrs.nasa.gov",
+        row_key="aaaa#0",
+    )
+    outcome = classify(card, external=[claim])
+    assert outcome.resolved_by == RESOLVED_BY_CLAIM
+    assert outcome.primary_tier == ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED.value

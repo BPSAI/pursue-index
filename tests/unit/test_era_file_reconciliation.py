@@ -149,3 +149,25 @@ def test_the_real_manifest_has_one_era_per_file() -> None:
     for entry in build_output(manifest, bucket(manifest))["cards"]:
         eras.setdefault(entry["card_id"], set()).add(entry["era"])
     assert [cid for cid, found in eras.items() if len(found) > 1] == []
+
+
+def test_same_era_with_different_years_is_a_conflict_and_reconciles_nothing() -> None:
+    cards = [_dated(date="2022-05-06"), _dated(title="D2", date="2019-03-04"), _row("aaaa", "PR1")]
+    result = bucket({"cards": cards})
+    assert [c.era for c in result.cards][:2] == [Era.MODERN_OPERATIONAL, Era.MODERN_OPERATIONAL]
+    assert result.cards[2].era is Era.UNDATED
+    assert all(c.era_reconciled_from is None for c in result.cards)
+    (entry,) = result.triage
+    assert entry["reason"] == (
+        "conflicting document dates across rows of the same file: "
+        "aaaa#0=2015_plus/2022, aaaa#1=2015_plus/2019"
+    )
+
+
+def test_same_era_with_the_same_year_is_reconciled() -> None:
+    cards = [_dated(date="2022-05-06"), _dated(title="D2", date="2022-11-30"), _row("aaaa", "PR1")]
+    result = bucket({"cards": cards})
+    assert result.cards[2].era is Era.MODERN_OPERATIONAL
+    assert result.cards[2].year == 2022
+    assert result.cards[2].era_reconciled_from == "aaaa#0"
+    assert result.triage == []
