@@ -10,33 +10,67 @@ constructor refuses is refused here too.
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from pursue_index.resolved_claim import ResolvedClaim
 
-__all__ = ["NTRS_CLAIMS_PATH", "load_ntrs_claims", "read_ntrs_claims"]
+__all__ = [
+    "NTRS_CLAIMS_PATH",
+    "NtrsClaims",
+    "StaleNtrsClaimsError",
+    "claims_for_manifest",
+    "load_ntrs_claims",
+    "read_ntrs_claims",
+]
 
 NTRS_CLAIMS_PATH = Path("data") / "provenance" / "ntrs-claims.json"
 
 
-def load_ntrs_claims(data: dict[str, Any]) -> list[ResolvedClaim]:
-    """The positive claims held by a parsed ``ntrs-claims.json``."""
-    return [ResolvedClaim.from_dict(row) for row in data.get("claims", [])]
+class StaleNtrsClaimsError(ValueError):
+    """The stored claims were built from a different manifest than the one in use."""
 
 
-def read_ntrs_claims(repo_root: Path) -> list[ResolvedClaim]:
-    """Load the tracked NTRS claims under ``repo_root``, or none if absent."""
+@dataclass(frozen=True)
+class NtrsClaims:
+    """Stored claims together with the manifest markers they were built from."""
+
+    claims: list[ResolvedClaim]
+    csv_sha256: str | None
+    source_manifest: str | None
+
+
+def load_ntrs_claims(data: dict[str, Any]) -> NtrsClaims:
+    """The positive claims held by a parsed ``ntrs-claims.json``, with their markers."""
+    return NtrsClaims(
+        claims=[ResolvedClaim.from_dict(row) for row in data.get("claims", [])],
+        csv_sha256=data.get("csv_sha256"),
+        source_manifest=data.get("source_manifest"),
+    )
+
+
+def read_ntrs_claims(repo_root: Path) -> NtrsClaims | None:
+    """Load the tracked NTRS claims under ``repo_root``, or ``None`` if absent."""
     path = repo_root / NTRS_CLAIMS_PATH
     if not path.exists():
-        return []
+        return None
     return load_ntrs_claims(json.loads(path.read_text()))
 
 
-class StaleNtrsClaimsError(ValueError):
-    """Stub."""
-
-
 def claims_for_manifest(repo_root: Path, manifest: dict[str, Any]) -> list[ResolvedClaim]:
-    """Stub."""
-    return []
+    """The stored claims, if they were built from ``manifest``; none if there is no file.
+
+    Raises :class:`StaleNtrsClaimsError`, naming both shas, when they differ.
+    """
+    stored = read_ntrs_claims(repo_root)
+    if stored is None:
+        return []
+    current = manifest.get("csv_sha256")
+    if stored.csv_sha256 != current:
+        raise StaleNtrsClaimsError(
+            f"{NTRS_CLAIMS_PATH} was built from manifest csv_sha256 {stored.csv_sha256}, "
+            f"but the manifest being resolved has {current}; re-run "
+            "`python -m pursue_index.ntrs_source` against this manifest"
+        )
+    return stored.claims

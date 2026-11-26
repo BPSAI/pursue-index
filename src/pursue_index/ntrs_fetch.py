@@ -37,6 +37,7 @@ from pursue_index.source_hosts import host_allowed
 
 __all__ = [
     "DELAY_SECONDS",
+    "MAX_RESPONSE_BYTES",
     "NTRS_HOSTS_PATH",
     "PAGE_SIZE",
     "SEARCH_PATH",
@@ -61,6 +62,7 @@ USER_AGENT = "pursue-index-provenance/1.0 (metadata search only)"
 #: Courtesy sleep before every request, in seconds.
 DELAY_SECONDS = 1.0
 
+#: Most bytes read from one response; far above a 5-result search.
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 
 _BASE = "https://ntrs.nasa.gov"
@@ -85,8 +87,32 @@ def search_url(query: str) -> str:
 
 
 def default_get(url: str, headers: Mapping[str, str]) -> httpx.Response:
-    """One GET, redirects not followed. Only the CLI uses this."""
-    return httpx.get(url, headers=dict(headers), follow_redirects=False, timeout=_TIMEOUT_SECONDS)
+    """One GET, redirects not followed, body read only up to the size cap.
+
+    A body past :data:`MAX_RESPONSE_BYTES` aborts while streaming. Only the CLI
+    uses this.
+    """
+    with httpx.stream(
+        "GET", url, headers=dict(headers), follow_redirects=False, timeout=_TIMEOUT_SECONDS
+    ) as raw:
+        body = bytearray()
+        for chunk in raw.iter_bytes():
+            body.extend(chunk)
+            if len(body) > MAX_RESPONSE_BYTES:
+                raise NtrsFetchError(_too_large(url))
+        return httpx.Response(raw.status_code, headers=raw.headers, content=bytes(body))
+
+
+def _too_large(url: str) -> str:
+    return f"aborting: {url} response too large (over {MAX_RESPONSE_BYTES} bytes); not parsed"
+
+
+def _oversized(response: _Response) -> bool:
+    headers = getattr(response, "headers", None) or {}
+    declared = headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > MAX_RESPONSE_BYTES:
+        return True
+    return len(response.text.encode()) > MAX_RESPONSE_BYTES
 
 
 def _refusal(url: str, hosts: Collection[str]) -> str | None:
@@ -127,6 +153,8 @@ class NtrsFetcher:
                 f"aborting: {url} returned HTTP {response.status_code} (rate-limited, blocked or "
                 "redirected); not retrying — re-run later"
             )
+        if _oversized(response):
+            raise NtrsFetchError(_too_large(url))
         try:
             data = response.json()  # type: ignore[attr-defined]
         except ValueError as exc:

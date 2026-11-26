@@ -18,7 +18,7 @@ from rich.console import Console
 from rich.markup import escape
 from rich.table import Table
 
-from pursue_index.ntrs_claims_load import read_ntrs_claims
+from pursue_index.ntrs_claims_load import StaleNtrsClaimsError, claims_for_manifest
 from pursue_index.paths import repo_root
 from pursue_index.provenance_report import (
     POSITIVE_TIER_PRECEDENCE,
@@ -109,11 +109,13 @@ def provenance_report_cmd(
     """Run the resolution chain and report Phase-A coverage. Report only."""
     if json_out is not None:
         _reject_web_path(json_out)
-    report = build_report(
-        json.loads(manifest.read_text()),
-        load_catalogue(repo_root()),
-        read_ntrs_claims(repo_root()),
-    )
+    manifest_data = json.loads(manifest.read_text())
+    try:
+        ntrs_claims = claims_for_manifest(repo_root(), manifest_data)
+    except StaleNtrsClaimsError as exc:
+        console.print(f"[red]refusing to apply stale NTRS claims:[/red] {escape(str(exc))}", soft_wrap=True)
+        raise typer.Exit(1) from exc
+    report = build_report(manifest_data, load_catalogue(repo_root()), ntrs_claims)
     _print_coverage(report)
     _print_unresolved(report)
     if json_out is not None:

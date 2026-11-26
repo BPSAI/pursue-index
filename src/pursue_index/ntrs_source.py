@@ -36,6 +36,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+from pursue_index.atomic_text import write_text_atomic
 from pursue_index.catalogue_dates import card_release_date
 from pursue_index.catalogue_load import load_catalogue
 from pursue_index.ntrs_fetch import NTRS_HOSTS_PATH, NtrsFetcher, default_get
@@ -197,10 +198,13 @@ def build_output(
 
 
 def write_output(repo_root: Path, output: dict[str, Any]) -> Path:
-    """Write the artifact under ``repo_root`` and return its path."""
+    """Write the artifact under ``repo_root`` atomically and return its path.
+
+    It goes to a temp file in the same directory, then ``os.replace``; on any
+    failure the previous file is untouched and no temp file is left.
+    """
     out_path = repo_root / OUTPUT_PATH
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(output, indent=2) + "\n")
+    write_text_atomic(out_path, json.dumps(output, indent=2) + "\n")
     return out_path
 
 
@@ -211,7 +215,8 @@ def run(repo_root: Path, fetcher: NtrsFetcher, searched_date: date) -> int:
     try:
         searches = run_searches(manifest, fetcher, searched_date, catalogue.entries)
     except SitemapFetchError as exc:
-        print(f"ntrs-source: aborted — {exc}\n  fetch: {fetcher.fetch_counts()}\n  nothing written")
+        kept = "; previous file kept" if (repo_root / OUTPUT_PATH).exists() else ""
+        print(f"ntrs-source: aborted — {exc}\n  fetch: {fetcher.fetch_counts()}\n  nothing written{kept}")
         return 1
     out_path = write_output(repo_root, build_output(manifest, searches, fetcher.fetch_counts()))
     claims = sum(1 for s in searches if s.claim is not None)
