@@ -78,7 +78,7 @@ def test_the_year_is_kept_aside_and_is_not_a_match_token() -> None:
     assert ntrs_match.card_year("NASA-UAP-D040, Gemini 7 Audio Excerpt, 1962-1964") == "1962-1964"
     assert ntrs_match.card_year("NASA-UAP-D050, Apollo 16 Scientific Debriefing") is None
     # a result title carrying the year is an extra token, not a free match
-    assert title_matches(
+    assert not title_matches(
         "Apollo 12 Medical Debriefing, 1969", "Apollo 12 Medical Debriefing 1969 Notes Extra"
     )
 

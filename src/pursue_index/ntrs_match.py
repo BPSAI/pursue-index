@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import difflib
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import date
+from datetime import UTC, date, datetime, tzinfo
 from typing import Any
 
 from pursue_index.provenance import DateBasis
@@ -19,11 +20,13 @@ __all__ = [
     "MAX_EXTRA_RESULT_TOKENS",
     "MIN_SHARED_TOKENS",
     "Copy",
+    "card_year",
     "established_date",
     "matched_copies",
     "normalize_query",
     "title_matches",
     "token_set_ratio",
+    "utc_today",
 ]
 
 #: Minimum token-set ratio for a result title to count as the card's title.
@@ -44,10 +47,55 @@ _QUOTES = dict.fromkeys((0x22, 0x201C, 0x201D, 0x201E, 0x2018, 0x2019))
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
+_DASH = r"[-\u2013]"
+_YEAR_QUALIFIER_RE = re.compile(rf"\s*,\s*(\d{{4}}(?:\s*{_DASH}\s*\d{{4}})?)\s*$")
+_LABEL_QUALIFIER_RES = (
+    re.compile(rf"\s*{_DASH}\s*(?:tape|part)\s+\d+\s*$", re.IGNORECASE),
+    re.compile(r"\s+part\s+\d+\s*$", re.IGNORECASE),
+    re.compile(r"\s*\(\s*(?:continued|part\s+\d+)\s*\)\s*$", re.IGNORECASE),
+)
+
+
+def _strip_qualifiers(text: str) -> tuple[str, str | None]:
+    """Remove trailing year / tape / part / continued qualifiers; return the text and the year."""
+    year: str | None = None
+    while True:
+        found = _YEAR_QUALIFIER_RE.search(text)
+        if found:
+            year = year or re.sub(r"\s+", "", found.group(1))
+            text = text[: found.start()]
+            continue
+        for pattern in _LABEL_QUALIFIER_RES:
+            trimmed = pattern.sub("", text, count=1)
+            if trimmed != text:
+                text = trimmed
+                break
+        else:
+            return text, year
+
+
+def _clean(title: str) -> str:
+    return " ".join(_PREFIX_RE.sub("", title).translate(_QUOTES).split())
+
+
 def normalize_query(title: str) -> str:
-    """The search query for a card title: no ``NASA-UAP-Dxxx,`` prefix, no quotes."""
-    text = _PREFIX_RE.sub("", title).translate(_QUOTES)
-    return " ".join(text.split())
+    """The search query for a card title.
+
+    No ``NASA-UAP-Dxxx,`` prefix, no quotes, and no trailing qualifiers
+    (``, 1969``, ``- Tape 12``, ``Part 2``, ``(Continued)``): they describe the
+    card, not the record's title.
+    """
+    return _strip_qualifiers(_clean(title))[0]
+
+
+def card_year(title: str) -> str | None:
+    """The year or year range the card title ends with, kept aside; not a match token."""
+    return _strip_qualifiers(_clean(title))[1]
+
+
+def utc_today(clock: Callable[[tzinfo], datetime] = datetime.now) -> date:
+    """Today's date in UTC; ``clock`` is injectable for tests."""
+    return clock(UTC).date()
 
 
 def _tokens(title: str) -> set[str]:

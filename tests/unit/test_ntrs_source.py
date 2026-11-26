@@ -214,7 +214,7 @@ def test_run_searches_queries_each_unresolved_nasa_card_once() -> None:
     searches = run_searches(manifest, net.fetcher(), TODAY)
     assert [s.card_id for s in searches] == ["a", "b"]
     assert len(net.urls) == 2
-    assert "q=Gemini+7+Transcript%2C+1965" in net.urls[1]
+    assert "q=Gemini+7+Transcript&" in net.urls[1]
 
 
 def test_output_has_schema_card_count_fetch_counts_and_claims() -> None:
