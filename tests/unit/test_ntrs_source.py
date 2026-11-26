@@ -37,7 +37,7 @@ def test_query_strips_prefix_collapses_whitespace_and_drops_quotes() -> None:
     assert normalize_query("NASA-UAP-D024, “Apollo 16   Scientific\tDebriefing”") == (
         "Apollo 16 Scientific Debriefing"
     )
-    assert normalize_query('NASA-UAP-D003A,  Gemini "7" Audio Excerpt, 1965') == "Gemini 7 Audio Excerpt, 1965"
+    assert normalize_query('NASA-UAP-D003A,  Gemini "7" Audio Excerpt, 1965') == "Gemini 7 Audio Excerpt"
 
 
 def _pre2015_nasa(card_id: str, title: str, **over: Any) -> dict[str, Any]:
