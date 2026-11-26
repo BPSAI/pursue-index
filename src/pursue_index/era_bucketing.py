@@ -47,6 +47,7 @@ from pursue_index.era_models import (
     era_rationale,
 )
 from pursue_index.era_supersession import SUPERSEDED_REASON, superseded_entry
+from pursue_index.era_triage import triage_entry as _triage_entry
 from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.resolved_claim import ResolvedClaim
@@ -128,28 +129,6 @@ def _no_prior_release(card_era: CardEra) -> EraNoPriorRelease:
         established_date=card_era.raw_date or str(card_era.year),
         rationale=era_rationale(card_era.year, card_era.date_source),
     )
-
-
-def _triage_entry(card_era: CardEra, card: dict[str, Any]) -> dict[str, Any]:
-    """An explicit triage row for an undated card — never silently bucketed."""
-    reason = (
-        "only a war.gov release_date is present, which is a publication date, "
-        "not a document era"
-        if card.get("release_date")
-        else "no date on any manifest field"
-    )
-    return {
-        "card_id": card_era.card_id,
-        "identifier": card_era.identifier,
-        "title": card_era.title,
-        "agency": card_era.agency,
-        "available_dates": {
-            "display_date": card.get("display_date"),
-            "incident_date": card.get("incident_date"),
-            "release_date": card.get("release_date"),
-        },
-        "reason": reason,
-    }
 
 
 @dataclass
