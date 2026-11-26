@@ -14,7 +14,7 @@ import pytest
 from pursue_index.era_bucketing import bucket, build_output
 from pursue_index.era_models import Era
 from pursue_index.provenance import DateBasis, ProvenanceTier
-from pursue_index.provenance_report import RESOLVED_BY_CLAIM, UNRESOLVED, build_report
+from pursue_index.provenance_report import RESOLVED_BY_CLAIM, build_report
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 
 
@@ -60,10 +60,10 @@ def test_summary_and_report_agree_on_a_conflicting_file_with_a_claimed_row() -> 
     report = build_report(manifest, extra_claims=claims)
 
     by_key = {o.row_key: o.resolved_by for o in report.outcomes}
-    assert by_key == {"aaaa#0": RESOLVED_BY_CLAIM, "aaaa#1": UNRESOLVED, "aaaa#2": UNRESOLVED}
+    assert by_key == {"aaaa#0": RESOLVED_BY_CLAIM, "aaaa#1": "claim_inherited", "aaaa#2": "claim_inherited"}
 
-    assert [e["row_key"] for e in out["superseded_by_claim"]] == ["aaaa#0"]
+    assert [e["row_key"] for e in out["superseded_by_claim"]] == ["aaaa#0", "aaaa#1", "aaaa#2"]
+    assert {e["row_key"]: e.get("claim_inherited_from") for e in out["superseded_by_claim"]} == {
+        "aaaa#0": None, "aaaa#1": "aaaa#0", "aaaa#2": "aaaa#0"}
     assert out["no_prior_release_rows"] == []
-    triaged = {e["row_key"]: e for e in out["undated_triage"]}
-    assert set(triaged) == {"aaaa#1", "aaaa#2"}
-    assert all("conflicting document dates" in e["reason"] for e in triaged.values())
+    assert out["undated_triage"] == []

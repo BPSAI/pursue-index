@@ -63,6 +63,8 @@ _REQUIRED_TERMS = (
     "era_row_counts",
     "agency_row_counts",
     "superseded_by_claim_row_count",
+    "claim_resolved_rows",
+    "claim_resolved_row_count",
     "undated_triage_row_count",
     "unresolved_files",
     "unresolved_row_count",

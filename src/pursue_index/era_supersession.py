@@ -7,7 +7,7 @@ from typing import Any
 from pursue_index.claim_precedence import PositiveClaim
 from pursue_index.era_models import CardEra
 
-__all__ = ["SUPERSEDED_REASON", "superseded_entry"]
+__all__ = ["CLAIM_RESOLVED_REASON", "SUPERSEDED_REASON", "claim_resolved_entry", "superseded_entry"]
 
 #: Why a modern card can lose its negative — recorded on every suppression row.
 SUPERSEDED_REASON = (
@@ -40,3 +40,15 @@ def superseded_entry(card_era: CardEra, claim: PositiveClaim, inherited_from: st
         **({"era_reconciled_from": card_era.era_reconciled_from} if card_era.era_reconciled_from else {}),
         **({"claim_inherited_from": inherited_from} if inherited_from else {}),
     }
+
+
+#: Why a claimed row that is not modern emits no negative and no triage entry.
+CLAIM_RESOLVED_REASON = (
+    "A positive prior-release claim, this row's own or its file's, resolves this "
+    "row, so it needs neither an era negative nor triage."
+)
+
+
+def claim_resolved_entry(card_era: CardEra, claim: PositiveClaim, inherited_from: str | None = None) -> dict[str, Any]:
+    """Record a row a claim resolves that is not a modern negative: same fields, its own reason."""
+    return {**superseded_entry(card_era, claim, inherited_from), "reason": CLAIM_RESOLVED_REASON}

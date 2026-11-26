@@ -111,7 +111,7 @@ def test_a_reconciled_row_inherits_its_siblings_positive_claim() -> None:
     assert inherited["era_reconciled_from"] == "aaaa#0"
     assert inherited["superseding_tier"] == ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED.value
     report = build_report(manifest, extra_claims=[_claim("aaaa", "aaaa#0")])
-    assert [o.resolved_by for o in report.outcomes] == ["claim", "claim"]
+    assert [o.resolved_by for o in report.outcomes] == ["claim", "claim_inherited"]
 
 
 def test_a_reconciled_record_is_labelled_and_names_its_sibling() -> None:
@@ -143,7 +143,7 @@ def test_an_undated_claimed_row_covers_its_dated_unclaimed_sibling() -> None:
     assert "claim_inherited_from" not in by_key["aaaa#0"]
     assert out["file_route_counts"]["claim"] == 1
     report = build_report(manifest, extra_claims=claims)
-    assert [o.resolved_by for o in report.outcomes] == ["claim", "claim"]
+    assert [o.resolved_by for o in report.outcomes] == ["claim", "claim_inherited"]
     assert report.resolved_by_claim == 1
 
 
@@ -160,7 +160,7 @@ def test_a_conflicting_file_with_one_claimed_row_emits_no_negative() -> None:
     cards = [_dated(date_="2022-05-06"), _dated(title="D2", date_="2019-03-04"), _undated()]
     result = bucket({"cards": cards}, extra_claims=[_claim("aaaa", "aaaa#2")])
     assert result.claims == []
-    assert [s["row_key"] for s in result.superseded] == []
+    assert [s["row_key"] for s in result.superseded] == ["aaaa#0", "aaaa#1"]
     assert build_output({"cards": cards}, result)["no_prior_release_rows"] == []
     assert build_report({"cards": cards}, extra_claims=[_claim("aaaa", "aaaa#2")]).resolved_by_claim == 1
 

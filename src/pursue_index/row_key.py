@@ -15,7 +15,7 @@ from collections import Counter
 from collections.abc import Sequence
 from typing import Any
 
-__all__ = ["NO_CARD_ID_PREFIX", "file_keys", "file_part", "row_keys"]
+__all__ = ["NO_CARD_ID_PREFIX", "file_keys", "file_part", "row_index", "row_keys"]
 
 #: The file key of the ``i``-th row with no ``card_id`` is ``no-card-id-<i>``.
 NO_CARD_ID_PREFIX = "no-card-id-"
@@ -37,6 +37,11 @@ def file_keys(cards: Sequence[dict[str, Any]]) -> list[str]:
 def file_part(row_key: str) -> str:
     """The ``file_key`` of a ``{file_key}#{n}`` row key."""
     return row_key.rpartition("#")[0]
+
+
+def row_index(row_key: str) -> int:
+    """The numeric ``n`` of a ``{file_key}#{n}`` row key, so ``#2`` orders before ``#10``."""
+    return int(row_key.rpartition("#")[2])
 
 
 def row_keys(cards: Sequence[dict[str, Any]]) -> list[str]:

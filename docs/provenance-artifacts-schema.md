@@ -73,14 +73,16 @@ century guard applied unchanged, then the file's rows are reconciled:
 **`row_route`** is one function, shared by `era-buckets.json` and the coverage report,
 so the two cannot disagree. It places a row in exactly one route:
 
-- **claim**: the row has a positive claim, in a conflict file or not;
+- **claim**: the row has a positive claim of its own, in a conflict file or not;
+- **claim_inherited**: the row has none, but another row of its file does (see
+  *Inheritance*);
 - **era**: otherwise, the row is in a non-conflict file whose era is `2015_plus`;
 - **unresolved**: otherwise.
 
 **Inheritance.** A positive claim is about the document, so inheritance is
 file-level. A row keeps its own claim. A row without one takes the strongest claim of
-any other row in its file, by the claim tier precedence, with the first row of the file
-winning a tie. It routes `claim` and is listed in `superseded_by_claim`, labelled
+any other row in its file, by the claim tier precedence, with the lowest `row_key`
+winning a tie. It routes `claim_inherited` and is listed in `superseded_by_claim`, labelled
 `claim_inherited_from: <row_key of the source row>`. So no row of a claimed file emits a
 `no_prior_release` negative, whether the claim sits on a dated row, an undated row, or a
 row of a conflicting file. A file with no claim is unchanged: a reconciled row emits the
@@ -90,9 +92,10 @@ negative, labelled `reconciled: true` (with `era_reconciled_from`) in
 **The file route** is the mixed-outcome partition. It places each file in exactly one
 route, so that no unresolved row is hidden behind a stronger sibling:
 
-- **claim**: **any** row of the file has a positive claim. A claim is about the
-  document, and every row is that document. *This is a chosen rule; requiring every row to
-  be claimed is the documented alternative.*
+- **claim**: **any** row of the file has a positive claim. **Decision:** a file routes
+  `claim` if any of its rows carries a positive claim, because rows sharing a file are the
+  same document. Every other row of that file routes `claim_inherited`, labelled with the
+  source `row_key`. `claim_inherited` is a row route only; the file route stays `claim`.
 - **era**: no row has a claim and **every** row routes to `era`.
 - **unresolved**: otherwise (a conflict file with no claim, or a file where only some
   rows reach `era`).
@@ -102,21 +105,30 @@ The counts, each named for its unit:
 | Key | Unit | Meaning |
 |---|---|---|
 | `file_route_counts` | file | `claim`, `era`, `unresolved`. Sums to `file_count`. |
-| `row_route_counts` | row | The same three routes per row. Sums to `card_row_count`. |
+| `row_route_counts` | row | `claim`, `claim_inherited`, `era`, `unresolved`, per row. Sums to `card_row_count`. |
 | `partially_resolved_file_count` | file | Unresolved files with at least one row that routes `era`. Equals `len(partially_resolved_files)`. |
 | `partially_resolved_files` | file | The `file_key()`s that count covers. |
 
 `era-buckets.json` carries all four. The coverage report carries the file partition as
 `resolved_by_claim`, `resolved_by_era` and `unresolved` (per file), the row partition
-as `row_counts`, and the two `partially_resolved_*` keys. `partially_resolved_file_count`
+as `row_counts` (the same four row routes), `resolved_by_claim_inherited` (a row tally, equal to `row_counts["claim_inherited"]`), and the two `partially_resolved_*` keys. `partially_resolved_file_count`
 is a visibility count. Reconciliation gives a non-conflict file one era for all its rows, so it is `0` unless a file splits; it is emitted so that a future upstream change that splits a file's rows between `era` and `unresolved` is visible rather than absorbed.
 
 **Triage.** `undated_triage` lists only rows whose route is `unresolved`: an undated row
 of a non-conflict file, and every row of a conflict file that no claim resolves. A row that
-routes `claim` is never listed, whatever its era; an undated row with a claim is resolved
+routes `claim` or `claim_inherited` is never listed, whatever its era; an undated row with a claim is resolved
 by it and emits neither a triage entry nor a negative. The identity that ties the counts
-together: `undated_triage_row_count` plus the undated rows that route `claim` equals
+together: `undated_triage_row_count` plus the undated rows that route `claim` or `claim_inherited` equals
 `era_row_counts["undated"]` plus the dated rows of conflict files that stay unresolved.
+
+**Where every row is recorded.** Each manifest row is in exactly one of
+`no_prior_release_rows` (route `era`), `superseded_by_claim` (a modern row with a claim, own
+or inherited), `claim_resolved_rows` (any other row with a claim, own or inherited) and
+`undated_triage` (route `unresolved`: an undated row, or a row of a conflict file). One set of
+rows is in none of them, on purpose: a dated row that routes `unresolved` with no date conflict,
+which is a pre-2015 document with no claim. It is not a negative, because its era is not 2015+,
+and it is not triage, because its date is known. It is still counted, in `row_route_counts`
+and `era_row_counts`.
 
 ## `era-buckets.json`
 
@@ -133,6 +145,8 @@ together: `undated_triage_row_count` plus the undated rows that route `claim` eq
 | (new) | `no_prior_release_row_count` | row | Rows holding a record. Equals `len(no_prior_release_rows)`. |
 | `no_prior_release` | `no_prior_release_rows` | row | One record per row (v1 `no_prior_release`, renamed for its unit). |
 | `superseded_by_claim_count` | `superseded_by_claim_row_count` | row | Equals `len(superseded_by_claim)`. |
+| (new) | `claim_resolved_row_count` | row | Equals `len(claim_resolved_rows)`. |
+| (new) | `claim_resolved_rows` | row | One record per row that routes `claim` or `claim_inherited` and is not already in `superseded_by_claim`: a claimed row that is not modern, an undated one for example. Same fields as a `superseded_by_claim` record, with its own `reason`. |
 | `undated_triage_count` | `undated_triage_row_count` | row | Equals `len(undated_triage)`. |
 | (new) | `claims_without_row_key` | claim | Loaded external claims that name no row. They match no row and are counted here. |
 | (new, per record) | `row_key` | row | See above. |
@@ -140,7 +154,7 @@ together: `undated_triage_row_count` plus the undated rows that route `claim` eq
 | (new, per `superseded_by_claim[]` record) | `claim_inherited_from` | row | Present only when the row has no claim of its own: the `row_key` of the row in its file whose claim it takes. See *The row route*. |
 | (new, per `no_prior_release_rows[]` record) | `reconciled` | row | Present only on the negative of a reconciled row: `true`, beside `era_reconciled_from` (the sibling's `row_key`). |
 | (new) | `file_route_counts` | file | `claim`, `era`, `unresolved` per file. Sums to `file_count`. See *The route of a row, and of a file*. |
-| (new) | `row_route_counts` | row | The same routes per row. Sums to `card_row_count`. |
+| (new) | `row_route_counts` | row | `claim`, `claim_inherited`, `era`, `unresolved` per row. Sums to `card_row_count`. |
 | (new) | `partially_resolved_file_count` | file | Unresolved files with at least one `era` row. Equals `len(partially_resolved_files)`. |
 | (new) | `partially_resolved_files` | file | The `file_key()`s that count covers. |
 

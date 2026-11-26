@@ -79,6 +79,7 @@ __all__ = [
 #: The route a card was resolved by. The first two are kept strictly apart —
 #: an era conclusion is never counted as a resolved prior-release claim.
 RESOLVED_BY_CLAIM = "claim"
+_CLAIM_INHERITED = "claim_inherited"
 RESOLVED_BY_ERA = "era"
 UNRESOLVED = "unresolved"
 
@@ -114,12 +115,22 @@ def classify(
     external: Sequence[ResolvedClaim] = (),
     *,
     row_key: str,
+    manifest: dict[str, Any] | None = None,
 ) -> CardOutcome:
     """Resolve one card through the chain and place it in exactly one route.
 
     ``row_key`` is the row's real key in its manifest; a claim resolves only the
-    row it names, so the key is never assumed.
+    row it names, so the key is never assumed. A row's route depends on its file: its
+    siblings reconcile its era and lend it a claim. Pass the ``manifest`` the row
+    belongs to and the result is that row's outcome in :func:`build_report`, whatever
+    its siblings. Without it the card is taken as the only row of its file, and the
+    result is only that row's outcome when the file has no other row.
     """
+    if manifest is not None:
+        outcomes = {o.row_key: o for o in build_report(manifest, catalogue, external).outcomes}
+        if row_key not in outcomes:
+            raise KeyError(f"row_key {row_key!r} is not a row of the manifest")
+        return outcomes[row_key]
     card_era = replace(classify_rows([card])[0], row_key=row_key)
     (row,) = assess([card], FileEras([card_era], {}), catalogue, external)
     return _outcome(row)
@@ -171,6 +182,7 @@ class CoverageReport:
     page_image_flagged_files: tuple[str, ...] = ()
     ntrs_claims_applied_row_count: int = 0
     partially_resolved_files: tuple[str, ...] = ()
+    resolved_by_claim_inherited: int = 0
 
     def unresolved_rows(self) -> list[CardOutcome]:
         """The rows no route resolved — what Phase B would have to reach."""
@@ -185,6 +197,7 @@ class CoverageReport:
             "claims_without_row_key": self.claims_without_row_key,
             "resolved_by_claim": self.resolved_by_claim,
             "resolved_by_era": self.resolved_by_era,
+            "resolved_by_claim_inherited": self.resolved_by_claim_inherited,
             "unresolved": self.unresolved,
             "unresolved_files": list(self.unresolved_files),
             "partially_resolved_file_count": len(self.partially_resolved_files),
@@ -204,7 +217,7 @@ class CoverageReport:
         }
 
 
-_ROUTE_RANK = {RESOLVED_BY_CLAIM: 0, RESOLVED_BY_ERA: 1, UNRESOLVED: 2}
+_ROUTE_RANK = {RESOLVED_BY_CLAIM: 0, _CLAIM_INHERITED: 1, RESOLVED_BY_ERA: 2, UNRESOLVED: 3}
 
 
 def _rank(outcome: CardOutcome) -> tuple[int, int]:
@@ -270,7 +283,8 @@ def build_report(
         catalogue_entries=len(loaded.entries),
         catalogue_rows_dropped=loaded.dropped_rows,
         file_count=len(routes),
-        row_counts={route: row_routes[route] for route in (RESOLVED_BY_CLAIM, RESOLVED_BY_ERA, UNRESOLVED)},
+        row_counts={route: row_routes[route] for route in (RESOLVED_BY_CLAIM, _CLAIM_INHERITED, RESOLVED_BY_ERA, UNRESOLVED)},
+        resolved_by_claim_inherited=row_routes[_CLAIM_INHERITED],
         claims_without_row_key=unkeyed_claims(extra_claims),
         unresolved_files=unresolved_files,
         page_image_flagged_files=tuple(flagged),

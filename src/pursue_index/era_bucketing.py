@@ -57,7 +57,7 @@ from pursue_index.era_models import (
 )
 from pursue_index.era_negative import no_prior_release as _no_prior_release
 from pursue_index.era_reconcile import FileEras, reconcile_file_eras
-from pursue_index.era_supersession import SUPERSEDED_REASON, superseded_entry
+from pursue_index.era_supersession import SUPERSEDED_REASON, claim_resolved_entry, superseded_entry
 from pursue_index.era_triage import triage_entry as _triage_entry
 from pursue_index.file_basis import Route, assess, route_fields
 from pursue_index.file_counts import count_fields
@@ -159,6 +159,7 @@ class BucketResult:
     claims_without_row_key: int = 0
     agency_row_counts: dict[str, int] = field(default_factory=dict)
     superseded: list[dict[str, Any]] = field(default_factory=list)
+    claim_resolved: list[dict[str, Any]] = field(default_factory=list)
     file_route_counts: dict[str, int] = field(default_factory=dict)
     row_route_counts: dict[str, int] = field(default_factory=dict)
     partially_resolved_files: list[str] = field(default_factory=list)
@@ -190,22 +191,27 @@ def bucket(
     rows = assess(raw_cards, reconciled, catalogue, extra_claims)
     claims: list[EraNoPriorRelease] = []
     superseded: list[dict[str, Any]] = []
+    claim_resolved: list[dict[str, Any]] = []
     triage: list[dict[str, Any]] = []
     for row, card in zip(rows, raw_cards, strict=True):
         card_era = row.era
         if row.route is Route.ERA:
             claims.append(_no_prior_release(card_era))
-        elif row.route is Route.CLAIM:
-            # A claim resolves the row whatever its era: a modern row is published
-            # as superseded; any other era (undated included) needs nothing more.
-            if card_era.era is Era.MODERN_OPERATIONAL and row.claim is not None:
+        elif row.route in (Route.CLAIM, Route.CLAIM_INHERITED):
+            # A claim, own or inherited, resolves the row whatever its era: a modern row
+            # is published as superseded; any other era (undated included) is listed as claim-resolved.
+            if row.claim is None:
+                continue
+            if card_era.era is Era.MODERN_OPERATIONAL:
                 superseded.append(superseded_entry(card_era, row.claim, row.inherited_from))
+            else:
+                claim_resolved.append(claim_resolved_entry(card_era, row.claim, row.inherited_from))
         elif row.conflict is not None:
             triage.append(_triage_entry(card_era, card, row.conflict))
         elif card_era.era is Era.UNDATED:
             triage.append(_triage_entry(card_era, card))
     counts = count_fields(reconciled.cards, claims, extra_claims, reconciled.conflicts)
-    return BucketResult(reconciled.cards, claims, triage, superseded=superseded, **counts, **route_fields(rows))
+    return BucketResult(reconciled.cards, claims, triage, superseded=superseded, claim_resolved=claim_resolved, **counts, **route_fields(rows))
 
 
 def _reconciliation(era_row_counts: dict[str, int]) -> dict[str, Any]:
@@ -274,6 +280,8 @@ def build_output(
         "no_prior_release_rows": [claim.to_dict() for claim in result.claims],
         "superseded_by_claim_row_count": len(result.superseded),
         "superseded_by_claim": result.superseded,
+        "claim_resolved_row_count": len(result.claim_resolved),
+        "claim_resolved_rows": result.claim_resolved,
         "undated_triage_row_count": len(result.triage),
         "undated_triage": result.triage,
         "cards": [ce.to_dict() for ce in result.cards],
@@ -300,7 +308,7 @@ def main() -> int:
     print(f"era bucketing: {result.file_count} files / {len(result.cards)} rows -> {labelled} (files)")
     print(f"  routes, files: {result.file_route_counts}; rows: {result.row_route_counts}; {len(result.partially_resolved_files)} partially resolved file(s)")
     print(f"  {len(result.no_prior_release_files)} files ({len(result.claims)} rows) no_prior_release (2015+); {len(result.triage)} undated rows (triage)")
-    print(f"  {len(result.superseded)} rows superseded by a prior-release claim; {result.claims_without_row_key} claim(s) without a row_key")
+    print(f"  {len(result.superseded)} rows superseded by a prior-release claim; {len(result.claim_resolved)} other rows claim-resolved; {result.claims_without_row_key} claim(s) without a row_key")
     print(f"  catalogue: {len(catalogue.entries)} entries, {catalogue.dropped_rows} row(s) skipped\n  wrote {out_path.relative_to(repo_root)}")
     return 0
 

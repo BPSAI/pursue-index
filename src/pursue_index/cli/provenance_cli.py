@@ -23,9 +23,6 @@ from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root
 from pursue_index.provenance_report import (
     POSITIVE_TIER_PRECEDENCE,
-    RESOLVED_BY_CLAIM,
-    RESOLVED_BY_ERA,
-    UNRESOLVED,
     CoverageReport,
     build_report,
     load_catalogue,
@@ -79,11 +76,8 @@ def _print_coverage(report: CoverageReport) -> None:
         f"File partition (unit: files, {report.file_count} total): "
         f"claim {report.resolved_by_claim}, era {report.resolved_by_era}, unresolved {report.unresolved}."
     )
-    console.print(
-        f"Row partition (unit: rows, {report.card_row_count} total): "
-        f"claim {split.get(RESOLVED_BY_CLAIM, 0)}, era {split.get(RESOLVED_BY_ERA, 0)}, "
-        f"unresolved {split.get(UNRESOLVED, 0)}."
-    )
+    routes = ", ".join(f"{route} {count}" for route, count in split.items())
+    console.print(f"Row partition (unit: rows, {report.card_row_count} total): {routes}.")
     console.print(
         f"Partially resolved (unit: files, unresolved files with at least one era row): "
         f"{len(report.partially_resolved_files)}."

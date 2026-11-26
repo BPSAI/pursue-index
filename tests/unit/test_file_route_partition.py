@@ -115,7 +115,7 @@ def _both(claims: list[ResolvedClaim]) -> tuple[dict[str, Any], dict[str, Any]]:
 def test_any_row_claim_routes_the_whole_file_to_claim_and_the_partitions_add_up() -> None:
     out, report = _both([_claim("claimed", "claimed#1")])
     assert out["file_route_counts"] == {"claim": 1, "era": 1, "unresolved": 3}
-    assert out["row_route_counts"] == {"claim": 2, "era": 2, "unresolved": 4}
+    assert out["row_route_counts"] == {"claim": 1, "claim_inherited": 1, "era": 2, "unresolved": 4}
     assert sum(out["file_route_counts"].values()) == out["file_count"] == 5
     assert sum(out["row_route_counts"].values()) == out["card_row_count"] == 8
     # the unclaimed row of the claimed file inherits the file's claim, so it emits no negative
@@ -178,12 +178,12 @@ def test_bucketing_and_report_agree_on_every_row_route() -> None:
     assert out["partially_resolved_files"] == list(report.partially_resolved_files)
 
 
-def test_a_conflict_file_with_a_claimed_row_is_a_claim_file_and_its_other_rows_stay_unresolved() -> None:
+def test_a_conflict_file_with_a_claimed_row_is_a_claim_file_and_its_other_rows_inherit() -> None:
     claims = [_claim("conf", "conf#1")]
     out, report = _both(claims)
     assert out["file_route_counts"]["claim"] == 1 and "conf" not in report["unresolved_files"]
-    assert out["row_route_counts"]["claim"] == 1
-    assert [e["row_key"] for e in out["undated_triage"] if e["card_id"] == "conf"] == ["conf#0"]
+    assert (out["row_route_counts"]["claim"], out["row_route_counts"]["claim_inherited"]) == (1, 1)
+    assert [e["row_key"] for e in out["undated_triage"] if e["card_id"] == "conf"] == []
     assert report["tier_file_counts"] == {ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED.value: 1}
 
 

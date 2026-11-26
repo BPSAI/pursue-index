@@ -71,7 +71,7 @@ def test_the_console_headline_and_body_use_one_labelled_unit(monkeypatch) -> Non
     }
     assert sum(table_rows.values()) == report.file_count
     assert "Files" in text and "Row partition" in text
-    row_split = re.search(r"Row partition \(unit: rows, \d+ total\): claim (\d+), era (\d+), unresolved (\d+)", text)
+    row_split = re.search(r"Row partition \(unit: rows, \d+ total\): claim (\d+), claim_inherited (\d+), era (\d+), unresolved (\d+)", text)
     assert row_split and sum(map(int, row_split.groups())) == report.card_row_count
     file_split = re.search(r"File partition \(unit: files, \d+ total\): claim (\d+), era (\d+), unresolved (\d+)", text)
     assert file_split and sum(map(int, file_split.groups())) == report.file_count

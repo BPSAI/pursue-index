@@ -64,6 +64,7 @@ _BUCKETS: dict[str, tuple[str, str]] = {
     "no_prior_release_file_count": ("ids", "no_prior_release_files"),
     "no_prior_release_row_count": ("rows", "no_prior_release_rows"),
     "superseded_by_claim_row_count": ("rows", "superseded_by_claim"),
+    "claim_resolved_row_count": ("rows", "claim_resolved_rows"),
     "undated_triage_row_count": ("rows", "undated_triage"),
     "file_route_counts": ("sum", "file_count"),
     "row_route_counts": ("sum", "card_row_count"),
