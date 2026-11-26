@@ -20,18 +20,12 @@ __all__ = [
     "NTRS_CLAIMS_PATH",
     "NtrsClaims",
     "NtrsOutcome",
-    "StaleNtrsClaimsError",
-    "claims_for_manifest",
     "load_ntrs_claims",
     "read_ntrs_claims",
     "resolve_ntrs_claims",
 ]
 
 NTRS_CLAIMS_PATH = Path("data") / "provenance" / "ntrs-claims.json"
-
-
-class StaleNtrsClaimsError(ValueError):
-    """The stored claims were built from a different manifest than the one in use."""
 
 
 @dataclass(frozen=True)
@@ -60,30 +54,6 @@ def read_ntrs_claims(repo_root: Path) -> NtrsClaims | None:
     if not path.exists():
         return None
     return load_ntrs_claims(json.loads(path.read_text()))
-
-
-def claims_for_manifest(repo_root: Path, manifest: dict[str, Any]) -> list[ResolvedClaim]:
-    """The stored claims, if they were built from ``manifest``; none if there is no file.
-
-    Raises :class:`StaleNtrsClaimsError` when the file carries no sha, or when the
-    two shas differ (naming both).
-    """
-    stored = read_ntrs_claims(repo_root)
-    if stored is None:
-        return []
-    if not stored.csv_sha256:
-        raise StaleNtrsClaimsError(
-            f"{NTRS_CLAIMS_PATH} carries no csv_sha256, so it cannot be tied to a manifest; "
-            "re-run `python -m pursue_index.ntrs_source` against this manifest"
-        )
-    current = manifest.get("csv_sha256")
-    if stored.csv_sha256 != current:
-        raise StaleNtrsClaimsError(
-            f"{NTRS_CLAIMS_PATH} was built from manifest csv_sha256 {stored.csv_sha256}, "
-            f"but the manifest being resolved has {current}; re-run "
-            "`python -m pursue_index.ntrs_source` against this manifest"
-        )
-    return stored.claims
 
 
 @dataclass(frozen=True)

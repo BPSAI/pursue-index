@@ -24,10 +24,10 @@ import pytest
 from pursue_index.provenance import POSITIVE_TIERS, DateBasis, ProvenanceTier
 from pursue_index.tier0_sweep import (
     Tier0Claim,
+    _sweep_file,
     build_output,
     detect_claim,
     sweep,
-    sweep_file,
 )
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -206,7 +206,7 @@ def test_sweep_claims_are_all_positive_tiers_and_verbatim() -> None:
 
 
 def test_sweep_file_matches_in_memory_sweep() -> None:
-    from_file = sweep_file(_MANIFEST).claims
+    from_file = _sweep_file(_MANIFEST).claims
     in_memory = sweep(_manifest()).claims
     assert [c.card_id for c in from_file] == [c.card_id for c in in_memory]
 

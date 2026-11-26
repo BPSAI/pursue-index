@@ -58,7 +58,6 @@ __all__ = [
     "build_output",
     "detect_claim",
     "sweep",
-    "sweep_file",
 ]
 
 #: Tracked output artifact (under ``data/``, never an ignored directory).
@@ -319,7 +318,7 @@ def sweep(manifest: dict[str, Any]) -> SweepResult:
     return SweepResult(claims, uncitable)
 
 
-def sweep_file(path: Path) -> SweepResult:
+def _sweep_file(path: Path) -> SweepResult:
     """Load a manifest JSON file and sweep it."""
     return sweep(json.loads(Path(path).read_text()))
 
