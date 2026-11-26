@@ -28,8 +28,8 @@ Units. ``row_key`` (``<card_id>#<n>``) is the per-row key; ``card_id`` names a s
 file and is not unique upstream, since several rows can share one. A count named
 ``*_row_count`` (or ``row_counts``) counts rows and equals the length of the row array
 beside it. Every other count is per file: ``unresolved`` is the length of
-``unresolved_files`` (one id per file), and ``unresolved_cards`` lists the rows, counted
-by ``unresolved_card_row_count``. A file whose rows land in different eras is counted
+``unresolved_files`` (one id per file), and ``unresolved_rows`` lists the rows, counted
+by ``unresolved_row_count``. A file whose rows land in different eras is counted
 once under ``mixed``. Pure computation + (de)serialisation over an
 already-loaded manifest; the CLI (:mod:`pursue_index.cli.provenance_cli`) owns
 all rendering and the read-only guard. No web payload is ever touched.
@@ -39,7 +39,7 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from pursue_index.catalogue_load import LoadedCatalogue, load_catalogue
@@ -105,13 +105,16 @@ def classify(
     card: dict[str, Any],
     catalogue: Sequence[SourceEntry] = (),
     external: Sequence[ResolvedClaim] = (),
+    *,
+    row_key: str,
 ) -> CardOutcome:
     """Resolve one card through the chain and place it in exactly one route.
 
-    The card is read on its own, as a lone row (``<card_id>#0``).
+    ``row_key`` is the row's real key in its manifest; a claim resolves only the
+    row it names, so the key is never assumed.
     """
-    card_era = classify_rows([card])[0]
-    return _outcome(card_era, primary_positive_claim(card, catalogue, external, row_key=card_era.row_key))
+    card_era = replace(classify_rows([card])[0], row_key=row_key)
+    return _outcome(card_era, primary_positive_claim(card, catalogue, external, row_key=row_key))
 
 
 def _outcome(card_era: CardEra, claim: PositiveClaim | None) -> CardOutcome:
@@ -160,9 +163,11 @@ class CoverageReport:
     row_counts: dict[str, int] = field(default_factory=dict)
     claims_without_row_key: int = 0
     unresolved_files: tuple[str, ...] = ()
+    page_image_flagged_files: tuple[str, ...] = ()
+    ntrs_claims_applied_row_count: int = 0
 
-    def unresolved_cards(self) -> list[CardOutcome]:
-        """The cards no route resolved — what Phase B would have to reach."""
+    def unresolved_rows(self) -> list[CardOutcome]:
+        """The rows no route resolved — what Phase B would have to reach."""
         return [o for o in self.outcomes if o.resolved_by == UNRESOLVED]
 
     def to_dict(self) -> dict[str, Any]:
@@ -183,8 +188,10 @@ class CoverageReport:
                 "count": self.catalogue_rows_dropped,
                 "reason": INVALID_URL_EXCLUSION_REASON,
             },
-            "unresolved_card_row_count": len(self.unresolved_cards()),
-            "unresolved_cards": [o.to_dict() for o in self.unresolved_cards()],
+            "page_image_flagged_files": list(self.page_image_flagged_files),
+            "ntrs_claims_applied_row_count": self.ntrs_claims_applied_row_count,
+            "unresolved_row_count": len(self.unresolved_rows()),
+            "unresolved_rows": [o.to_dict() for o in self.unresolved_rows()],
         }
 
 
@@ -214,7 +221,7 @@ def build_report(
     A file (rows sharing a ``card_id``) is counted once: it takes the strongest
     route any of its rows has (claim, then era, then unresolved), and a file whose
     rows land in different eras is counted ``mixed``. ``row_counts`` keeps the
-    per-row split. A claim that names no row resolves nothing and is counted in
+    per-row split. A file is page-image-flagged when any of its rows is. A claim that names no row resolves nothing and is counted in
     ``claims_without_row_key``.
 
     ``extra_claims`` are positive claims from any further source (e.g. the NTRS
@@ -230,8 +237,11 @@ def build_report(
     row_routes = Counter(o.resolved_by for o in outcomes)
     file_era = file_eras(eras)
     best: dict[str, CardOutcome] = {}
+    flagged: dict[str, None] = {}
     for era, outcome in zip(eras, outcomes, strict=True):
         key = file_key(era)
+        if outcome.needs_page_image_comparison:
+            flagged[key] = None
         if key not in best or _rank(outcome) < _rank(best[key]):
             best[key] = outcome
     routes = Counter(o.resolved_by for o in best.values())
@@ -243,7 +253,7 @@ def build_report(
         resolved_by_era=routes[RESOLVED_BY_ERA],
         unresolved=routes[UNRESOLVED],
         tier_counts={t.value: tier_counts[t.value] for t in POSITIVE_TIER_PRECEDENCE if tier_counts[t.value]},
-        page_image_flagged=sum(1 for o in best.values() if o.needs_page_image_comparison),
+        page_image_flagged=len(flagged),
         unresolved_by_era=dict(sorted(unresolved_by_era.items())),
         outcomes=tuple(outcomes),
         catalogue_entries=len(loaded.entries),
@@ -252,4 +262,6 @@ def build_report(
         row_counts={route: row_routes[route] for route in (RESOLVED_BY_CLAIM, RESOLVED_BY_ERA, UNRESOLVED)},
         claims_without_row_key=unkeyed_claims(extra_claims),
         unresolved_files=tuple(k for k, o in best.items() if o.resolved_by == UNRESOLVED),
+        page_image_flagged_files=tuple(flagged),
+        ntrs_claims_applied_row_count=sum(1 for claim in extra_claims if claim.row_key),
     )

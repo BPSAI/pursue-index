@@ -82,7 +82,7 @@ def _print_unresolved(report: CoverageReport) -> None:
         f"\n[bold]{report.unresolved} unresolved[/bold] "
         f"(by era: {report.unresolved_by_era})"
     )
-    for outcome in report.unresolved_cards():
+    for outcome in report.unresolved_rows():
         # Era, card_id and title are all government-CSV text, printed as the
         # characters they contain: console_text drops the control bytes a
         # terminal would read as instructions, and escape() hands the result to

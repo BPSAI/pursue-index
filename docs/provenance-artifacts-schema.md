@@ -27,7 +27,7 @@ manifest rows can name the same file. Two units follow from that:
 the rows sharing its `card_id`, in manifest order; a unique `card_id` is `#0`. It
 is emitted right after `card_id` in every per-row record: `cards[]`,
 `no_prior_release_rows[]`, `superseded_by_claim[]`, `undated_triage[]`, every
-claim record, `searches[]` and the report's `unresolved_cards[]`. Every join,
+claim record, `searches[]` and the report's `unresolved_rows[]`. Every join,
 index or de-duplication of provenance rows uses `row_key`, never `card_id` alone.
 
 A name ending `_row_count` or `_row_counts` counts rows. Every other `*_count` is
@@ -41,8 +41,7 @@ single era. In the per-file `era_counts` it is counted **once** under the key
 `mixed`. This is a placeholder that PR-B replaces when it reconciles the rows of a
 file. Rows are unchanged: each row keeps its own era, its own no-prior-release
 record or triage entry, exactly as in v1. `mixed` appears only in the per-file
-`era_counts` and never in `era_row_counts` (which has one key per era). On the
-current manifest nine files are `mixed` (a dated row plus undated rows).
+`era_counts` and never in `era_row_counts` (which has one key per era).
 
 ## `era-buckets.json`
 
@@ -82,7 +81,12 @@ current manifest nine files are `mixed` (a dated row plus undated rows).
 | (new, per claim and per search) | `row_key` | row | The row searched, and the row a claim resolves. |
 | (new, per claim, migration only) | `row_key_migrated_from` | claim | Present, with value `"card_id"`, on a claim loaded from a v1 file, which has no `row_key`. The loader applies each such claim to **every** row of its file, one labelled copy per row. A claim whose file has no row in the manifest stays unkeyed. |
 
-`searched_count` (searches made, one per row) and `claim_count` are unchanged.
+`searched_count` (searches made, one per row) is unchanged. `claim_count` is unchanged in
+meaning: it counts the claims **stored** in the file. The migration above can apply one
+stored claim to several rows, so the number of claims **applied** can be larger. That
+count is `ntrs_claims_applied_row_count` in the coverage report: the loaded claims that
+name a row, after migration. For an old-shape file holding 1 claim for a file of 2 rows,
+`claim_count` is 1 and `ntrs_claims_applied_row_count` is 2.
 
 **Matching fails closed.** In a file that carries `row_key`, a claim with a missing
 or empty `row_key` matches no row and is counted in `claims_without_row_key`.
@@ -94,9 +98,13 @@ or empty `row_key` matches no row and is counted in `claims_without_row_key`.
 | `card_count` | `card_row_count` | row | Manifest rows. |
 | (new) | `file_count` | file | Files; equals `resolved_by_claim + resolved_by_era + unresolved`. |
 | `resolved_by_claim`, `resolved_by_era`, `unresolved` | same | file | **Re-semanticized**: a file takes the strongest route any of its rows has (claim, then era, then unresolved). |
-| `tier_counts`, `page_image_flagged` | same | file | **Re-semanticized**: counted over each file's representative row. |
+| `tier_counts` | same | file | **Re-semanticized**: counted over each file's representative row (its strongest route, then tier). |
+| `page_image_flagged` | same | file | **Re-semanticized**: files with **any** row flagged for page-image comparison. Equals `len(page_image_flagged_files)`. |
+| (new) | `page_image_flagged_files` | file | The `card_id`s `page_image_flagged` counts. |
+| (new) | `ntrs_claims_applied_row_count` | claim | NTRS claims applied after migration (see above); not the stored `claim_count`. |
 | `unresolved_by_era` | same | file | **Re-semanticized**: per-file era of each unresolved file, including `mixed`. |
 | (new) | `row_counts` | row | The same route split per row. Sums to `card_row_count`. |
 | (new) | `unresolved_files` | file | The `card_id`s `unresolved` counts. |
-| (new) | `unresolved_card_row_count` | row | Equals `len(unresolved_cards)`. |
+| `unresolved_cards` | `unresolved_rows` | row | One record per unresolved row (renamed for its unit; `unresolved_files` is the per-file list). |
+| (new) | `unresolved_row_count` | row | Equals `len(unresolved_rows)`. |
 | (new) | `claims_without_row_key` | claim | As above. |

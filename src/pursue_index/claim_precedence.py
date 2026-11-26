@@ -35,7 +35,6 @@ __all__ = [
     "PositiveClaim",
     "positive_claims",
     "primary_positive_claim",
-    "primary_positive_tier",
     "primary_tier",
     "unkeyed_claims",
 ]
@@ -142,15 +141,3 @@ def primary_positive_claim(
             if claim.tier is tier:
                 return claim
     return None
-
-
-def primary_positive_tier(
-    card: dict[str, Any],
-    catalogue: Sequence[SourceEntry] = (),
-    external: Sequence[ResolvedClaim] = (),
-    *,
-    row_key: str,
-) -> ProvenanceTier | None:
-    """The strongest positive tier on a card, or ``None`` if it carries none."""
-    claim = primary_positive_claim(card, catalogue, external, row_key=row_key)
-    return claim.tier if claim is not None else None

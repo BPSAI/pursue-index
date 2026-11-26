@@ -160,7 +160,7 @@ def unresolved_nasa_rows(
 ) -> list[tuple[str, dict[str, Any]]]:
     """The NASA rows the coverage report leaves unresolved, as (row_key, card), in manifest order."""
     report = build_report(manifest, catalogue)
-    wanted = {o.row_key for o in report.unresolved_cards() if o.agency.strip().casefold() == "nasa"}
+    wanted = {o.row_key for o in report.unresolved_rows() if o.agency.strip().casefold() == "nasa"}
     cards = manifest.get("cards", [])
     return [(key, card) for key, card in zip(row_keys(cards), cards, strict=True) if key in wanted]
 

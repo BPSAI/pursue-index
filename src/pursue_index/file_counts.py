@@ -24,7 +24,7 @@ __all__ = ["MIXED", "count_fields", "file_eras", "file_key", "tallies"]
 MIXED = "mixed"
 
 
-def file_key(card: CardEra) -> str:
+def file_key(card: CardEra | EraNoPriorRelease) -> str:
     """The file a row belongs to: its ``card_id``, or its own key when it has none."""
     return card.card_id or card.row_key
 
@@ -57,7 +57,7 @@ def count_fields(
         "era_counts": era_counts,
         "era_row_counts": era_row_counts,
         "file_count": sum(era_counts.values()),
-        "no_prior_release_files": list(dict.fromkeys(claim.card_id for claim in claims)),
+        "no_prior_release_files": list(dict.fromkeys(file_key(claim) for claim in claims)),
         "claims_without_row_key": unkeyed_claims(external),
         "agency_row_counts": agency_row_counts,
     }
