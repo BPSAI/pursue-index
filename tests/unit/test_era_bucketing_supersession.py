@@ -137,7 +137,7 @@ def test_build_output_publishes_the_suppressions_and_their_count() -> None:
     output = build_output(manifest, result)
     assert output["superseded_by_claim_row_count"] == 1
     assert [row["card_id"] for row in output["superseded_by_claim"]] == ["modern-001"]
-    assert output["no_prior_release_count"] == 1
+    assert output["no_prior_release_file_count"] == 1
 
 
 def test_real_manifest_supersedes_the_cards_the_government_describes() -> None:
@@ -254,7 +254,7 @@ def test_an_extra_positive_claim_outranks_the_era_negative() -> None:
     assert [row["card_id"] for row in result.superseded] == ["modern-001"]
     assert [c.card_id for c in result.claims] == ["modern-002"]
     output = build_output(manifest, result)
-    assert output["no_prior_release_count"] == 1
+    assert output["no_prior_release_file_count"] == 1
     assert output["superseded_by_claim"][0]["superseding_source"] == "ntrs_metadata"
 
 

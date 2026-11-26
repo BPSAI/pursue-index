@@ -1,7 +1,7 @@
 """§4a is a per-row baseline, so it is compared against per-row era counts.
 
 ``REFERENCE_4A`` was computed over rows of an earlier corpus. The per-file
-``era_counts`` answer a different question, so the comparison must read
+``era_file_counts`` answer a different question, so the comparison must read
 ``era_row_counts`` and say which unit it used.
 """
 
@@ -34,7 +34,7 @@ def test_the_comparison_reads_row_counts_and_names_the_unit() -> None:
     result = bucket(manifest)
     recon = build_output(manifest, result)["reconciliation_4a"]
     assert recon["unit"] == "rows"
-    assert result.era_row_counts["2015_plus"] == 4 and result.era_counts["2015_plus"] == 1
+    assert result.era_row_counts["2015_plus"] == 4 and result.era_file_counts["2015_plus"] == 1
     assert recon["current"]["2015_plus"] == result.era_row_counts["2015_plus"] == 4
     assert recon["current"]["undated"] == result.era_row_counts["undated"] == 1
     assert recon["delta"]["2015_plus"] == 4 - REFERENCE_4A["2015_plus"]

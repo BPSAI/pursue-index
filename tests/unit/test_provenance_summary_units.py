@@ -58,10 +58,10 @@ def _fixture() -> dict[str, Any]:
 _BUCKETS: dict[str, tuple[str, str]] = {
     "card_row_count": ("rows", "cards"),
     "file_count": ("files", "cards"),
-    "era_counts": ("sum", "file_count"),
+    "era_file_counts": ("sum", "file_count"),
     "era_row_counts": ("sum", "card_row_count"),
     "agency_row_counts": ("sum", "card_row_count"),
-    "no_prior_release_count": ("ids", "no_prior_release_files"),
+    "no_prior_release_file_count": ("ids", "no_prior_release_files"),
     "no_prior_release_row_count": ("rows", "no_prior_release_rows"),
     "superseded_by_claim_row_count": ("rows", "superseded_by_claim"),
     "undated_triage_row_count": ("rows", "undated_triage"),
@@ -70,7 +70,7 @@ _REPORT: dict[str, tuple[str, str]] = {
     "card_row_count": ("sum", "row_counts"),
     "file_count": ("sum_of", "resolved_by_claim,resolved_by_era,unresolved"),
     "row_counts": ("sum", "card_row_count"),
-    "tier_counts": ("sum", "resolved_by_claim"),
+    "tier_file_counts": ("sum", "resolved_by_claim"),
     "unresolved": ("ids", "unresolved_files"),
     "unresolved_by_era": ("sum", "unresolved"),
     "unresolved_row_count": ("rows", "unresolved_rows"),
@@ -162,13 +162,13 @@ def test_a_future_count_with_no_declared_unit_fails_the_walk() -> None:
         raise AssertionError("an undeclared count passed the walk")
 
 
-# --- item 1: no_prior_release_count equals its array ----------------------------
+# --- item 1: no_prior_release_file_count equals its array ----------------------------
 
 
 def test_no_prior_release_count_is_per_file_with_a_file_list_beside_the_row_list() -> None:
     manifest = {"cards": [_row("aaaa", f"A{i}", incident_date="2022-05-06") for i in range(3)]}
     out = build_output(manifest, bucket(manifest))
-    assert out["no_prior_release_count"] == len(out["no_prior_release_files"]) == 1
+    assert out["no_prior_release_file_count"] == len(out["no_prior_release_files"]) == 1
     assert out["no_prior_release_files"] == ["aaaa"]
     assert out["no_prior_release_row_count"] == len(out["no_prior_release_rows"]) == 3
 
@@ -179,8 +179,8 @@ def test_no_prior_release_count_is_per_file_with_a_file_list_beside_the_row_list
 def test_a_file_with_one_modern_row_and_one_undated_row_counts_once_as_mixed() -> None:
     manifest = {"cards": [_row("aaaa", "M1", incident_date="2022-05-06"), _row("aaaa", "M2")]}
     out = build_output(manifest, bucket(manifest))
-    assert out["era_counts"]["mixed"] == 1 and out["file_count"] == 1
-    assert out["era_counts"]["2015_plus"] == out["era_counts"]["undated"] == 0
+    assert out["era_file_counts"]["mixed"] == 1 and out["file_count"] == 1
+    assert out["era_file_counts"]["2015_plus"] == out["era_file_counts"]["undated"] == 0
     # The rows keep their own outcome: the modern row its negative, the undated row its triage.
     assert [r["row_key"] for r in out["no_prior_release_rows"]] == ["aaaa#0"]
     assert [r["row_key"] for r in out["undated_triage"]] == ["aaaa#1"]
