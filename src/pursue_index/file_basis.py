@@ -32,6 +32,7 @@ from pursue_index.era_models import CardEra, Era
 from pursue_index.era_reconcile import FileEras
 from pursue_index.file_counts import file_key
 from pursue_index.resolved_claim import ResolvedClaim
+from pursue_index.row_key import row_index
 from pursue_index.source_index import SourceEntry
 
 __all__ = [
@@ -99,9 +100,9 @@ class RowBasis:
 
 
 def _strongest(claims: list[tuple[str, PositiveClaim]]) -> tuple[str, PositiveClaim] | None:
-    """The strongest claim by tier precedence; the lowest ``row_key`` wins a tie."""
+    """The strongest claim by tier precedence; the lowest row index (numeric) wins a tie."""
     for tier in POSITIVE_TIER_PRECEDENCE:
-        for entry in sorted(claims, key=lambda item: item[0]):
+        for entry in sorted(claims, key=lambda item: (row_index(item[0]), item[0])):
             if entry[1].tier is tier:
                 return entry
     return None
