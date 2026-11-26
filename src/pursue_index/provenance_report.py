@@ -22,7 +22,15 @@ positive **prior-release claim** is never conflated with a card resolved by
   Phase B would have to reach.
 
 Cards whose claim is ``previously_released_in_part`` are flagged for the later
-page-image comparison. Pure computation + (de)serialisation over an
+page-image comparison.
+
+Units. ``row_key`` (``<card_id>#<n>``) is the per-row key; ``card_id`` names a source
+file and is not unique upstream, since several rows can share one. A count named
+``*_row_count`` (or ``row_counts``) counts rows and equals the length of the row array
+beside it. Every other count is per file: ``unresolved`` is the length of
+``unresolved_files`` (one id per file), and ``unresolved_cards`` lists the rows, counted
+by ``unresolved_card_row_count``. A file whose rows conflict on date has no single era
+and is never resolved by era. Pure computation + (de)serialisation over an
 already-loaded manifest; the CLI (:mod:`pursue_index.cli.provenance_cli`) owns
 all rendering and the read-only guard. No web payload is ever touched.
 """
@@ -109,12 +117,15 @@ def classify(
     return _outcome(card_era, claim)
 
 
-def _outcome(card_era: CardEra, claim: PositiveClaim | None) -> CardOutcome:
-    """Place one reconciled, keyed row in exactly one route, given its strongest claim."""
+def _outcome(card_era: CardEra, claim: PositiveClaim | None, conflicted: bool = False) -> CardOutcome:
+    """Place one reconciled, keyed row in exactly one route, given its strongest claim.
+
+    A row of a file whose dated rows conflict has no era conclusion to rest on.
+    """
     primary = claim.tier if claim is not None else None
     if primary is not None:
         resolved_by = RESOLVED_BY_CLAIM
-    elif card_era.era is Era.MODERN_OPERATIONAL:
+    elif card_era.era is Era.MODERN_OPERATIONAL and not conflicted:
         resolved_by = RESOLVED_BY_ERA
     else:
         resolved_by = UNRESOLVED
@@ -134,13 +145,14 @@ def _outcome(card_era: CardEra, claim: PositiveClaim | None) -> CardOutcome:
 class CoverageReport:
     """The Phase-A coverage answer: the three routes, per-tier and per-era.
 
-    ``card_count`` is manifest rows. The route counts, ``tier_counts``,
+    ``card_row_count`` is manifest rows. The route counts, ``tier_counts``,
     ``page_image_flagged`` and ``unresolved_by_era`` are per source file (see
     :func:`build_report`); ``row_counts`` is the same route split per row, and
-    ``outcomes`` stays one entry per row.
+    ``outcomes`` stays one entry per row. ``unresolved_files`` names the files
+    ``unresolved`` counts.
     """
 
-    card_count: int
+    card_row_count: int
     resolved_by_claim: int
     resolved_by_era: int
     unresolved: int
@@ -153,6 +165,7 @@ class CoverageReport:
     file_count: int = 0
     row_counts: dict[str, int] = field(default_factory=dict)
     claims_without_row_key: int = 0
+    unresolved_files: tuple[str, ...] = ()
 
     def unresolved_cards(self) -> list[CardOutcome]:
         """The cards no route resolved — what Phase B would have to reach."""
@@ -160,13 +173,14 @@ class CoverageReport:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "card_count": self.card_count,
+            "card_row_count": self.card_row_count,
             "file_count": self.file_count,
             "row_counts": self.row_counts,
             "claims_without_row_key": self.claims_without_row_key,
             "resolved_by_claim": self.resolved_by_claim,
             "resolved_by_era": self.resolved_by_era,
             "unresolved": self.unresolved,
+            "unresolved_files": list(self.unresolved_files),
             "tier_counts": self.tier_counts,
             "page_image_flagged": self.page_image_flagged,
             "unresolved_by_era": self.unresolved_by_era,
@@ -175,6 +189,7 @@ class CoverageReport:
                 "count": self.catalogue_rows_dropped,
                 "reason": INVALID_URL_EXCLUSION_REASON,
             },
+            "unresolved_card_row_count": len(self.unresolved_cards()),
             "unresolved_cards": [o.to_dict() for o in self.unresolved_cards()],
         }
 
@@ -213,11 +228,15 @@ def build_report(
     """
     loaded = catalogue if isinstance(catalogue, LoadedCatalogue) else LoadedCatalogue(list(catalogue), 0)
     cards = manifest.get("cards", [])
-    eras = classify_rows(cards).cards
+    reconciled = classify_rows(cards)
+    eras = reconciled.cards
     claims = effective_claims(cards, eras, loaded.entries, extra_claims)
-    outcomes = [_outcome(era, claim) for era, claim in zip(eras, claims, strict=True)]
+    outcomes = [
+        _outcome(era, claim, era.row_key in reconciled.conflicts)
+        for era, claim in zip(eras, claims, strict=True)
+    ]
     row_routes = Counter(o.resolved_by for o in outcomes)
-    file_era = file_eras(eras)
+    file_era = file_eras(eras, reconciled.conflicts)
     best: dict[str, CardOutcome] = {}
     for era, outcome in zip(eras, outcomes, strict=True):
         key = file_key(era)
@@ -227,7 +246,7 @@ def build_report(
     tier_counts = Counter(o.primary_tier for o in best.values() if o.primary_tier is not None)
     unresolved_by_era = Counter(file_era[k].value for k, o in best.items() if o.resolved_by == UNRESOLVED)
     return CoverageReport(
-        card_count=len(outcomes),
+        card_row_count=len(outcomes),
         resolved_by_claim=routes[RESOLVED_BY_CLAIM],
         resolved_by_era=routes[RESOLVED_BY_ERA],
         unresolved=routes[UNRESOLVED],
@@ -242,4 +261,5 @@ def build_report(
             route: row_routes[route] for route in (RESOLVED_BY_CLAIM, RESOLVED_BY_ERA, UNRESOLVED)
         },
         claims_without_row_key=unkeyed_claims(extra_claims),
+        unresolved_files=tuple(k for k, o in best.items() if o.resolved_by == UNRESOLVED),
     )

@@ -55,7 +55,7 @@ def _reject_web_path(path: Path) -> None:
 
 def _print_coverage(report: CoverageReport) -> None:
     """Render the headline split and the per-tier / per-era breakdowns."""
-    table = Table(title=f"Provenance coverage — {report.card_count} cards")
+    table = Table(title=f"Provenance coverage — {report.card_row_count} cards")
     table.add_column("Resolution route")
     table.add_column("Cards", justify="right")
     table.add_row("prior-release claim (Tier-0 + identifier resolver + NTRS)", str(report.resolved_by_claim))
@@ -67,7 +67,7 @@ def _print_coverage(report: CoverageReport) -> None:
     table.add_row("unresolved", str(report.unresolved))
     console.print(table)
     console.print(
-        f"Of {report.card_count} cards, [bold]{report.resolved_by_claim}[/bold] carry a "
+        f"Of {report.card_row_count} cards, [bold]{report.resolved_by_claim}[/bold] carry a "
         f"provenance claim; [bold]{report.page_image_flagged}[/bold] are flagged for "
         "page-image comparison (Phase B)."
     )

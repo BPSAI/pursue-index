@@ -23,11 +23,15 @@ The model lives in :mod:`pursue_index.era_models`; this module classifies,
 aggregates, reconciles against the §4a reference table, and writes the tracked
 artifact.
 
-Headline counts (``era_counts``, ``no_prior_release_count``) are per source file:
-rows sharing a ``card_id`` are one file with one era, and a file whose rows still
-disagree is counted once under ``undated``. The per-row tallies sit beside them as
-``era_row_counts`` and ``no_prior_release_row_count``; the triage list and the
-``cards`` list stay one entry per manifest row.
+Schema units. ``row_key`` (``<card_id>#<n>``) is the per-row key; ``card_id`` names a
+source file and is not unique upstream, since several rows can share one. A count
+named ``*_row_count`` (or ``*_row_counts``) counts rows and equals the length of the
+row array beside it. Every other count is per file: rows sharing a ``card_id`` are one
+file with one era, and a file whose rows still disagree, or carry different years, is
+counted once under ``undated`` and takes no negative. ``no_prior_release_count`` is
+the length of ``no_prior_release_files`` (one id per file); ``no_prior_release`` is
+one record per row, counted by ``no_prior_release_row_count``. The triage list, the
+superseded list and ``cards`` stay one entry per manifest row.
 """
 
 from __future__ import annotations
@@ -159,9 +163,10 @@ def _no_prior_release(card_era: CardEra) -> EraNoPriorRelease:
 class BucketResult:
     """The full outcome: per-card assignments, 2015+ negatives, triage, counts.
 
-    ``era_counts`` and ``no_prior_release_files`` are per source file (rows that
-    share a ``card_id`` are one file; a file whose rows disagree on era is counted
-    once under ``undated``). ``era_row_counts`` is the same tally per manifest row.
+    ``era_counts`` and ``no_prior_release_files`` (the ids of the files holding a
+    negative) are per source file (rows that share a ``card_id`` are one file; a file
+    whose rows disagree on era is counted once under ``undated``). ``era_row_counts``
+    is the same tally per manifest row.
     ``claims_without_row_key`` is how many loaded claims named no row and so
     resolved nothing.
 
@@ -176,9 +181,9 @@ class BucketResult:
     era_counts: dict[str, int] = field(default_factory=dict)
     era_row_counts: dict[str, int] = field(default_factory=dict)
     file_count: int = 0
-    no_prior_release_files: int = 0
+    no_prior_release_files: list[str] = field(default_factory=list)
     claims_without_row_key: int = 0
-    agency_counts: dict[str, int] = field(default_factory=dict)
+    agency_row_counts: dict[str, int] = field(default_factory=dict)
     superseded: list[dict[str, Any]] = field(default_factory=list)
 
 
@@ -211,14 +216,16 @@ def bucket(
     triage: list[dict[str, Any]] = []
     row_claims = effective_claims(raw_cards, classified, catalogue, extra_claims)
     for card_era, card, row_claim in zip(classified, raw_cards, row_claims, strict=True):
-        if card_era.era is Era.MODERN_OPERATIONAL:
+        if card_era.row_key in reconciled.conflicts:
+            triage.append(_triage_entry(card_era, card, reconciled.conflicts[card_era.row_key]))
+        elif card_era.era is Era.MODERN_OPERATIONAL:
             if row_claim is None:
                 claims.append(_no_prior_release(card_era))
             else:
                 superseded.append(superseded_entry(card_era, row_claim))
         elif card_era.era is Era.UNDATED:
-            triage.append(_triage_entry(card_era, card, reconciled.conflicts.get(card_era.row_key)))
-    counts = count_fields(classified, claims, extra_claims)
+            triage.append(_triage_entry(card_era, card))
+    counts = count_fields(classified, claims, extra_claims, reconciled.conflicts)
     return BucketResult(classified, claims, triage, superseded=superseded, **counts)
 
 
@@ -261,7 +268,7 @@ def build_output(
         "schema": _SCHEMA,
         "corpus_manifest_url": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
-        "card_count": len(result.cards),
+        "card_row_count": len(result.cards),
         "catalogue_entries": len(loaded.entries),
         "catalogue_rows_dropped": {
             "count": loaded.dropped_rows,
@@ -270,15 +277,16 @@ def build_output(
         "file_count": result.file_count,
         "era_counts": result.era_counts,
         "era_row_counts": result.era_row_counts,
-        "agency_counts": result.agency_counts,
+        "agency_row_counts": result.agency_row_counts,
         "reconciliation_4a": _reconciliation(result.era_counts),
-        "no_prior_release_count": result.no_prior_release_files,
+        "no_prior_release_count": len(result.no_prior_release_files),
+        "no_prior_release_files": result.no_prior_release_files,
         "no_prior_release_row_count": len(result.claims),
         "claims_without_row_key": result.claims_without_row_key,
         "no_prior_release": [claim.to_dict() for claim in result.claims],
-        "superseded_by_claim_count": len(result.superseded),
+        "superseded_by_claim_row_count": len(result.superseded),
         "superseded_by_claim": result.superseded,
-        "undated_triage_count": len(result.triage),
+        "undated_triage_row_count": len(result.triage),
         "undated_triage": result.triage,
         "cards": [ce.to_dict() for ce in result.cards],
     }
@@ -302,7 +310,7 @@ def main() -> int:
     write_text_atomic(out_path, json.dumps(output, indent=2) + "\n")
     labelled = ", ".join(f"{ERA_LABELS[era]}={result.era_counts[era.value]}" for era in Era)
     print(f"era bucketing: {len(result.cards)} cards -> {labelled}")
-    print(f"  {result.file_count} files / {len(result.cards)} rows; {result.no_prior_release_files} files ({len(result.claims)} rows) no_prior_release (2015+)")
+    print(f"  {result.file_count} files / {len(result.cards)} rows; {len(result.no_prior_release_files)} files ({len(result.claims)} rows) no_prior_release (2015+)")
     print(f"  {len(result.triage)} undated rows (triage); {len(result.superseded)} rows superseded by a prior-release claim; {result.claims_without_row_key} claim(s) without a row_key")
     print(f"  catalogue: {len(catalogue.entries)} entries, {catalogue.dropped_rows} row(s) skipped\n  wrote {out_path.relative_to(repo_root)}")
     return 0

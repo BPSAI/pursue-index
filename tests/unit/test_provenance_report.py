@@ -55,12 +55,12 @@ def _fixture_manifest() -> dict:
 
 def test_every_card_is_resolved_by_exactly_one_route() -> None:
     report = build_report(_manifest())
-    assert report.card_count == len(_manifest()["cards"])
+    assert report.card_row_count == len(_manifest()["cards"])
     assert (
         report.resolved_by_claim + report.resolved_by_era + report.unresolved
         == report.file_count
     )
-    assert len(report.outcomes) == report.card_count
+    assert len(report.outcomes) == report.card_row_count
 
 
 def test_real_manifest_satisfies_partition_invariants() -> None:
@@ -172,12 +172,12 @@ def test_page_image_flag_only_on_previously_released_in_part() -> None:
 def test_report_to_dict_carries_the_headline_numbers_and_unresolved_list() -> None:
     report = build_report(_manifest())
     payload = report.to_dict()
-    assert payload["card_count"] == report.card_count
+    assert payload["card_row_count"] == report.card_row_count
     assert payload["resolved_by_claim"] == report.resolved_by_claim
     assert payload["resolved_by_era"] == report.resolved_by_era
     assert payload["page_image_flagged"] == report.page_image_flagged
     unresolved = payload["unresolved_cards"]
-    assert len(unresolved) == report.unresolved
+    assert len(unresolved) == payload["unresolved_card_row_count"]
     assert all(row["resolved_by"] == UNRESOLVED for row in unresolved)
 
 
@@ -225,7 +225,7 @@ def test_cli_optional_json_out_writes_outside_web(tmp_path) -> None:
     res = runner.invoke(app, ["provenance", "report", "--json-out", str(out)])
     assert res.exit_code == 0, res.output
     payload = json.loads(out.read_text())
-    assert payload["card_count"] == len(_manifest()["cards"])
+    assert payload["card_row_count"] == len(_manifest()["cards"])
     assert payload["resolved_by_claim"] + payload["resolved_by_era"] + payload[
         "unresolved"
     ] == payload["file_count"]
@@ -244,7 +244,7 @@ def test_fixture_exact_figures() -> None:
     on every promote.
     """
     report = build_report(_fixture_manifest())
-    assert report.card_count == 4
+    assert report.card_row_count == 4
     assert report.resolved_by_claim == 2
     assert report.resolved_by_era == 1
     assert report.unresolved == 1
@@ -263,7 +263,7 @@ def test_fixture_with_added_card_still_satisfies_invariants() -> None:
     })
     report = build_report(manifest)
 
-    assert report.card_count == 5
+    assert report.card_row_count == 5
     assert (
         report.resolved_by_claim + report.resolved_by_era + report.unresolved
         == report.file_count

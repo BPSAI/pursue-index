@@ -224,11 +224,11 @@ def test_real_manifest_no_release_date_bucketed_as_modern() -> None:
 def test_build_output_shape_and_reconciliation() -> None:
     manifest = _manifest()
     out = build_output(manifest, bucket(manifest))
-    assert out["card_count"] == len(manifest["cards"])
+    assert out["card_row_count"] == len(manifest["cards"])
     assert set(out["era_counts"]) == {e.value for e in Era}
     recon = out["reconciliation_4a"]
     assert recon["reference_4a"] == REFERENCE_4A
     assert set(recon["delta"]) == set(REFERENCE_4A)
     assert out["no_prior_release_row_count"] == len(out["no_prior_release"])
     assert out["no_prior_release_count"] == len({r["card_id"] for r in out["no_prior_release"]})
-    assert out["undated_triage_count"] == len(out["undated_triage"])
+    assert out["undated_triage_row_count"] == len(out["undated_triage"])

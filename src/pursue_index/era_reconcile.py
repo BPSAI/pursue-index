@@ -5,7 +5,8 @@ Rows sharing a ``card_id`` name one file. Each row is resolved on its own first
 agree on one era and year, each undated row takes that era and year
 from the dated row, takes the date source "reconciled_from_sibling", and is labelled
 with that row's key. Upstream fields are not touched. If dated rows disagree on either, nothing is
-reconciled and the undated rows say why they stayed undated.
+reconciled and the file has no single date: every row of it is listed with the reason,
+none takes a no-prior-release negative, and the file counts once under ``undated``.
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ class FileEras(NamedTuple):
     """Per-row eras after reconciling, and why some undated rows were left alone."""
 
     cards: list[CardEra]
-    conflicts: dict[str, str]  # row_key -> triage reason
+    conflicts: dict[str, str]  # row_key -> triage reason, for every row of a conflicting file
 
 
 def _conflict_reason(dated: Sequence[CardEra]) -> str:
@@ -45,11 +46,11 @@ def reconcile_file_eras(cards: Sequence[dict[str, Any]], resolved: Sequence[Card
     for indexes in by_file.values():
         dated = [keyed[i] for i in indexes if keyed[i].era is not Era.UNDATED]
         undated = [i for i in indexes if keyed[i].era is Era.UNDATED]
-        if not dated or not undated:
-            continue
         if len({(c.era, c.year) for c in dated}) > 1:
             reason = _conflict_reason(dated)
-            conflicts.update({keyed[i].row_key: reason for i in undated})
+            conflicts.update({keyed[i].row_key: reason for i in indexes})
+            continue
+        if not dated or not undated:
             continue
         source = dated[0]
         for i in undated:

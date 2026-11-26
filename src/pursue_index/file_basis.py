@@ -14,7 +14,7 @@ not contradict it.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from typing import Any
 
 from pursue_index.claim_precedence import (
@@ -35,18 +35,24 @@ def file_key(card: CardEra) -> str:
     return card.card_id or card.row_key
 
 
-def file_eras(cards: Sequence[CardEra]) -> dict[str, Era]:
-    """One era per file; a file whose rows disagree is counted ``undated``."""
+def file_eras(cards: Sequence[CardEra], conflicts: Collection[str] = ()) -> dict[str, Era]:
+    """One era per file; a file whose rows disagree, or conflict on year, is ``undated``."""
     seen: dict[str, set[Era]] = {}
     for card in cards:
         seen.setdefault(file_key(card), set()).add(card.era)
-    return {key: next(iter(eras)) if len(eras) == 1 else Era.UNDATED for key, eras in seen.items()}
+    conflicted = {file_key(card) for card in cards if card.row_key in conflicts}
+    return {
+        key: next(iter(eras)) if len(eras) == 1 and key not in conflicted else Era.UNDATED
+        for key, eras in seen.items()
+    }
 
 
-def tallies(cards: Sequence[CardEra]) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
+def tallies(
+    cards: Sequence[CardEra], conflicts: Collection[str] = ()
+) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
     """Era counts per file and per row (every era present), and agency counts per row."""
     per_file = {era.value: 0 for era in Era}
-    per_file.update(Counter(era.value for era in file_eras(cards).values()))
+    per_file.update(Counter(era.value for era in file_eras(cards, conflicts).values()))
     per_row = {era.value: 0 for era in Era}
     per_row.update(Counter(card.era.value for card in cards))
     return per_file, per_row, dict(sorted(Counter(card.agency for card in cards).items()))
@@ -56,16 +62,17 @@ def count_fields(
     cards: Sequence[CardEra],
     claims: Sequence[EraNoPriorRelease],
     external: Sequence[ResolvedClaim] = (),
+    conflicts: Collection[str] = (),
 ) -> dict[str, Any]:
     """The count-bearing ``BucketResult`` fields: per file, per row, and unkeyed claims."""
-    era_counts, era_row_counts, agency_counts = tallies(cards)
+    era_counts, era_row_counts, agency_row_counts = tallies(cards, conflicts)
     return {
         "era_counts": era_counts,
         "era_row_counts": era_row_counts,
         "file_count": sum(era_counts.values()),
-        "no_prior_release_files": len({claim.card_id for claim in claims}),
+        "no_prior_release_files": list(dict.fromkeys(claim.card_id for claim in claims)),
         "claims_without_row_key": unkeyed_claims(external),
-        "agency_counts": agency_counts,
+        "agency_row_counts": agency_row_counts,
     }
 
 

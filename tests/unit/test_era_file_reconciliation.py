@@ -65,7 +65,8 @@ def test_conflicting_eras_reconcile_nothing_and_say_why() -> None:
     result = bucket({"cards": cards})
     assert [c.era for c in result.cards] == [Era.MODERN_OPERATIONAL, Era.ERA_1970_1989, Era.UNDATED]
     assert all(c.era_reconciled_from is None for c in result.cards)
-    (entry,) = result.triage
+    assert [t["row_key"] for t in result.triage] == ["aaaa#0", "aaaa#1", "aaaa#2"]
+    entry = result.triage[2]
     assert entry["reason"] == (
         "conflicting document dates across rows of the same file: "
         "aaaa#0=2015_plus/2022, aaaa#1=1970_1989/1975"
@@ -101,7 +102,7 @@ def test_a_reconciled_row_takes_the_modern_record_and_names_its_source() -> None
     assert by_key["aaaa#1"]["established_year"] == by_key["aaaa#0"]["established_year"] == 2022
     assert "era_reconciled_from" not in by_key["aaaa#0"]
     assert out["era_counts"]["2015_plus"] == 1
-    assert out["undated_triage_count"] == 0
+    assert out["undated_triage_row_count"] == 0
     cards = {c["row_key"]: c for c in out["cards"]}
     assert cards["aaaa#1"]["era_reconciled_from"] == "aaaa#0"
     assert cards["aaaa#0"]["era_reconciled_from"] is None
@@ -169,7 +170,8 @@ def test_same_era_with_different_years_is_a_conflict_and_reconciles_nothing() ->
     assert [c.era for c in result.cards][:2] == [Era.MODERN_OPERATIONAL, Era.MODERN_OPERATIONAL]
     assert result.cards[2].era is Era.UNDATED
     assert all(c.era_reconciled_from is None for c in result.cards)
-    (entry,) = result.triage
+    assert [t["row_key"] for t in result.triage] == ["aaaa#0", "aaaa#1", "aaaa#2"]
+    entry = result.triage[2]
     assert entry["reason"] == (
         "conflicting document dates across rows of the same file: "
         "aaaa#0=2015_plus/2022, aaaa#1=2015_plus/2019"

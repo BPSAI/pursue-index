@@ -135,7 +135,7 @@ def test_build_output_publishes_the_suppressions_and_their_count() -> None:
     manifest = {"cards": [card, _modern_card(card_id="modern-002")]}
     result = bucket(manifest)
     output = build_output(manifest, result)
-    assert output["superseded_by_claim_count"] == 1
+    assert output["superseded_by_claim_row_count"] == 1
     assert [row["card_id"] for row in output["superseded_by_claim"]] == ["modern-001"]
     assert output["no_prior_release_count"] == 1
 

@@ -80,6 +80,7 @@ class ResolvedClaim:
     prior_publication: str = ""
     needs_page_image_comparison: bool = False
     row_key: str = ""
+    row_key_migrated_from: str = ""
 
     def __post_init__(self) -> None:
         self._check_tier_and_source()
@@ -153,6 +154,7 @@ class ResolvedClaim:
             "date_basis": self.date_basis.value if self.date_basis else None,
             "prior_publication": self.prior_publication,
             "needs_page_image_comparison": self.needs_page_image_comparison,
+            **({"row_key_migrated_from": self.row_key_migrated_from} if self.row_key_migrated_from else {}),
         }
 
     @classmethod
@@ -171,4 +173,5 @@ class ResolvedClaim:
             prior_publication=data.get("prior_publication", ""),
             needs_page_image_comparison=bool(data.get("needs_page_image_comparison", False)),
             row_key=data.get("row_key", ""),
+            row_key_migrated_from=data.get("row_key_migrated_from", ""),
         )
