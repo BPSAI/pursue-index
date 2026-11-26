@@ -326,7 +326,7 @@ def build_output(
     """
     return {
         "schema": _SCHEMA,
-        "source_manifest": manifest.get("source_url"),
+        "corpus_manifest_url": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
         "catalogue_entries": catalogue_entries,
         "catalogue_rows_dropped": {

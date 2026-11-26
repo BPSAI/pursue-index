@@ -184,7 +184,7 @@ def build_output(
     return {
         "schema": SCHEMA,
         "source": SOURCE_LABEL,
-        "source_manifest": manifest.get("source_url"),
+        "corpus_manifest_url": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
         "card_count": len(manifest.get("cards", [])),
         "searched_count": len(searches),

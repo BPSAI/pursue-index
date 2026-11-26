@@ -58,7 +58,6 @@ __all__ = [
     "build_output",
     "detect_claim",
     "sweep",
-    "sweep_file",
 ]
 
 #: Tracked output artifact (under ``data/``, never an ignored directory).
@@ -319,7 +318,7 @@ def sweep(manifest: dict[str, Any]) -> SweepResult:
     return SweepResult(claims, uncitable)
 
 
-def sweep_file(path: Path) -> SweepResult:
+def _sweep_file(path: Path) -> SweepResult:
     """Load a manifest JSON file and sweep it."""
     return sweep(json.loads(Path(path).read_text()))
 
@@ -329,7 +328,7 @@ def build_output(manifest: dict[str, Any], result: SweepResult) -> dict[str, Any
     return {
         "schema": _SCHEMA,
         "tier": "tier-0",
-        "source_manifest": manifest.get("source_url"),
+        "corpus_manifest_url": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
         "card_count": len(manifest.get("cards", [])),
         "claim_count": len(result.claims),

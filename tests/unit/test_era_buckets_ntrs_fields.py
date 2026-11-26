@@ -83,7 +83,7 @@ def test_other_keys_and_entries_are_unchanged_and_output_is_deterministic(
     extra = {"ntrs_claims_applied", "ntrs_claims_csv_sha256"}
     assert list(out)[: len(out) - len(extra & set(out))] == [k for k in out if k not in extra]
     assert [k for k in out if k not in extra] == [
-        "schema", "source_manifest", "csv_sha256", "card_count", "catalogue_entries",
+        "schema", "corpus_manifest_url", "csv_sha256", "card_count", "catalogue_entries",
         "catalogue_rows_dropped", "era_counts", "agency_counts", "reconciliation_4a",
         "no_prior_release_count", "no_prior_release", "superseded_by_claim_count",
         "superseded_by_claim", "undated_triage_count", "undated_triage", "cards",

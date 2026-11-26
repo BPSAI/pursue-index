@@ -12,11 +12,7 @@ from typer.testing import CliRunner
 
 from pursue_index import ntrs_source
 from pursue_index.cli.provenance_cli import provenance_app
-from pursue_index.ntrs_claims_load import (
-    StaleNtrsClaimsError,
-    claims_for_manifest,
-    read_ntrs_claims,
-)
+from pursue_index.ntrs_claims_load import read_ntrs_claims, resolve_ntrs_claims
 from tests.support.ntrs_fakes import TODAY, Net, Resp, card, variant
 
 EARLY = variant(distributionDate="2026-04-01T04:00:00.0000000+00:00")
@@ -41,27 +37,33 @@ def test_loader_keeps_the_manifest_markers(tmp_path: Path) -> None:
     stored = read_ntrs_claims(tmp_path)
     assert stored is not None
     assert stored.csv_sha256 == "a" * 64
-    assert stored.source_manifest == "https://example.test/m"
+    assert stored.corpus_manifest_url == "https://example.test/m"
 
 
 def test_matching_shas_apply_the_claims(tmp_path: Path) -> None:
     _repo(tmp_path, _manifest())
     _run(tmp_path, Net(Resp(200, EARLY)))
-    claims = claims_for_manifest(tmp_path, _manifest())
-    assert [c.card_id for c in claims] == ["c-apollo12"]
+    outcome = resolve_ntrs_claims(tmp_path, _manifest())
+    assert [c.card_id for c in outcome.claims] == ["c-apollo12"]
+    assert outcome.applied is True
+    assert outcome.notice is None
 
 
-def test_mismatched_shas_refuse_the_claims_naming_both(tmp_path: Path) -> None:
+def test_mismatched_shas_apply_nothing_and_carry_the_notice(tmp_path: Path) -> None:
     _repo(tmp_path, _manifest())
     _run(tmp_path, Net(Resp(200, EARLY)))
-    with pytest.raises(StaleNtrsClaimsError) as err:
-        claims_for_manifest(tmp_path, _manifest("b" * 64))
-    assert "a" * 64 in str(err.value)
-    assert "b" * 64 in str(err.value)
+    outcome = resolve_ntrs_claims(tmp_path, _manifest("b" * 64))
+    assert outcome.claims == []
+    assert outcome.applied is False
+    assert outcome.notice is not None
+    assert "a" * 64 in outcome.notice
 
 
 def test_a_missing_file_means_no_claims(tmp_path: Path) -> None:
-    assert claims_for_manifest(tmp_path, _manifest()) == []
+    outcome = resolve_ntrs_claims(tmp_path, _manifest())
+    assert outcome.claims == []
+    assert outcome.applied is False
+    assert outcome.notice is None
 
 
 def _report(root: Path, manifest: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Any, dict[str, Any]]:
@@ -163,13 +165,16 @@ def _stored(root: Path, marker: dict[str, Any]) -> None:
 
 
 @pytest.mark.parametrize("marker", [{}, {"csv_sha256": None}, {"csv_sha256": ""}])
-def test_a_claims_file_without_a_marker_is_refused(tmp_path: Path, marker: dict[str, Any]) -> None:
+def test_a_claims_file_without_a_marker_applies_nothing(tmp_path: Path, marker: dict[str, Any]) -> None:
     _repo(tmp_path, _manifest())
     _run(tmp_path, Net(Resp(200, EARLY)))
     _stored(tmp_path, marker)
     for current in (_manifest(), {"cards": []}):
-        with pytest.raises(StaleNtrsClaimsError, match="carries no csv_sha256"):
-            claims_for_manifest(tmp_path, current)
+        outcome = resolve_ntrs_claims(tmp_path, current)
+        assert outcome.claims == []
+        assert outcome.applied is False
+        assert outcome.notice is not None
+        assert "<none>" in outcome.notice
 
 
 def test_report_cli_runs_without_a_marker_less_claims_file_and_says_none(

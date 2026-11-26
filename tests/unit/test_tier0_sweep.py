@@ -24,10 +24,10 @@ import pytest
 from pursue_index.provenance import POSITIVE_TIERS, DateBasis, ProvenanceTier
 from pursue_index.tier0_sweep import (
     Tier0Claim,
+    _sweep_file,
     build_output,
     detect_claim,
     sweep,
-    sweep_file,
 )
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -206,7 +206,7 @@ def test_sweep_claims_are_all_positive_tiers_and_verbatim() -> None:
 
 
 def test_sweep_file_matches_in_memory_sweep() -> None:
-    from_file = sweep_file(_MANIFEST).claims
+    from_file = _sweep_file(_MANIFEST).claims
     in_memory = sweep(_manifest()).claims
     assert [c.card_id for c in from_file] == [c.card_id for c in in_memory]
 
@@ -233,7 +233,7 @@ def test_build_output_preserves_manifest_provenance_and_counts() -> None:
     assert out["claim_count"] == len(claims)
     assert out["card_count"] == len(manifest["cards"])
     assert out["csv_sha256"] == manifest.get("csv_sha256")
-    assert out["source_manifest"] == manifest.get("source_url")
+    assert out["corpus_manifest_url"] == manifest.get("source_url")
     assert len(out["claims"]) == len(claims)
     first = out["claims"][0]
     assert first["tier"] in {t.value for t in POSITIVE_TIERS}

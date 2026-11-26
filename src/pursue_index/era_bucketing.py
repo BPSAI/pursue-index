@@ -258,7 +258,7 @@ def build_output(
     loaded = catalogue if catalogue is not None else LoadedCatalogue([], 0)
     return {
         "schema": _SCHEMA,
-        "source_manifest": manifest.get("source_url"),
+        "corpus_manifest_url": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
         "card_count": len(result.cards),
         "catalogue_entries": len(loaded.entries),
