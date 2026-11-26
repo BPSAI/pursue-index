@@ -15,6 +15,8 @@ from pursue_index.provenance import DateBasis
 
 __all__ = [
     "MATCH_THRESHOLD",
+    "MAX_EXTRA_CARD_TOKENS",
+    "MAX_EXTRA_RESULT_TOKENS",
     "MIN_SHARED_TOKENS",
     "Copy",
     "established_date",
@@ -28,7 +30,13 @@ __all__ = [
 MATCH_THRESHOLD = 0.9
 
 #: A match must share at least this many tokens: one shared word is a keyword.
-MIN_SHARED_TOKENS = 2
+MIN_SHARED_TOKENS = 3
+
+#: A result may carry at most this many tokens that are not in the card title.
+MAX_EXTRA_RESULT_TOKENS = 2
+
+#: The card title may carry at most this many tokens that are not in the result.
+MAX_EXTRA_CARD_TOKENS = 1
 
 _PREFIX_RE = re.compile(r"^\s*NASA-UAP-[A-Z]*\d+[A-Z]*\s*,\s*", re.IGNORECASE)
 #: Double quotes (straight, curly, low-9) and the curly single quotes, by code point.
@@ -66,8 +74,15 @@ def token_set_ratio(a: str, b: str) -> float:
 
 
 def title_matches(card_title: str, result_title: str) -> bool:
-    """True when ``result_title`` is the card's title, by token-set ratio alone."""
-    if len(_tokens(card_title) & _tokens(result_title)) < MIN_SHARED_TOKENS:
+    """True when ``result_title`` is the card's title.
+
+    The token-set ratio alone scores 1.0 for any subset, so the extra tokens
+    on each side are capped as well.
+    """
+    card, result = _tokens(card_title), _tokens(result_title)
+    if len(card & result) < MIN_SHARED_TOKENS:
+        return False
+    if len(result - card) > MAX_EXTRA_RESULT_TOKENS or len(card - result) > MAX_EXTRA_CARD_TOKENS:
         return False
     return token_set_ratio(card_title, result_title) >= MATCH_THRESHOLD
 

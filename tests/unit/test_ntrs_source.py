@@ -12,7 +12,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from pursue_index import ntrs_source
+from pursue_index import ntrs_match, ntrs_source
 from pursue_index.ntrs_source import (
     MATCH_THRESHOLD,
     RESULT_CLAIM,
@@ -25,7 +25,6 @@ from pursue_index.ntrs_source import (
     title_matches,
     unresolved_nasa_cards,
 )
-from pursue_index import ntrs_match
 from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.provenance_report import RESOLVED_BY_CLAIM, UNRESOLVED, build_report
 from pursue_index.resolved_claim import ResolutionSource
