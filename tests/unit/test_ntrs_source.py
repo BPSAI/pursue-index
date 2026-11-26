@@ -240,8 +240,8 @@ def test_claims_in_the_output_round_trip_into_the_report_loader() -> None:
     searches = run_searches(manifest, net.fetcher(), TODAY)
     out = build_output(manifest, searches, {})
     loaded = load_ntrs_claims(out)
-    assert [c.card_id for c in loaded] == ["c-apollo12"]
-    assert load_ntrs_claims({"claims": []}) == []
+    assert [c.card_id for c in loaded.claims] == ["c-apollo12"]
+    assert load_ntrs_claims({"claims": []}).claims == []
 
 
 # --- report wiring -----------------------------------------------------------
@@ -255,7 +255,7 @@ def test_a_positive_ntrs_claim_moves_a_card_from_unresolved_to_claim() -> None:
 
     claim = evaluate_card(card(), variant(distributionDate="2026-04-01T00:00:00+00:00"), TODAY).claim
     assert claim is not None
-    after = build_report(manifest, ntrs_claims=[claim])
+    after = build_report(manifest, extra_claims=[claim])
     assert after.outcomes[0].resolved_by == RESOLVED_BY_CLAIM
     assert after.outcomes[0].primary_tier == "content_previously_published"
     assert after.resolved_by_claim == 1
@@ -268,7 +268,7 @@ def test_an_ntrs_claim_for_another_card_does_not_resolve_this_one() -> None:
         card(card_id="someone-else"), variant(distributionDate="2026-04-01T00:00:00+00:00"), TODAY
     ).claim
     assert claim is not None
-    report = build_report({"cards": [card()]}, ntrs_claims=[claim])
+    report = build_report({"cards": [card()]}, extra_claims=[claim])
     assert report.unresolved == 1
 
 
@@ -315,9 +315,10 @@ def test_run_aborts_on_429_and_writes_nothing(tmp_path: Path) -> None:
 def test_the_report_cli_reads_the_stored_claims(tmp_path: Path) -> None:
     from pursue_index.ntrs_claims_load import read_ntrs_claims
 
-    assert read_ntrs_claims(tmp_path) == []
+    assert read_ntrs_claims(tmp_path) is None
     _repo_with_manifest(tmp_path, [card()])
     net = Net(Resp(200, variant(distributionDate="2026-04-01T04:00:00.0000000+00:00")))
     ntrs_source.run(tmp_path, net.fetcher(), TODAY)
-    claims = read_ntrs_claims(tmp_path)
-    assert [c.card_id for c in claims] == ["c-apollo12"]
+    stored = read_ntrs_claims(tmp_path)
+    assert stored is not None
+    assert [c.card_id for c in stored.claims] == ["c-apollo12"]

@@ -102,3 +102,29 @@ def test_request_and_status_counts_are_kept() -> None:
     with pytest.raises(NtrsFetchError):
         fetcher.search("c")
     assert fetcher.fetch_counts() == {"requests": 3, "status_counts": {"200": 2, "429": 1}}
+
+
+def test_an_oversized_response_aborts_before_json_parsing() -> None:
+    from pursue_index.ntrs_fetch import MAX_RESPONSE_BYTES
+
+    class Huge(Resp):
+        def json(self) -> object:
+            raise AssertionError("an oversized body must not be parsed")
+
+    big = Huge(200)
+    big.text = " " * (MAX_RESPONSE_BYTES + 1)
+    with pytest.raises(NtrsFetchError, match="too large"):
+        Net(big).fetcher().search("a")
+
+
+def test_an_oversized_content_length_aborts_before_json_parsing() -> None:
+    from pursue_index.ntrs_fetch import MAX_RESPONSE_BYTES
+
+    class Huge(Resp):
+        def json(self) -> object:
+            raise AssertionError("an oversized body must not be parsed")
+
+    big = Huge(200)
+    big.headers = {"content-length": str(MAX_RESPONSE_BYTES + 1)}
+    with pytest.raises(NtrsFetchError, match="too large"):
+        Net(big).fetcher().search("a")

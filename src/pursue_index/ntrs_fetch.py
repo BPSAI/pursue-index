@@ -61,6 +61,8 @@ USER_AGENT = "pursue-index-provenance/1.0 (metadata search only)"
 #: Courtesy sleep before every request, in seconds.
 DELAY_SECONDS = 1.0
 
+MAX_RESPONSE_BYTES = 2 * 1024 * 1024
+
 _BASE = "https://ntrs.nasa.gov"
 _TIMEOUT_SECONDS = 30.0
 

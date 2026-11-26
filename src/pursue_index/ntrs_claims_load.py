@@ -31,3 +31,12 @@ def read_ntrs_claims(repo_root: Path) -> list[ResolvedClaim]:
     if not path.exists():
         return []
     return load_ntrs_claims(json.loads(path.read_text()))
+
+
+class StaleNtrsClaimsError(ValueError):
+    """Stub."""
+
+
+def claims_for_manifest(repo_root: Path, manifest: dict[str, Any]) -> list[ResolvedClaim]:
+    """Stub."""
+    return []
