@@ -29,7 +29,7 @@ named ``*_row_count`` (or ``*_row_counts``) counts rows and equals the length of
 row array beside it. Every other count is per file: rows sharing a ``card_id`` are one
 file with one era, and a file whose rows still disagree, or carry different years, is
 counted once under ``undated`` and takes no negative. ``no_prior_release_count`` is
-the length of ``no_prior_release_files`` (one id per file); ``no_prior_release`` is
+the length of ``no_prior_release_files`` (one id per file); ``no_prior_release_rows`` is
 one record per row, counted by ``no_prior_release_row_count``. The triage list, the
 superseded list and ``cards`` stay one entry per manifest row.
 """
@@ -283,7 +283,7 @@ def build_output(
         "no_prior_release_files": result.no_prior_release_files,
         "no_prior_release_row_count": len(result.claims),
         "claims_without_row_key": result.claims_without_row_key,
-        "no_prior_release": [claim.to_dict() for claim in result.claims],
+        "no_prior_release_rows": [claim.to_dict() for claim in result.claims],
         "superseded_by_claim_row_count": len(result.superseded),
         "superseded_by_claim": result.superseded,
         "undated_triage_row_count": len(result.triage),

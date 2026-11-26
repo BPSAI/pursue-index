@@ -63,7 +63,7 @@ def test_every_per_row_list_of_the_era_artifact_carries_the_key() -> None:
     out = build_output(manifest, bucket(manifest))
     assert [r["row_key"] for r in out["undated_triage"]] == ["aaaa#0", "aaaa#1"]
     modern = {"cards": [{**_card("dddd", "m"), "incident_date": "2022-05-06"}]}
-    claim = build_output(modern, bucket(modern))["no_prior_release"][0]
+    claim = build_output(modern, bucket(modern))["no_prior_release_rows"][0]
     assert claim["row_key"] == "dddd#0"
 
 

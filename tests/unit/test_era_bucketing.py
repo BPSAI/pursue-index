@@ -229,6 +229,6 @@ def test_build_output_shape_and_reconciliation() -> None:
     recon = out["reconciliation_4a"]
     assert recon["reference_4a"] == REFERENCE_4A
     assert set(recon["delta"]) == set(REFERENCE_4A)
-    assert out["no_prior_release_row_count"] == len(out["no_prior_release"])
-    assert out["no_prior_release_count"] == len({r["card_id"] for r in out["no_prior_release"]})
+    assert out["no_prior_release_row_count"] == len(out["no_prior_release_rows"])
+    assert out["no_prior_release_count"] == len({r["card_id"] for r in out["no_prior_release_rows"]})
     assert out["undated_triage_row_count"] == len(out["undated_triage"])

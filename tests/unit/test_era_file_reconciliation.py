@@ -96,7 +96,7 @@ def test_a_guard_held_sibling_does_not_count_as_a_dated_row() -> None:
 def test_a_reconciled_row_takes_the_modern_record_and_names_its_source() -> None:
     manifest = {"cards": [_dated(), _row("aaaa", "PR1")]}
     out = build_output(manifest, bucket(manifest))
-    by_key = {r["row_key"]: r for r in out["no_prior_release"]}
+    by_key = {r["row_key"]: r for r in out["no_prior_release_rows"]}
     assert set(by_key) == {"aaaa#0", "aaaa#1"}
     assert by_key["aaaa#1"]["era_reconciled_from"] == "aaaa#0"
     assert by_key["aaaa#1"]["established_year"] == by_key["aaaa#0"]["established_year"] == 2022
@@ -199,7 +199,7 @@ def test_a_reconciled_row_names_the_inference_as_its_date_source() -> None:
     cards = {c["row_key"]: c for c in out["cards"]}
     assert cards["aaaa#0"]["date_source"] == "incident_date"
     assert cards["aaaa#1"]["date_source"] == "reconciled_from_sibling"
-    record = {r["row_key"]: r for r in out["no_prior_release"]}["aaaa#1"]
+    record = {r["row_key"]: r for r in out["no_prior_release_rows"]}["aaaa#1"]
     assert record["date_source"] == "reconciled_from_sibling"
     assert record["era_reconciled_from"] == "aaaa#0"
     assert "incident_date" not in record["rationale"]

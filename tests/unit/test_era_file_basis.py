@@ -110,7 +110,7 @@ def test_a_reconciled_row_inherits_its_siblings_positive_claim() -> None:
 
 def test_a_reconciled_record_is_labelled_and_names_its_sibling() -> None:
     manifest = {"cards": [_dated(), _row("aaaa", "PR1")]}
-    records = {r["row_key"]: r for r in build_output(manifest, bucket(manifest))["no_prior_release"]}
+    records = {r["row_key"]: r for r in build_output(manifest, bucket(manifest))["no_prior_release_rows"]}
     assert records["aaaa#1"].get("reconciled") is True
     assert records["aaaa#1"]["era_reconciled_from"] == "aaaa#0"
     assert "aaaa#0" in records["aaaa#1"]["rationale"]

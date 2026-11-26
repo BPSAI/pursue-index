@@ -62,7 +62,7 @@ _BUCKETS: dict[str, tuple[str, str]] = {
     "era_row_counts": ("sum", "card_row_count"),
     "agency_row_counts": ("sum", "card_row_count"),
     "no_prior_release_count": ("ids", "no_prior_release_files"),
-    "no_prior_release_row_count": ("rows", "no_prior_release"),
+    "no_prior_release_row_count": ("rows", "no_prior_release_rows"),
     "superseded_by_claim_row_count": ("rows", "superseded_by_claim"),
     "undated_triage_row_count": ("rows", "undated_triage"),
 }
@@ -169,7 +169,7 @@ def test_no_prior_release_count_is_per_file_with_a_file_list_beside_the_row_list
     out = build_output(manifest, bucket(manifest))
     assert out["no_prior_release_count"] == len(out["no_prior_release_files"]) == 1
     assert out["no_prior_release_files"] == ["aaaa"]
-    assert out["no_prior_release_row_count"] == len(out["no_prior_release"]) == 3
+    assert out["no_prior_release_row_count"] == len(out["no_prior_release_rows"]) == 3
 
 
 # --- item 2: a conflicting file emits no negative -------------------------------
@@ -183,7 +183,7 @@ def test_a_file_whose_dated_rows_conflict_emits_no_negative_and_counts_once_unda
     for second in ("2019-03-04", "1975"):  # same era / different year, and different era
         manifest = _conflicts(second)
         out = build_output(manifest, bucket(manifest))
-        assert out["no_prior_release"] == [] and out["no_prior_release_count"] == 0
+        assert out["no_prior_release_rows"] == [] and out["no_prior_release_count"] == 0
         assert out["era_counts"]["undated"] == 1 and out["file_count"] == 1
         assert {entry["row_key"] for entry in out["undated_triage"]} == {"aaaa#0", "aaaa#1"}
         report = build_report(manifest)
@@ -193,7 +193,7 @@ def test_a_file_whose_dated_rows_conflict_emits_no_negative_and_counts_once_unda
 def test_a_conflicting_file_with_an_undated_row_emits_nothing_for_any_of_its_rows() -> None:
     manifest = {"cards": [*_conflicts("2019-03-04")["cards"], _row("aaaa", "U1")]}
     out = build_output(manifest, bucket(manifest))
-    assert out["no_prior_release"] == []
+    assert out["no_prior_release_rows"] == []
     assert out["era_counts"]["undated"] == 1 and out["file_count"] == 1
 
 
@@ -212,7 +212,7 @@ def test_every_consumer_yields_all_three_rows_of_a_three_row_file() -> None:
     assert [claim.row_key for claim in sweep(manifest).claims] == keys
     assert [key for key, _ in unresolved_nasa_rows({"cards": [{**c, "description": ""} for c in cards]})] == keys
     modern = {"cards": [_row("bbbb", f"B{i}", incident_date="2022-05-06") for i in range(3)]}
-    assert [e["row_key"] for e in build_output(modern, bucket(modern))["no_prior_release"]] == [
+    assert [e["row_key"] for e in build_output(modern, bucket(modern))["no_prior_release_rows"]] == [
         "bbbb#0", "bbbb#1", "bbbb#2",
     ]
     assert [o["row_key"] for o in build_report({"cards": [{**c, "description": ""} for c in cards]}).to_dict()["unresolved_cards"]] == keys

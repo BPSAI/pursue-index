@@ -86,7 +86,7 @@ def test_other_keys_and_entries_are_unchanged_and_output_is_deterministic(
         "schema", "corpus_manifest_url", "csv_sha256", "card_row_count", "catalogue_entries",
         "catalogue_rows_dropped", "file_count", "era_counts", "era_row_counts", "agency_row_counts",
         "reconciliation_4a", "no_prior_release_count", "no_prior_release_files",
-        "no_prior_release_row_count", "claims_without_row_key", "no_prior_release",
+        "no_prior_release_row_count", "claims_without_row_key", "no_prior_release_rows",
         "superseded_by_claim_row_count", "superseded_by_claim", "undated_triage_row_count",
         "undated_triage", "cards",
     ]

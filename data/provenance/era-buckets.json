@@ -286,7 +286,7 @@
   ],
   "no_prior_release_row_count": 232,
   "claims_without_row_key": 0,
-  "no_prior_release": [
+  "no_prior_release_rows": [
     {
       "kind": "era_no_prior_release",
       "tier": "no_prior_release_found",
