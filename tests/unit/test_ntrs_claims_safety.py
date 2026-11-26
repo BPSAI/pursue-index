@@ -72,7 +72,7 @@ def test_report_cli_refuses_stale_claims_and_exits_non_zero(
     other = tmp_path / "other.json"
     other.write_text(json.dumps(_manifest("b" * 64)))
     monkeypatch.setenv("PURSUE_REPO_ROOT", str(tmp_path))
-    result = CliRunner().invoke(provenance_app, ["--manifest", str(other)])
+    result = CliRunner().invoke(provenance_app, ["report", "--manifest", str(other)])
     assert result.exit_code != 0
     assert "a" * 64 in result.output
     assert "b" * 64 in result.output
@@ -155,6 +155,6 @@ def test_report_cli_refuses_a_claims_file_without_a_marker(
     _run(tmp_path, Net(Resp(200, EARLY)))
     _stored(tmp_path, {})
     monkeypatch.setenv("PURSUE_REPO_ROOT", str(tmp_path))
-    result = CliRunner().invoke(provenance_app, ["--manifest", str(tmp_path / "data" / "manifests" / "latest.json")])
+    result = CliRunner().invoke(provenance_app, ["report", "--manifest", str(tmp_path / "data" / "manifests" / "latest.json")])
     assert result.exit_code == 1
     assert "carries no csv_sha256" in result.output

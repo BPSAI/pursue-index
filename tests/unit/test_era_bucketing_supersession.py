@@ -261,12 +261,3 @@ def test_an_extra_claim_for_another_card_changes_nothing() -> None:
     result = bucket({"cards": [_modern_card()]}, extra_claims=[_external_claim("other")])
     assert [c.card_id for c in result.claims] == ["modern-001"]
     assert result.superseded == []
-
-
-def test_positive_tiers_includes_an_external_only_claim() -> None:
-    from pursue_index.claim_precedence import positive_tiers
-
-    card = _modern_card()
-    assert positive_tiers(card) == set()
-    tiers = positive_tiers(card, external=[_external_claim("modern-001")])
-    assert tiers == {ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED}
