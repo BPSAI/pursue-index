@@ -218,7 +218,7 @@ def test_real_manifest_historical_anchors_match_4a() -> None:
 
 def test_real_manifest_no_release_date_bucketed_as_modern() -> None:
     result = bucket(_manifest())
-    assert all(c.date_source in ("display_date", "incident_date") for c in result.claims)
+    assert all(c.date_source in ("display_date", "incident_date", "reconciled_from_sibling") for c in result.claims)
 
 
 def test_build_output_shape_and_reconciliation() -> None:
