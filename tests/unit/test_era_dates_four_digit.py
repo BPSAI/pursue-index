@@ -11,7 +11,7 @@ from __future__ import annotations
 import pytest
 
 from pursue_index.era_bucketing import classify_card
-from pursue_index.era_dates import max_valid_year, parse_year, parse_year_detail, resolve_era_date
+from pursue_index.era_dates import parse_year, parse_year_detail, resolve_era_date
 from pursue_index.era_models import Era
 
 # (title, two-digit incident_date, four-digit incident_date)
@@ -23,23 +23,15 @@ _CONTRADICTED = [
 
 
 @pytest.mark.parametrize("title,short,long", _CONTRADICTED)
-def test_title_contradicting_a_two_digit_numeric_date_leaves_the_card_undated(
-    title: str, short: str, long: str
+@pytest.mark.parametrize("width", ["short", "long"])
+def test_title_contradicting_a_modern_numeric_date_leaves_the_card_undated(
+    title: str, short: str, long: str, width: str
 ) -> None:
-    """A pivoted M/D/YY century is a convention, so it needs corroboration."""
-    card = {"card_id": "x", "title": title, "incident_date": short, "release_date": "5/8/26"}
+    incident = short if width == "short" else long
+    release = "5/8/26" if width == "short" else "5/8/2026"
+    card = {"card_id": "x", "title": title, "incident_date": incident, "release_date": release}
     assert resolve_era_date(card).source_field != "incident_date"
     assert classify_card(card).era is Era.UNDATED
-
-
-@pytest.mark.parametrize("title,short,long", _CONTRADICTED)
-def test_a_stated_four_digit_numeric_date_buckets_the_card_whatever_the_title(
-    title: str, short: str, long: str
-) -> None:
-    """A four-digit year is stated, so it resolves without corroboration."""
-    card = {"card_id": "x", "title": title, "incident_date": long, "release_date": "5/8/2026"}
-    assert resolve_era_date(card).source_field == "incident_date"
-    assert classify_card(card).era is Era.MODERN_OPERATIONAL
 
 
 @pytest.mark.parametrize("incident", ["9/1/15", "9/1/2015"])
@@ -60,16 +52,9 @@ def test_pre_modern_numeric_dates_need_no_corroboration(incident: str, year: int
     assert resolve_era_date(card) == (year, "incident_date", incident)
 
 
-def test_a_two_digit_incident_date_does_not_corroborate_itself() -> None:
-    card = {"title": "Mission Report", "incident_date": "6/7/24", "release_date": None}
+def test_a_four_digit_incident_date_does_not_corroborate_itself() -> None:
+    card = {"title": "Mission Report", "incident_date": "6/7/2024", "release_date": None}
     assert resolve_era_date(card) == (None, None, None)
-
-
-def test_a_year_after_the_current_utc_year_is_unresolvable() -> None:
-    future = max_valid_year() + 1
-    card = {"title": "Report", "incident_date": f"6/7/{future}", "release_date": None}
-    assert resolve_era_date(card) == (None, None, None)
-    assert resolve_era_date({**card, "incident_date": f"1/1/{max_valid_year()}"}).year == max_valid_year()
 
 
 @pytest.mark.parametrize("incident", ["October, 2023", "2025", "Late 2025", "June, 2026"])

@@ -9,9 +9,22 @@ from __future__ import annotations
 
 from typing import Any
 
+from pursue_index.era_dates import MODERN_MIN_YEAR, SLASH_GUARDED_FIELDS, parse_year_detail
 from pursue_index.era_models import DOCUMENT_DATE_FIELDS, CardEra
 
 __all__ = ["triage_entry", "triage_reason"]
+
+
+def _held_for_century(field: str, raw: Any) -> bool:
+    """True when a numeric M/D/YYYY 2015+ year was held back for lack of corroboration."""
+    parsed = parse_year_detail(raw)
+    return (
+        parsed.year is not None
+        and parsed.slash_dated
+        and not parsed.pivot_derived
+        and field in SLASH_GUARDED_FIELDS
+        and parsed.year >= MODERN_MIN_YEAR
+    )
 
 
 def triage_reason(card: dict[str, Any]) -> str:
@@ -19,6 +32,11 @@ def triage_reason(card: dict[str, Any]) -> str:
     for name in DOCUMENT_DATE_FIELDS:
         raw = card.get(name)
         if raw is not None and str(raw).strip():
+            if _held_for_century(name, raw):
+                return (
+                    f"{name} {raw} present but its century is uncorroborated "
+                    "(numeric M/D/YYYY year; no corroborating field); held undated"
+                )
             return f"{name} present but not a resolvable date: {raw}"
     if card.get("release_date"):
         return (
