@@ -128,3 +128,33 @@ def test_a_failure_while_replacing_keeps_the_previous_file_and_no_temp(
     out_dir = (tmp_path / ntrs_source.OUTPUT_PATH).parent
     assert (out_dir / "ntrs-claims.json").read_bytes() == before
     assert [p.name for p in out_dir.iterdir()] == ["ntrs-claims.json"]
+
+
+def _stored(root: Path, marker: dict[str, Any]) -> None:
+    path = root / "data" / "provenance" / "ntrs-claims.json"
+    data = json.loads(path.read_text())
+    data.pop("csv_sha256", None)
+    data.update(marker)
+    path.write_text(json.dumps(data))
+
+
+@pytest.mark.parametrize("marker", [{}, {"csv_sha256": None}, {"csv_sha256": ""}])
+def test_a_claims_file_without_a_marker_is_refused(tmp_path: Path, marker: dict[str, Any]) -> None:
+    _repo(tmp_path, _manifest())
+    _run(tmp_path, Net(Resp(200, EARLY)))
+    _stored(tmp_path, marker)
+    for current in (_manifest(), {"cards": []}):
+        with pytest.raises(StaleNtrsClaimsError, match="carries no csv_sha256"):
+            claims_for_manifest(tmp_path, current)
+
+
+def test_report_cli_refuses_a_claims_file_without_a_marker(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _repo(tmp_path, _manifest())
+    _run(tmp_path, Net(Resp(200, EARLY)))
+    _stored(tmp_path, {})
+    monkeypatch.setenv("PURSUE_REPO_ROOT", str(tmp_path))
+    result = CliRunner().invoke(provenance_app, ["--manifest", str(tmp_path / "data" / "manifests" / "latest.json")])
+    assert result.exit_code == 1
+    assert "carries no csv_sha256" in result.output

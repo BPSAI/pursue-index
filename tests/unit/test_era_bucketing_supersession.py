@@ -228,3 +228,45 @@ def test_a_modern_negative_needs_a_document_date_and_says_so_without_assert() ->
     )
     with pytest.raises(ValueError):
         _no_prior_release(undated)
+
+
+def _external_claim(card_id: str):
+    from datetime import date
+
+    from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
+
+    return ResolvedClaim(
+        card_id=card_id,
+        tier=ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED,
+        source=ResolutionSource.NTRS_METADATA,
+        identifier_kind="ntrs_citation_id",
+        identifier_value="19690000001",
+        artifact_url="https://ntrs.nasa.gov/citations/19690000001",
+        established_date=date(2026, 4, 1),
+        date_basis=DateBasis.NTRS_DISTRIBUTION_DATE,
+    )
+
+
+def test_an_extra_positive_claim_outranks_the_era_negative() -> None:
+    manifest = {"cards": [_modern_card(), _modern_card(card_id="modern-002")]}
+    result = bucket(manifest, extra_claims=[_external_claim("modern-001")])
+    assert [row["card_id"] for row in result.superseded] == ["modern-001"]
+    assert [c.card_id for c in result.claims] == ["modern-002"]
+    output = build_output(manifest, result)
+    assert output["no_prior_release_count"] == 1
+    assert output["superseded_by_claim"][0]["superseding_source"] == "ntrs_metadata"
+
+
+def test_an_extra_claim_for_another_card_changes_nothing() -> None:
+    result = bucket({"cards": [_modern_card()]}, extra_claims=[_external_claim("other")])
+    assert [c.card_id for c in result.claims] == ["modern-001"]
+    assert result.superseded == []
+
+
+def test_positive_tiers_includes_an_external_only_claim() -> None:
+    from pursue_index.claim_precedence import positive_tiers
+
+    card = _modern_card()
+    assert positive_tiers(card) == set()
+    tiers = positive_tiers(card, external=[_external_claim("modern-001")])
+    assert tiers == {ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED}
