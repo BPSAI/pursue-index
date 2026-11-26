@@ -138,6 +138,9 @@ def _outcome(card_era: CardEra, claim: PositiveClaim | None) -> CardOutcome:
     )
 
 
+_SCHEMA = "provenance-coverage-report/v2"
+
+
 @dataclass(frozen=True)
 class CoverageReport:
     """The Phase-A coverage answer: the three routes, per-tier and per-era.
@@ -172,6 +175,7 @@ class CoverageReport:
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "schema": _SCHEMA,
             "card_row_count": self.card_row_count,
             "file_count": self.file_count,
             "row_counts": self.row_counts,
@@ -180,7 +184,7 @@ class CoverageReport:
             "resolved_by_era": self.resolved_by_era,
             "unresolved": self.unresolved,
             "unresolved_files": list(self.unresolved_files),
-            "tier_counts": self.tier_counts,
+            "tier_file_counts": self.tier_counts,
             "page_image_flagged": self.page_image_flagged,
             "unresolved_by_era": self.unresolved_by_era,
             "catalogue_entries": self.catalogue_entries,

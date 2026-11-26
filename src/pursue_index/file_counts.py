@@ -52,11 +52,11 @@ def count_fields(
     external: Sequence[ResolvedClaim] = (),
 ) -> dict[str, Any]:
     """The count-bearing ``BucketResult`` fields: per file, per row, and unkeyed claims."""
-    era_counts, era_row_counts, agency_row_counts = tallies(cards)
+    era_file_counts, era_row_counts, agency_row_counts = tallies(cards)
     return {
-        "era_counts": era_counts,
+        "era_file_counts": era_file_counts,
         "era_row_counts": era_row_counts,
-        "file_count": sum(era_counts.values()),
+        "file_count": sum(era_file_counts.values()),
         "no_prior_release_files": list(dict.fromkeys(file_key(claim) for claim in claims)),
         "claims_without_row_key": unkeyed_claims(external),
         "agency_row_counts": agency_row_counts,

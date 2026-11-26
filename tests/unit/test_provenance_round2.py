@@ -33,7 +33,7 @@ _MANIFEST = {
 
 def test_the_report_json_carries_its_schema_id() -> None:
     out = build_report(_MANIFEST).to_dict()
-    assert provenance_report.SCHEMA == "provenance-coverage-report/v2"
+    assert provenance_report._SCHEMA == "provenance-coverage-report/v2"
     assert out["schema"] == "provenance-coverage-report/v2"
     assert "provenance-coverage-report/v2" in _DOC
 
@@ -77,7 +77,7 @@ def test_the_console_headline_and_body_use_one_labelled_unit(monkeypatch) -> Non
 
 def test_the_doc_states_claim_count_for_each_claims_artifact() -> None:
     for name in ("identifier-claims.json", "tier0-manifest-claims.json", "ntrs-claims.json"):
-        section = next(s for s in _DOC.split("\n## ") if name in s.splitlines()[0])
-        assert "claim_count" in section, name
-        assert re.search(r"claim_count`[^\n]*(stored|claim records)", section), name
-        assert "per row" in section or "one per row" in section or "per file" in section, name
+        lines = [ln for ln in _DOC.splitlines() if name in ln and "claim_count" in ln]
+        assert lines, name
+        assert any("stored" in ln and "claims[]" in ln for ln in lines), name
+    assert "per row" in _DOC

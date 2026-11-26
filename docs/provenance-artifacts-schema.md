@@ -37,24 +37,24 @@ records. The corpus manifest is never de-duplicated or normalized.
 ## Mixed-era files (a placeholder for PR-B)
 
 Without reconciling a file's rows, a file whose rows land in different eras has no
-single era. In the per-file `era_counts` it is counted **once** under the key
+single era. In the per-file `era_file_counts` it is counted **once** under the key
 `mixed`. This is a placeholder that PR-B replaces when it reconciles the rows of a
 file. Rows are unchanged: each row keeps its own era, its own no-prior-release
 record or triage entry, exactly as in v1. `mixed` appears only in the per-file
-`era_counts` and never in `era_row_counts` (which has one key per era).
+`era_file_counts` and never in `era_row_counts` (which has one key per era).
 
 ## `era-buckets.json`
 
 | v1 key | v2 key | Unit | Meaning |
 |---|---|---|---|
 | `card_count` | `card_row_count` | row | Manifest rows. Equals `len(cards)`. |
-| (new) | `file_count` | file | Distinct `card_id`s. Equals the sum of `era_counts`. |
-| `era_counts` | `era_counts` | file | **Re-semanticized**: files per era, plus `mixed` (see above). Sums to `file_count`. |
+| (new) | `file_count` | file | Distinct `card_id`s. Equals the sum of `era_file_counts`, and the coverage report's `file_count` for the same manifest. |
+| `era_counts` | `era_file_counts` | file | **Renamed for its unit and re-semanticized**: files per era, plus `mixed` (see above). Sums to `file_count`. |
 | (new) | `era_row_counts` | row | Rows per era (the v1 meaning of `era_counts`). Sums to `card_row_count`. |
 | `agency_counts` | `agency_row_counts` | row | Rows per agency. |
 | `reconciliation_4a` | `reconciliation_4a` | row | **Re-semanticized**: compares `era_row_counts` (not the per-file counts) against the fixed per-row `reference_4a` baseline. The new key `unit` is `"rows"`. `current` and `delta` are per row and carry no `mixed`. |
-| `no_prior_release_count` | `no_prior_release_count` | file | **Re-semanticized**: files holding a no-prior-release record. Equals `len(no_prior_release_files)`. |
-| (new) | `no_prior_release_files` | file | One `card_id` per file in `no_prior_release_count`. |
+| `no_prior_release_count` | `no_prior_release_file_count` | file | **Renamed for its unit and re-semanticized**: files holding a no-prior-release record. Equals `len(no_prior_release_files)`. |
+| (new) | `no_prior_release_files` | file | One `card_id` per file in `no_prior_release_file_count`. |
 | (new) | `no_prior_release_row_count` | row | Rows holding a record. Equals `len(no_prior_release_rows)`. |
 | `no_prior_release` | `no_prior_release_rows` | row | One record per row (v1 `no_prior_release`, renamed for its unit). |
 | `superseded_by_claim_count` | `superseded_by_claim_row_count` | row | Equals `len(superseded_by_claim)`. |
@@ -71,7 +71,10 @@ record or triage entry, exactly as in v1. `mixed` appears only in the per-file
 | `card_count` | `card_row_count` | row | Manifest rows. |
 | (new, per claim) | `row_key` | row | The row the claim was found on. |
 
-`claim_count` is unchanged: the number of claim records, which is one per row.
+`claim_count` is unchanged in meaning, stated per artifact. Each stored claim names one row (`row_key`), so it counts per row, never per file; two rows of one file that both have a claim count 2.
+
+- `identifier-claims.json`: `claim_count` is the number of claim records stored in `claims[]`.
+- `tier0-manifest-claims.json`: `claim_count` is the number of claim records stored in `claims[]`.
 
 ## `ntrs-claims.json`
 
@@ -81,8 +84,7 @@ record or triage entry, exactly as in v1. `mixed` appears only in the per-file
 | (new, per claim and per search) | `row_key` | row | The row searched, and the row a claim resolves. |
 | (new, per claim, migration only) | `row_key_migrated_from` | claim | Present, with value `"card_id"`, on a claim loaded from a v1 file, which has no `row_key`. The loader applies each such claim to **every** row of its file, one labelled copy per row. A claim whose file has no row in the manifest stays unkeyed. |
 
-`searched_count` (searches made, one per row) is unchanged. `claim_count` is unchanged in
-meaning: it counts the claims **stored** in the file. The migration above can apply one
+`searched_count` (searches made, one per row) is unchanged. In `ntrs-claims.json` `claim_count` counts the claim records **stored** in `claims[]`, per row in a v2 file (per file in a v1 file, see below). The migration above can apply one
 stored claim to several rows, so the number of claims **applied** can be larger. That
 count is `ntrs_claims_applied_row_count` in the coverage report: the loaded claims that
 name a row, after migration. For an old-shape file holding 1 claim for a file of 2 rows,
@@ -93,12 +95,16 @@ or empty `row_key` matches no row and is counted in `claims_without_row_key`.
 
 ## Coverage report
 
+The report JSON (`pursue provenance report --json-out`) carries the top-level
+`"schema": "provenance-coverage-report/v2"`. Its retained keys changed unit (the table
+below), so a reader gates on that id.
+
 | v1 key | v2 key | Unit | Meaning |
 |---|---|---|---|
 | `card_count` | `card_row_count` | row | Manifest rows. |
 | (new) | `file_count` | file | Files; equals `resolved_by_claim + resolved_by_era + unresolved`. |
 | `resolved_by_claim`, `resolved_by_era`, `unresolved` | same | file | **Re-semanticized**: a file takes the strongest route any of its rows has (claim, then era, then unresolved). |
-| `tier_counts` | same | file | **Re-semanticized**: counted over each file's representative row (its strongest route, then tier). |
+| `tier_counts` | `tier_file_counts` | file | **Renamed for its unit and re-semanticized**: counted over each file's representative row (its strongest route, then tier). |
 | `page_image_flagged` | same | file | **Re-semanticized**: files with **any** row flagged for page-image comparison. Equals `len(page_image_flagged_files)`. |
 | (new) | `page_image_flagged_files` | file | The `card_id`s `page_image_flagged` counts. |
 | (new) | `ntrs_claims_applied_row_count` | claim | NTRS claims applied after migration (see above); not the stored `claim_count`. |
