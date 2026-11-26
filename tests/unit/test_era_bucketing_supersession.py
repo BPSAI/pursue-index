@@ -206,7 +206,7 @@ def test_bucketing_and_the_coverage_report_agree_on_the_same_catalogue() -> None
     """
     card = _catalogue_only_card()
     catalogue = [_catalogue_entry()]
-    outcome = classify(card, catalogue)
+    outcome = classify(card, catalogue, row_key=f"{card['card_id']}#0")
     result = bucket({"cards": [card]}, catalogue=catalogue)
     assert outcome.resolved_by == RESOLVED_BY_CLAIM
     assert outcome.primary_tier == result.superseded[0]["superseding_tier"]

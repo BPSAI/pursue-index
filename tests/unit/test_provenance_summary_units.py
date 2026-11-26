@@ -73,10 +73,11 @@ _REPORT: dict[str, tuple[str, str]] = {
     "tier_counts": ("sum", "resolved_by_claim"),
     "unresolved": ("ids", "unresolved_files"),
     "unresolved_by_era": ("sum", "unresolved"),
-    "unresolved_card_row_count": ("rows", "unresolved_cards"),
+    "unresolved_row_count": ("rows", "unresolved_rows"),
+    "page_image_flagged": ("ids", "page_image_flagged_files"),
 }
 #: Counts that summarise no array in the output (what was searched, not what is listed).
-_EXEMPT = {"catalogue_rows_dropped.count"}
+_EXEMPT = {"catalogue_rows_dropped.count", "ntrs_claims_applied_row_count"}
 _ROW_NAMED = re.compile(r"_row_counts?$")
 
 
@@ -215,7 +216,7 @@ def test_every_consumer_yields_all_three_rows_of_a_three_row_file() -> None:
     assert [e["row_key"] for e in build_output(modern, bucket(modern))["no_prior_release_rows"]] == [
         "bbbb#0", "bbbb#1", "bbbb#2",
     ]
-    assert [o["row_key"] for o in build_report({"cards": [{**c, "description": ""} for c in cards]}).to_dict()["unresolved_cards"]] == keys
+    assert [o["row_key"] for o in build_report({"cards": [{**c, "description": ""} for c in cards]}).to_dict()["unresolved_rows"]] == keys
 
 
 def test_the_schema_docs_name_row_key_as_the_per_row_key_and_card_id_as_not_unique() -> None:
@@ -288,3 +289,49 @@ def test_migrated_claims_resolve_their_rows_through_the_bucketing(tmp_path: Path
     result = bucket(manifest, extra_claims=claims)
     assert build_output(manifest, result)["claims_without_row_key"] == 0
     assert len(result.superseded) == 2 and len(result.claims) == 1
+
+
+# --- review round 1 ---------------------------------------------------------------
+
+
+def test_the_report_names_its_unresolved_rows_and_files_apart() -> None:
+    report = build_report({"cards": [_row("aaaa", "A1"), _row("aaaa", "A2")]})
+    out = report.to_dict()
+    assert "unresolved_cards" not in out and "unresolved_card_row_count" not in out
+    assert out["unresolved_row_count"] == len(out["unresolved_rows"]) == 2
+    assert out["unresolved_files"] == ["aaaa"] and out["unresolved"] == 1
+    assert [o.row_key for o in report.unresolved_rows()] == ["aaaa#0", "aaaa#1"]
+
+
+def test_a_file_is_page_image_flagged_if_any_of_its_rows_is() -> None:
+    whole = {"description": "Previously released in full."}
+    cards = [
+        _row("aaaa", "A1", incident_date="1952-07-01", **whole),
+        _row("aaaa", "A2", incident_date="1952-07-01", description=_FBI),
+    ]
+    report = build_report({"cards": cards})
+    assert [o.needs_page_image_comparison for o in report.outcomes] == [False, True]
+    assert report.page_image_flagged == 1
+    assert report.to_dict()["page_image_flagged_files"] == ["aaaa"]
+
+
+def test_the_schema_doc_embeds_no_manifest_specific_file_count() -> None:
+    doc = (_REPO / "docs" / "provenance-artifacts-schema.md").read_text()
+    assert "nine files" not in doc and "On the current manifest" not in doc
+
+
+def test_stored_and_applied_ntrs_claim_counts_differ_for_an_old_shape_file(tmp_path: Path) -> None:
+    stored = [_stored_claim(_FILE)]
+    claims = _load(tmp_path, stored)
+    assert len(stored) == 1
+    manifest = {"cards": _CARDS}
+    out = build_report(manifest, extra_claims=claims).to_dict()
+    assert out["ntrs_claims_applied_row_count"] == len(claims) == 2
+
+
+def test_no_prior_release_files_are_keyed_by_file_key(monkeypatch) -> None:
+    import pursue_index.file_counts as file_counts
+
+    monkeypatch.setattr(file_counts, "file_key", lambda card: f"file:{card.card_id}")
+    manifest = {"cards": [_row("aaaa", "A1", incident_date="2022-05-06")]}
+    assert bucket(manifest).no_prior_release_files == ["file:aaaa"]

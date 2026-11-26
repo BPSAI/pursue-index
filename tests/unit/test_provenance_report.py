@@ -119,7 +119,7 @@ def test_claim_beats_era_so_the_two_are_never_conflated() -> None:
         "display_date": "2018-05-01",
         "description": "These pages were previously released to the public.",
     }
-    outcome = classify(card, ())
+    outcome = classify(card, (), row_key=f"{card['card_id']}#0")
     assert outcome.era == "2015_plus"
     assert outcome.resolved_by == RESOLVED_BY_CLAIM
     assert outcome.primary_tier == "previously_released"
@@ -133,7 +133,7 @@ def test_2015_plus_card_without_a_claim_is_resolved_by_era_alone() -> None:
         "display_date": "2020-01-01",
         "description": "Routine operational summary.",
     }
-    outcome = classify(card, ())
+    outcome = classify(card, (), row_key=f"{card['card_id']}#0")
     assert outcome.resolved_by == RESOLVED_BY_ERA
     assert outcome.primary_tier is None
     assert outcome.needs_page_image_comparison is False
@@ -147,7 +147,7 @@ def test_old_card_without_a_claim_is_unresolved() -> None:
         "display_date": "1952-07-01",
         "description": "Contemporary field report.",
     }
-    outcome = classify(card, ())
+    outcome = classify(card, (), row_key=f"{card['card_id']}#0")
     assert outcome.resolved_by == UNRESOLVED
     assert outcome.era == "pre_1970"
 
@@ -164,7 +164,7 @@ def test_page_image_flag_only_on_previously_released_in_part() -> None:
         "agency": "FBI",
         "description": "This file was partially posted on the FBI vault; some pages missing.",
     }
-    outcome = classify(partial, ())
+    outcome = classify(partial, (), row_key="fbi-vault#0")
     assert outcome.primary_tier == "previously_released_in_part"
     assert outcome.needs_page_image_comparison is True
 
@@ -176,8 +176,8 @@ def test_report_to_dict_carries_the_headline_numbers_and_unresolved_list() -> No
     assert payload["resolved_by_claim"] == report.resolved_by_claim
     assert payload["resolved_by_era"] == report.resolved_by_era
     assert payload["page_image_flagged"] == report.page_image_flagged
-    unresolved = payload["unresolved_cards"]
-    assert len(unresolved) == payload["unresolved_card_row_count"]
+    unresolved = payload["unresolved_rows"]
+    assert len(unresolved) == payload["unresolved_row_count"]
     assert all(row["resolved_by"] == UNRESOLVED for row in unresolved)
 
 

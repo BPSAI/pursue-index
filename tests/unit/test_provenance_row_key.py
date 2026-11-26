@@ -99,7 +99,7 @@ def test_a_lone_classified_row_carries_its_real_key_and_a_keyed_claim_resolves_i
     from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 
     card = _card("aaaa", "first")
-    assert classify(card).row_key == "aaaa#0"
+    assert classify(card, row_key="aaaa#0").row_key == "aaaa#0"
     claim = ResolvedClaim(
         card_id="aaaa",
         tier=ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED,
@@ -107,6 +107,24 @@ def test_a_lone_classified_row_carries_its_real_key_and_a_keyed_claim_resolves_i
         prior_publication="ntrs.nasa.gov",
         row_key="aaaa#0",
     )
-    outcome = classify(card, external=[claim])
+    outcome = classify(card, external=[claim], row_key="aaaa#0")
     assert outcome.resolved_by == RESOLVED_BY_CLAIM
     assert outcome.primary_tier == ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED.value
+
+
+def test_classify_resolves_a_keyed_claim_for_a_non_first_row() -> None:
+    from pursue_index.provenance import ProvenanceTier
+    from pursue_index.provenance_report import RESOLVED_BY_CLAIM, classify
+    from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
+
+    claim = ResolvedClaim(
+        card_id="aaaa",
+        tier=ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED,
+        source=ResolutionSource.NTRS_METADATA,
+        prior_publication="ntrs.nasa.gov",
+        row_key="aaaa#1",
+    )
+    card = _card("aaaa", "second")
+    outcome = classify(card, external=[claim], row_key="aaaa#1")
+    assert outcome.row_key == "aaaa#1" and outcome.resolved_by == RESOLVED_BY_CLAIM
+    assert classify(card, external=[claim], row_key="aaaa#0").resolved_by != RESOLVED_BY_CLAIM
