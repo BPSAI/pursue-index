@@ -414,3 +414,23 @@ def test_hop_target_403_aborts() -> None:
     fetcher, _, _ = _hop_fetcher({_OLD: _redirect(_NEW), _NEW: _Resp(403, "", {})})
     with pytest.raises(SitemapFetchError, match="403"):
         fetcher.fetch(_OLD)
+
+
+@pytest.mark.parametrize(
+    "location",
+    [
+        "https://evil.example\\@www.theblackvault.com/s.xml",
+        "https://www.theblackvault.com@evil.example/s.xml",
+        "https://user:pw@www.theblackvault.com/s.xml",
+        "https://www.theblackvault.com/ s.xml",
+        "https://www.theblackvault.com/s.xml\r\n",
+        "https://wwẉ.theblackvault.com/s.xml",
+    ],
+)
+def test_location_that_parsers_could_read_differently_is_refused(location: str) -> None:
+    fetcher, rec, _ = _hop_fetcher({_OLD: _redirect(location), location: _Resp(200, "ok", {}), location.strip(): _Resp(200, "ok", {})})
+    with pytest.raises(SitemapFetchError, match="redirect"):
+        fetcher.fetch(_OLD)
+    assert rec.fetched == [_OLD]
+    assert fetcher.redirects_refused == 1
+    assert fetcher.redirects_followed == 0
