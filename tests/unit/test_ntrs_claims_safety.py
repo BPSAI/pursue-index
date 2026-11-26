@@ -1,4 +1,4 @@
-"""NTRS claims file: refused when stale, written atomically, kept on abort."""
+"""NTRS claims file: left out (with a label) when stale, written atomically, kept on abort."""
 
 from __future__ import annotations
 
@@ -64,28 +64,52 @@ def test_a_missing_file_means_no_claims(tmp_path: Path) -> None:
     assert claims_for_manifest(tmp_path, _manifest()) == []
 
 
-def test_report_cli_refuses_stale_claims_and_exits_non_zero(
+def _report(root: Path, manifest: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Any, dict[str, Any]]:
+    monkeypatch.setenv("PURSUE_REPO_ROOT", str(root))
+    out = root / "summary.json"
+    result = CliRunner().invoke(provenance_app, ["report", "--manifest", str(manifest), "--json-out", str(out)])
+    return result, json.loads(out.read_text()) if out.exists() else {}
+
+
+def test_report_cli_runs_without_stale_claims_and_labels_it(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _repo(tmp_path, _manifest())
     _run(tmp_path, Net(Resp(200, EARLY)))
     other = tmp_path / "other.json"
     other.write_text(json.dumps(_manifest("b" * 64)))
-    monkeypatch.setenv("PURSUE_REPO_ROOT", str(tmp_path))
-    result = CliRunner().invoke(provenance_app, ["report", "--manifest", str(other)])
-    assert result.exit_code != 0
-    assert "a" * 64 in result.output
-    assert "b" * 64 in result.output
+    result, summary = _report(tmp_path, other, monkeypatch)
+    assert result.exit_code == 0, result.output
+    assert result.output.count("NTRS claims not applied") == 1
+    assert f"NTRS claims not applied: claims file is for csv {'a' * 64}" in result.output.replace("\n", "")
+    assert summary["resolved_by_claim"] == 0
+    assert summary["unresolved"] == 1
+    assert summary["ntrs_claims_applied"] is False
+    assert summary["ntrs_claims_csv_sha256"] == "a" * 64
 
 
 def test_report_cli_applies_matching_claims(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     _repo(tmp_path, _manifest())
     _run(tmp_path, Net(Resp(200, EARLY)))
     monkeypatch.setenv("PURSUE_REPO_ROOT", str(tmp_path))
-    result = CliRunner().invoke(
-        provenance_app, ["report", "--manifest", str(tmp_path / "data" / "manifests" / "latest.json")]
-    )
+    result, summary = _report(tmp_path, tmp_path / "data" / "manifests" / "latest.json", monkeypatch)
     assert result.exit_code == 0, result.output
+    assert "NTRS claims not applied" not in result.output
+    assert summary["resolved_by_claim"] == 1
+    assert summary["unresolved"] == 0
+    assert summary["ntrs_claims_applied"] is True
+    assert summary["ntrs_claims_csv_sha256"] == "a" * 64
+
+
+def test_report_cli_without_a_claims_file_applies_none_and_prints_no_notice(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _repo(tmp_path, _manifest())
+    result, summary = _report(tmp_path, tmp_path / "data" / "manifests" / "latest.json", monkeypatch)
+    assert result.exit_code == 0, result.output
+    assert "NTRS claims not applied" not in result.output
+    assert summary["ntrs_claims_applied"] is False
+    assert summary["ntrs_claims_csv_sha256"] is None
 
 
 def _previous(root: Path) -> bytes:
@@ -148,13 +172,16 @@ def test_a_claims_file_without_a_marker_is_refused(tmp_path: Path, marker: dict[
             claims_for_manifest(tmp_path, current)
 
 
-def test_report_cli_refuses_a_claims_file_without_a_marker(
+def test_report_cli_runs_without_a_marker_less_claims_file_and_says_none(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _repo(tmp_path, _manifest())
     _run(tmp_path, Net(Resp(200, EARLY)))
     _stored(tmp_path, {})
-    monkeypatch.setenv("PURSUE_REPO_ROOT", str(tmp_path))
-    result = CliRunner().invoke(provenance_app, ["report", "--manifest", str(tmp_path / "data" / "manifests" / "latest.json")])
-    assert result.exit_code == 1
-    assert "carries no csv_sha256" in result.output
+    result, summary = _report(tmp_path, tmp_path / "data" / "manifests" / "latest.json", monkeypatch)
+    assert result.exit_code == 0, result.output
+    assert result.output.count("NTRS claims not applied") == 1
+    assert "NTRS claims not applied: claims file is for csv <none>" in result.output.replace("\n", "")
+    assert summary["resolved_by_claim"] == 0
+    assert summary["ntrs_claims_applied"] is False
+    assert summary["ntrs_claims_csv_sha256"] is None
