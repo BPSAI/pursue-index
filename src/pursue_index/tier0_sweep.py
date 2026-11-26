@@ -311,15 +311,10 @@ class SweepResult(NamedTuple):
 
 def sweep(manifest: dict[str, Any]) -> SweepResult:
     """Emit a Tier-0 claim for every card whose description asserts one."""
-    claims: list[Tier0Claim] = []
-    uncitable = 0
     cards = manifest.get("cards", [])
-    for card, key in zip(cards, row_keys(cards), strict=True):
-        detection = _detect(card)
-        if detection.claim is not None:
-            claims.append(replace(detection.claim, row_key=key))
-        uncitable += int(detection.uncitable_prior_source)
-    return SweepResult(claims, uncitable)
+    found = [_detect(card) for card in cards]
+    claims = [replace(d.claim, row_key=k) for d, k in zip(found, row_keys(cards), strict=True) if d.claim]
+    return SweepResult(claims, sum(d.uncitable_prior_source for d in found))
 
 
 def _sweep_file(path: Path) -> SweepResult:
