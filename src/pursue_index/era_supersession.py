@@ -26,6 +26,7 @@ def superseded_entry(card_era: CardEra, claim: PositiveClaim) -> dict[str, Any]:
     """
     return {
         "card_id": card_era.card_id,
+        "row_key": card_era.row_key,
         "identifier": card_era.identifier,
         "title": card_era.title,
         "agency": card_era.agency,
@@ -36,4 +37,5 @@ def superseded_entry(card_era: CardEra, claim: PositiveClaim) -> dict[str, Any]:
         "superseding_source": claim.source,
         "superseding_evidence": claim.evidence,
         "reason": SUPERSEDED_REASON,
+        **({"era_reconciled_from": card_era.era_reconciled_from} if card_era.era_reconciled_from else {}),
     }

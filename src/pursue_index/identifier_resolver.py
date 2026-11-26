@@ -52,7 +52,7 @@ from pursue_index.identifier_collections import entry_in_identifier_collection
 from pursue_index.identifiers import Identifier, IdentifierKind, extract_identifiers
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import DateBasis, ProvenanceTier
-from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
+from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim, row_keys
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
 from pursue_index.tier0_sweep import detect_claim as detect_tier0_claim
 
@@ -316,8 +316,9 @@ def resolve_manifest(
 ) -> list[ResolvedClaim]:
     """Every claim the resolver supports across the manifest, in row order."""
     claims: list[ResolvedClaim] = []
-    for card in manifest.get("cards", []):
-        claims.extend(resolve_card(card, catalogue=catalogue))
+    cards = manifest.get("cards", [])
+    for card, key in zip(cards, row_keys(cards), strict=True):
+        claims.extend(replace(c, row_key=key) for c in resolve_card(card, catalogue=catalogue))
     return claims
 
 

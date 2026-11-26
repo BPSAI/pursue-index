@@ -36,8 +36,8 @@ from typing import Any
 
 from pursue_index.catalogue_load import LoadedCatalogue, load_catalogue
 from pursue_index.claim_precedence import POSITIVE_TIER_PRECEDENCE, primary_positive_tier
-from pursue_index.era_bucketing import classify_card
-from pursue_index.era_models import Era
+from pursue_index.era_bucketing import classify_card, classify_rows
+from pursue_index.era_models import CardEra, Era
 from pursue_index.provenance import ProvenanceTier
 from pursue_index.resolved_claim import ResolvedClaim
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
@@ -77,6 +77,7 @@ class CardOutcome:
     def to_dict(self) -> dict[str, Any]:
         return {
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "title": self.title,
             "agency": self.agency,
             "era": self.era,
@@ -90,10 +91,15 @@ def classify(
     card: dict[str, Any],
     catalogue: Sequence[SourceEntry] = (),
     external: Sequence[ResolvedClaim] = (),
+    card_era: CardEra | None = None,
 ) -> CardOutcome:
-    """Resolve one card through the chain and place it in exactly one route."""
-    primary = primary_positive_tier(card, catalogue, external)
-    card_era = classify_card(card)
+    """Resolve one card through the chain and place it in exactly one route.
+
+    ``card_era`` is the row's reconciled era, keyed; without it the row is read
+    on its own, as a lone row.
+    """
+    card_era = card_era if card_era is not None else classify_card(card)
+    primary = primary_positive_tier(card, catalogue, external, card_era.row_key)
     if primary is not None:
         resolved_by = RESOLVED_BY_CLAIM
     elif card_era.era is Era.MODERN_OPERATIONAL:
@@ -108,6 +114,7 @@ def classify(
         primary_tier=primary.value if primary is not None else None,
         resolved_by=resolved_by,
         needs_page_image_comparison=primary is ProvenanceTier.PREVIOUSLY_RELEASED_IN_PART,
+        row_key=card_era.row_key,
     )
 
 
@@ -165,7 +172,9 @@ def build_report(
     metadata search); one resolves its card in the ``claim`` route like any other positive claim.
     """
     loaded = catalogue if isinstance(catalogue, LoadedCatalogue) else LoadedCatalogue(list(catalogue), 0)
-    outcomes = [classify(card, loaded.entries, extra_claims) for card in manifest.get("cards", [])]
+    cards = manifest.get("cards", [])
+    eras = classify_rows(cards).cards
+    outcomes = [classify(card, loaded.entries, extra_claims, era) for card, era in zip(cards, eras, strict=True)]
     routes = Counter(o.resolved_by for o in outcomes)
     tier_counts = Counter(o.primary_tier for o in outcomes if o.primary_tier is not None)
     unresolved_by_era = Counter(o.era for o in outcomes if o.resolved_by == UNRESOLVED)

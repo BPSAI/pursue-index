@@ -42,10 +42,12 @@ from pursue_index.provenance import (
     is_citable_prior_source,
     require_web_url,
 )
+from pursue_index.row_key import row_keys
 
 __all__ = [
     "ResolutionSource",
     "ResolvedClaim",
+    "row_keys",  # re-exported: the resolver keys its claims with it
 ]
 
 _STRONG_TIERS = frozenset(
@@ -141,6 +143,7 @@ class ResolvedClaim:
         return {
             "kind": "resolved_claim",
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "tier": self.tier.value,
             "source": self.source.value,
             "identifier_kind": self.identifier_kind,
@@ -167,4 +170,5 @@ class ResolvedClaim:
             date_basis=DateBasis(raw_basis) if raw_basis else None,
             prior_publication=data.get("prior_publication", ""),
             needs_page_image_comparison=bool(data.get("needs_page_image_comparison", False)),
+            row_key=data.get("row_key", ""),
         )

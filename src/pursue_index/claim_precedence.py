@@ -82,11 +82,13 @@ def positive_claims(
     card: dict[str, Any],
     catalogue: Sequence[SourceEntry] = (),
     external: Sequence[ResolvedClaim] = (),
+    row_key: str = "",
 ) -> list[PositiveClaim]:
     """Every positive prior-release claim the chain asserts for one card.
 
     ``external`` holds claims resolved elsewhere (the NTRS source); only those
-    carrying this card's id count.
+    carrying this card's id count. A claim that names a row (``row_key``) counts
+    only for that row; one that names none counts for every row of the card.
     """
     claims: list[PositiveClaim] = []
     tier0 = detect_tier0_claim(card)
@@ -95,7 +97,11 @@ def positive_claims(
     claims.extend(_from_resolved(claim) for claim in resolve_card(card, catalogue=catalogue))
     card_id = str(card.get("card_id") or "")
     if card_id:
-        claims.extend(_from_resolved(claim) for claim in external if claim.card_id == card_id)
+        claims.extend(
+            _from_resolved(claim)
+            for claim in external
+            if claim.card_id == card_id and (not claim.row_key or claim.row_key == row_key)
+        )
     return claims
 
 
@@ -111,6 +117,7 @@ def primary_positive_claim(
     card: dict[str, Any],
     catalogue: Sequence[SourceEntry] = (),
     external: Sequence[ResolvedClaim] = (),
+    row_key: str = "",
 ) -> PositiveClaim | None:
     """The strongest positive claim on a card, with what backs it, or ``None``.
 
@@ -119,7 +126,7 @@ def primary_positive_claim(
     still gets a truthful answer for the cards those routes cover. A stage that
     *does* have a catalogue passes it, so that every stage reads the same chain.
     """
-    claims = positive_claims(card, catalogue, external)
+    claims = positive_claims(card, catalogue, external, row_key)
     for tier in POSITIVE_TIER_PRECEDENCE:
         for claim in claims:
             if claim.tier is tier:
@@ -131,7 +138,8 @@ def primary_positive_tier(
     card: dict[str, Any],
     catalogue: Sequence[SourceEntry] = (),
     external: Sequence[ResolvedClaim] = (),
+    row_key: str = "",
 ) -> ProvenanceTier | None:
     """The strongest positive tier on a card, or ``None`` if it carries none."""
-    claim = primary_positive_claim(card, catalogue, external)
+    claim = primary_positive_claim(card, catalogue, external, row_key)
     return claim.tier if claim is not None else None

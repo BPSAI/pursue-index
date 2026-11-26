@@ -86,9 +86,10 @@ def test_no_date_reason_is_unchanged() -> None:
     assert row["reason"] == _NO_DATE
 
 
-def test_duplicate_card_ids_keep_their_own_outcome() -> None:
+def test_undated_rows_of_one_file_keep_their_own_reasons() -> None:
+    # A dated row elsewhere does not date these: they share no file with it.
     cards = [
-        {**_card("dup", incident_date="6/7/2024", release_date="5/8/2026"), "title": "Report 2024"},
+        {**_card("other", incident_date="6/7/2024", release_date="5/8/2026"), "title": "Report 2024"},
         _card("dup", incident_date="Undated", release_date="5/8/2026"),
         _card("dup", release_date="5/8/2026"),
     ]

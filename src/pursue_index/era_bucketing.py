@@ -46,6 +46,7 @@ from pursue_index.era_models import (
     era_for_year,
     era_rationale,
 )
+from pursue_index.era_reconcile import FileEras, reconcile_file_eras
 from pursue_index.era_supersession import SUPERSEDED_REASON, superseded_entry
 from pursue_index.era_triage import triage_entry as _triage_entry
 from pursue_index.ntrs_claims_load import resolve_ntrs_claims
@@ -61,6 +62,7 @@ __all__ = [
     "bucket",
     "build_output",
     "classify_card",
+    "classify_rows",
 ]
 
 #: Tracked output artifact (under ``data/``, never an ignored directory).
@@ -89,6 +91,11 @@ def _era_of(resolved: ResolvedEraDate) -> Era:
 def _identifier(card: dict[str, Any]) -> str:
     """The most stable identifier available for a card."""
     return str(card.get("asset_filename") or card.get("title") or card.get("card_id") or "")
+
+
+def classify_rows(cards: Sequence[dict[str, Any]]) -> FileEras:
+    """Classify every row, key it, and reconcile each file to one era."""
+    return reconcile_file_eras(cards, [classify_card(card) for card in cards])
 
 
 def classify_card(card: dict[str, Any]) -> CardEra:
@@ -123,6 +130,12 @@ def _no_prior_release(card_era: CardEra) -> EraNoPriorRelease:
             f"card {card_era.card_id!r} is bucketed {card_era.era.value} but carries "
             "no document date; a no-prior-release record needs the year it rests on"
         )
+    rationale = era_rationale(card_era.year, card_era.date_source)
+    if card_era.era_reconciled_from:
+        rationale += (
+            f" This row names the same source file as {card_era.era_reconciled_from}, "
+            "whose date it takes."
+        )
     return EraNoPriorRelease(
         card_id=card_era.card_id,
         identifier=card_era.identifier,
@@ -131,7 +144,9 @@ def _no_prior_release(card_era: CardEra) -> EraNoPriorRelease:
         established_year=card_era.year,
         date_source=card_era.date_source,
         established_date=card_era.raw_date or str(card_era.year),
-        rationale=era_rationale(card_era.year, card_era.date_source),
+        rationale=rationale,
+        row_key=card_era.row_key,
+        era_reconciled_from=card_era.era_reconciled_from,
     )
 
 
@@ -159,7 +174,7 @@ def _modern_outcome(
     extra_claims: Sequence[ResolvedClaim] = (),
 ) -> tuple[EraNoPriorRelease | None, dict[str, Any] | None]:
     """For one modern card: its negative, or the claim row that supersedes it."""
-    claim = primary_positive_claim(card, catalogue, extra_claims)
+    claim = primary_positive_claim(card, catalogue, extra_claims, card_era.row_key)
     if claim is not None:
         return None, superseded_entry(card_era, claim)
     return _no_prior_release(card_era), None
@@ -187,7 +202,8 @@ def bucket(
     the card is also a 2015+ document.
     """
     raw_cards = manifest.get("cards", [])
-    classified = [classify_card(card) for card in raw_cards]
+    file_eras = classify_rows(raw_cards)
+    classified = file_eras.cards
     claims: list[EraNoPriorRelease] = []
     superseded: list[dict[str, Any]] = []
     triage: list[dict[str, Any]] = []
@@ -197,7 +213,7 @@ def bucket(
             claims.extend([claim] if claim is not None else [])
             superseded.extend([row] if row is not None else [])
         elif card_era.era is Era.UNDATED:
-            triage.append(_triage_entry(card_era, card))
+            triage.append(_triage_entry(card_era, card, file_eras.conflicts.get(card_era.row_key)))
     era_counts = {era.value: 0 for era in Era}
     era_counts.update(Counter(ce.era.value for ce in classified))
     agency_counts = dict(sorted(Counter(ce.agency for ce in classified).items()))

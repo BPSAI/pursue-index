@@ -38,7 +38,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 from pathlib import Path
 from typing import Any, NamedTuple
@@ -50,6 +50,7 @@ from pursue_index.provenance import (
     ProvenanceTier,
     is_citable_prior_source,
 )
+from pursue_index.row_key import row_keys
 
 __all__ = [
     "OUTPUT_PATH",
@@ -129,6 +130,7 @@ class Tier0Claim:
         return {
             "kind": "tier0_manifest_claim",
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "identifier": self.identifier,
             "title": self.title,
             "tier": self.tier.value,
@@ -311,10 +313,11 @@ def sweep(manifest: dict[str, Any]) -> SweepResult:
     """Emit a Tier-0 claim for every card whose description asserts one."""
     claims: list[Tier0Claim] = []
     uncitable = 0
-    for card in manifest.get("cards", []):
+    cards = manifest.get("cards", [])
+    for card, key in zip(cards, row_keys(cards), strict=True):
         detection = _detect(card)
         if detection.claim is not None:
-            claims.append(detection.claim)
+            claims.append(replace(detection.claim, row_key=key))
         uncitable += int(detection.uncitable_prior_source)
     return SweepResult(claims, uncitable)
 

@@ -46,11 +46,13 @@ def triage_reason(card: dict[str, Any]) -> str:
     return "no date on any manifest field"
 
 
-def triage_entry(card_era: CardEra, card: dict[str, Any]) -> dict[str, Any]:
+def triage_entry(
+    card_era: CardEra, card: dict[str, Any], reason: str | None = None
+) -> dict[str, Any]:
     """An explicit triage row for an undated card — never silently bucketed."""
-    reason = triage_reason(card)
     return {
         "card_id": card_era.card_id,
+        "row_key": card_era.row_key,
         "identifier": card_era.identifier,
         "title": card_era.title,
         "agency": card_era.agency,
@@ -59,5 +61,5 @@ def triage_entry(card_era: CardEra, card: dict[str, Any]) -> dict[str, Any]:
             "incident_date": card.get("incident_date"),
             "release_date": card.get("release_date"),
         },
-        "reason": reason,
+        "reason": reason if reason is not None else triage_reason(card),
     }

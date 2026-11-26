@@ -100,6 +100,7 @@ class CardEra:
     def to_dict(self) -> dict[str, Any]:
         return {
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "identifier": self.identifier,
             "title": self.title,
             "agency": self.agency,
@@ -107,6 +108,7 @@ class CardEra:
             "year": self.year,
             "date_source": self.date_source,
             "raw_date": self.raw_date,
+            "era_reconciled_from": self.era_reconciled_from,
         }
 
 
@@ -129,6 +131,8 @@ class EraNoPriorRelease:
     date_source: str
     established_date: str
     rationale: str
+    row_key: str = ""
+    era_reconciled_from: str | None = None
 
     era: ClassVar[Era] = Era.MODERN_OPERATIONAL
     tier: ClassVar[ProvenanceTier] = ProvenanceTier.NO_PRIOR_RELEASE_FOUND
@@ -158,6 +162,7 @@ class EraNoPriorRelease:
             "tier": self.tier.value,
             "era": self.era.value,
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "identifier": self.identifier,
             "title": self.title,
             "agency": self.agency,
@@ -166,4 +171,5 @@ class EraNoPriorRelease:
             "established_date": self.established_date,
             "rationale": self.rationale,
             "disclaimer": NO_PRIOR_RELEASE_DISCLAIMER,
+            **({"era_reconciled_from": self.era_reconciled_from} if self.era_reconciled_from else {}),
         }

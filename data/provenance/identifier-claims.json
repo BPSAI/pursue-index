@@ -17,6 +17,7 @@
     {
       "kind": "resolved_claim",
       "card_id": "973c1f75f55d0d39",
+      "row_key": "973c1f75f55d0d39#0",
       "tier": "content_previously_published",
       "source": "government_description",
       "identifier_kind": "",
