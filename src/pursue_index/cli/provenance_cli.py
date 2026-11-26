@@ -18,6 +18,7 @@ from rich.console import Console
 from rich.markup import escape
 from rich.table import Table
 
+from pursue_index.ntrs_claims_load import read_ntrs_claims
 from pursue_index.paths import repo_root
 from pursue_index.provenance_report import (
     POSITIVE_TIER_PRECEDENCE,
@@ -56,7 +57,7 @@ def _print_coverage(report: CoverageReport) -> None:
     table = Table(title=f"Provenance coverage — {report.card_count} cards")
     table.add_column("Resolution route")
     table.add_column("Cards", justify="right")
-    table.add_row("prior-release claim (Tier-0 + identifier resolver)", str(report.resolved_by_claim))
+    table.add_row("prior-release claim (Tier-0 + identifier resolver + NTRS)", str(report.resolved_by_claim))
     for tier in POSITIVE_TIER_PRECEDENCE:
         count = report.tier_counts.get(tier.value)
         if count:
@@ -108,7 +109,11 @@ def provenance_report_cmd(
     """Run the resolution chain and report Phase-A coverage. Report only."""
     if json_out is not None:
         _reject_web_path(json_out)
-    report = build_report(json.loads(manifest.read_text()), load_catalogue(repo_root()))
+    report = build_report(
+        json.loads(manifest.read_text()),
+        load_catalogue(repo_root()),
+        read_ntrs_claims(repo_root()),
+    )
     _print_coverage(report)
     _print_unresolved(report)
     if json_out is not None:

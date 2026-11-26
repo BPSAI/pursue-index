@@ -88,6 +88,8 @@ def test_date_basis_distinguishes_every_source_a_date_can_come_from():
         "http_last_modified",
         "publisher_date",
         "pdf_creation_date",
+        "ntrs_distribution_date",
+        "ntrs_created_date",
     }
 
 

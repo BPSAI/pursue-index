@@ -84,12 +84,18 @@ def positive_claims(
     catalogue: Sequence[SourceEntry] = (),
     external: Sequence[ResolvedClaim] = (),
 ) -> list[PositiveClaim]:
-    """Every positive prior-release claim the chain asserts for one card."""
+    """Every positive prior-release claim the chain asserts for one card.
+
+    ``external`` holds claims resolved elsewhere (the NTRS source); only those
+    carrying this card's id count.
+    """
     claims: list[PositiveClaim] = []
     tier0 = detect_tier0_claim(card)
     if tier0 is not None:
         claims.append(_from_tier0(tier0))
     claims.extend(_from_resolved(claim) for claim in resolve_card(card, catalogue=catalogue))
+    card_id = str(card.get("card_id") or "")
+    claims.extend(_from_resolved(claim) for claim in external if claim.card_id == card_id)
     return claims
 
 

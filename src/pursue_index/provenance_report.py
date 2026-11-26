@@ -159,9 +159,12 @@ def build_report(
     carries how many stored rows could not be read, and the report publishes
     that: a coverage figure is a statement about how much was searched, so the
     part of the catalogue that was unreadable belongs in it.
+
+    ``ntrs_claims`` are the positive claims the NTRS metadata search produced;
+    one resolves its card in the ``claim`` route like any other positive claim.
     """
     loaded = catalogue if isinstance(catalogue, LoadedCatalogue) else LoadedCatalogue(list(catalogue), 0)
-    outcomes = [classify(card, loaded.entries) for card in manifest.get("cards", [])]
+    outcomes = [classify(card, loaded.entries, ntrs_claims) for card in manifest.get("cards", [])]
     routes = Counter(o.resolved_by for o in outcomes)
     tier_counts = Counter(o.primary_tier for o in outcomes if o.primary_tier is not None)
     unresolved_by_era = Counter(o.era for o in outcomes if o.resolved_by == UNRESOLVED)
