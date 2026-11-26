@@ -196,7 +196,7 @@ def bucket(
         if row.route is Route.ERA:
             claims.append(_no_prior_release(card_era))
         elif row.route is Route.CLAIM and row.claim is not None and card_era.era is Era.MODERN_OPERATIONAL:
-            superseded.append(superseded_entry(card_era, row.claim))
+            superseded.append(superseded_entry(card_era, row.claim, row.inherited_from))
         elif row.conflict is not None and row.route is Route.UNRESOLVED:
             triage.append(_triage_entry(card_era, card, row.conflict))
         elif row.conflict is None and card_era.era is Era.UNDATED:

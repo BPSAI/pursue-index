@@ -91,7 +91,11 @@ def test_a_keyed_claim_resolves_exactly_its_row() -> None:
     assert positive_claims(cards[0], external=keyed, row_key="aaaa#0") == []
     assert len(positive_claims(cards[1], external=keyed, row_key="aaaa#1")) == 1
     result = bucket({"cards": cards}, extra_claims=keyed)
-    assert [s["row_key"] for s in result.superseded] == ["aaaa#1"]
+    # the claim is keyed to #1 alone; #0 takes it from its file rather than owning it
+    by_key = {s["row_key"]: s for s in result.superseded}
+    assert sorted(by_key) == ["aaaa#0", "aaaa#1"]
+    assert by_key["aaaa#0"]["claim_inherited_from"] == "aaaa#1"
+    assert "claim_inherited_from" not in by_key["aaaa#1"]
     assert getattr(result, "claims_without_row_key", None) == 0
 
 
@@ -140,7 +144,7 @@ def test_an_undated_claimed_row_covers_its_dated_unclaimed_sibling() -> None:
     assert out["file_route_counts"]["claim"] == 1
     report = build_report(manifest, extra_claims=claims)
     assert [o.resolved_by for o in report.outcomes] == ["claim", "claim"]
-    assert report.file_route_counts["claim"] == 1
+    assert report.resolved_by_claim == 1
 
 
 def test_a_dated_claimed_row_still_covers_its_reconciled_sibling() -> None:
@@ -156,14 +160,13 @@ def test_a_conflicting_file_with_one_claimed_row_emits_no_negative() -> None:
     cards = [_dated(date_="2022-05-06"), _dated(title="D2", date_="2019-03-04"), _undated()]
     result = bucket({"cards": cards}, extra_claims=[_claim("aaaa", "aaaa#2")])
     assert result.claims == []
-    by_key = {s["row_key"]: s for s in result.superseded}
-    assert sorted(by_key) == ["aaaa#0", "aaaa#1"]
-    assert {e["claim_inherited_from"] for e in by_key.values()} == {"aaaa#2"}
+    assert [s["row_key"] for s in result.superseded] == []
     assert build_output({"cards": cards}, result)["no_prior_release_rows"] == []
+    assert build_report({"cards": cards}, extra_claims=[_claim("aaaa", "aaaa#2")]).resolved_by_claim == 1
 
 
 def test_the_strongest_claim_in_the_file_is_inherited_ties_by_lowest_row_key() -> None:
-    cards = [_undated("U0"), _dated(title="D1"), _dated(title="D2", date_="2023-01-01")]
+    cards = [_undated("U0"), _dated(title="D1"), _dated(title="D2")]
     claims = [_claim("aaaa", "aaaa#2"), _claim("aaaa", "aaaa#0")]
     result = bucket({"cards": cards}, extra_claims=claims)
     by_key = {s["row_key"]: s for s in result.superseded}

@@ -16,7 +16,7 @@ SUPERSEDED_REASON = (
     "record did appear before this archive was assembled."
 )
 
-def superseded_entry(card_era: CardEra, claim: PositiveClaim) -> dict[str, Any]:
+def superseded_entry(card_era: CardEra, claim: PositiveClaim, inherited_from: str | None = None) -> dict[str, Any]:
     """Record a negative that a positive claim outranked — never a silent drop.
 
     The row states what outranked the era conclusion, not just that something
@@ -38,4 +38,5 @@ def superseded_entry(card_era: CardEra, claim: PositiveClaim) -> dict[str, Any]:
         "superseding_evidence": claim.evidence,
         "reason": SUPERSEDED_REASON,
         **({"era_reconciled_from": card_era.era_reconciled_from} if card_era.era_reconciled_from else {}),
+        **({"claim_inherited_from": inherited_from} if inherited_from else {}),
     }

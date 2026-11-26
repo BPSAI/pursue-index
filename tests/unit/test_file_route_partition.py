@@ -115,10 +115,10 @@ def _both(claims: list[ResolvedClaim]) -> tuple[dict[str, Any], dict[str, Any]]:
 def test_any_row_claim_routes_the_whole_file_to_claim_and_the_partitions_add_up() -> None:
     out, report = _both([_claim("claimed", "claimed#1")])
     assert out["file_route_counts"] == {"claim": 1, "era": 1, "unresolved": 3}
-    assert out["row_route_counts"] == {"claim": 1, "era": 3, "unresolved": 4}
+    assert out["row_route_counts"] == {"claim": 2, "era": 2, "unresolved": 4}
     assert sum(out["file_route_counts"].values()) == out["file_count"] == 5
     assert sum(out["row_route_counts"].values()) == out["card_row_count"] == 8
-    # the unclaimed row of the claimed file is still an era row; it is not hidden by the file route
+    # the unclaimed row of the claimed file inherits the file's claim, so it emits no negative
     assert (report["resolved_by_claim"], report["resolved_by_era"], report["unresolved"]) == (1, 1, 3)
     assert report["row_counts"] == out["row_route_counts"]
     assert report["unresolved_files"] == ["old", "conf", "lone"]

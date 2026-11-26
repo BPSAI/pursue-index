@@ -9,15 +9,15 @@ partition ``file_count``, the row counts partition ``card_row_count``, and an
 unresolved file that still has an era row is listed as partially resolved, so no
 unresolved row is hidden behind a stronger sibling.
 
-A reconciled row has no date of its own, only its dated sibling's, so it takes that
-sibling's prior-release status too: a positive claim on the sibling is evidence about
-the file, and a negative inferred from the same file's date must not contradict it.
+A positive claim is about the document, so inheritance is file-level: a row without a
+claim of its own (and no date conflict) takes the strongest claim of any row in its file (by tier precedence,
+the first row winning a tie), and no row of a claimed file emits a negative.
 """
 
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
@@ -91,13 +91,15 @@ class RowBasis:
     claim: PositiveClaim | None
     conflict: str | None
     route: Route
+    inherited_from: str | None = None
 
 
-def _strongest(claims: list[PositiveClaim]) -> PositiveClaim | None:
+def _strongest(claims: list[tuple[str, PositiveClaim]]) -> tuple[str, PositiveClaim] | None:
+    """The strongest claim by tier precedence; the first row of the file wins a tie."""
     for tier in POSITIVE_TIER_PRECEDENCE:
-        for claim in claims:
-            if claim.tier is tier:
-                return claim
+        for entry in claims:
+            if entry[1].tier is tier:
+                return entry
     return None
 
 
@@ -106,20 +108,28 @@ def _effective_claims(
     eras: Sequence[CardEra],
     catalogue: Sequence[SourceEntry],
     external: Sequence[ResolvedClaim],
-) -> list[PositiveClaim | None]:
-    """Each row's strongest positive claim; a reconciled row falls back on its file's dated rows."""
+    conflicts: Mapping[str, str],
+) -> list[tuple[PositiveClaim | None, str | None]]:
+    """Each row's claim and, if inherited, the row it came from; inheritance is file-level.
+
+    A conflicted row never inherits: it stays unresolved and emits no negative either way.
+    """
     own = [
         primary_positive_claim(card, catalogue, external, row_key=era.row_key)
         for card, era in zip(cards, eras, strict=True)
     ]
-    by_file: dict[str, list[PositiveClaim]] = {}
+    by_file: dict[str, list[tuple[str, PositiveClaim]]] = {}
     for era, claim in zip(eras, own, strict=True):
-        if claim is not None and not era.era_reconciled_from and era.era is not Era.UNDATED:
-            by_file.setdefault(file_key(era), []).append(claim)
-    return [
-        claim if claim is not None or not era.era_reconciled_from else _strongest(by_file.get(file_key(era), []))
-        for era, claim in zip(eras, own, strict=True)
-    ]
+        if claim is not None:
+            by_file.setdefault(file_key(era), []).append((era.row_key, claim))
+    effective: list[tuple[PositiveClaim | None, str | None]] = []
+    for era, claim in zip(eras, own, strict=True):
+        if claim is not None or era.row_key in conflicts:
+            effective.append((claim, None))
+            continue
+        source = _strongest(by_file.get(file_key(era), []))
+        effective.append((source[1], source[0]) if source else (None, None))
+    return effective
 
 
 def assess(
@@ -130,11 +140,12 @@ def assess(
 ) -> list[RowBasis]:
     """Route every reconciled row, once; the bucketing and the report both read this."""
     eras = reconciled.cards
-    claims = _effective_claims(cards, eras, catalogue, external)
+    claims = _effective_claims(cards, eras, catalogue, external, reconciled.conflicts)
     rows: list[RowBasis] = []
-    for era, claim in zip(eras, claims, strict=True):
+    for era, (claim, source) in zip(eras, claims, strict=True):
         conflict = reconciled.conflicts.get(era.row_key)
-        rows.append(RowBasis(era, claim, conflict, row_route(claim is not None, era.era, conflict is not None)))
+        route = row_route(claim is not None, era.era, conflict is not None)
+        rows.append(RowBasis(era, claim, conflict, route, source))
     return rows
 
 

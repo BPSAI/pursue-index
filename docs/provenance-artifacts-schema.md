@@ -77,11 +77,14 @@ so the two cannot disagree. It places a row in exactly one route:
 - **era**: otherwise, the row is in a non-conflict file whose era is `2015_plus`;
 - **unresolved**: otherwise.
 
-**Inheritance.** A reconciled row has no date of its own, so it inherits its dated
-sibling's prior-release status. If that sibling has a positive claim, or was
-superseded by one, the reconciled row takes the claim: it routes `claim`, is listed in
-`superseded_by_claim`, and emits no `no_prior_release` negative. Otherwise it
-emits the negative, labelled `reconciled: true` (with `era_reconciled_from`) in
+**Inheritance.** A positive claim is about the document, so inheritance is
+file-level. A row keeps its own claim. A row without one takes the strongest claim of
+any other row in its file, by the claim tier precedence, with the first row of the file
+winning a tie. It routes `claim` and is listed in `superseded_by_claim`, labelled
+`claim_inherited_from: <row_key of the source row>`. So no row of a claimed file emits a
+`no_prior_release` negative, whether the claim sits on a dated row, an undated row, or a
+row of a conflicting file. A file with no claim is unchanged: a reconciled row emits the
+negative, labelled `reconciled: true` (with `era_reconciled_from`) in
 `no_prior_release_rows[]`.
 
 **The file route** is the mixed-outcome partition. It places each file in exactly one
@@ -130,6 +133,7 @@ row of a conflict file that no claim resolves.
 | (new) | `claims_without_row_key` | claim | Loaded external claims that name no row. They match no row and are counted here. |
 | (new, per record) | `row_key` | row | See above. |
 | (new, per `cards[]` record) | `era_reconciled_from` | row | The `row_key` of the dated row an undated row took its era from; `null` otherwise. See *The era of a source file*. |
+| (new, per `superseded_by_claim[]` record) | `claim_inherited_from` | row | Present only when the row has no claim of its own: the `row_key` of the row in its file whose claim it takes. See *The row route*. |
 | (new, per `no_prior_release_rows[]` record) | `reconciled` | row | Present only on the negative of a reconciled row: `true`, beside `era_reconciled_from` (the sibling's `row_key`). |
 | (new) | `file_route_counts` | file | `claim`, `era`, `unresolved` per file. Sums to `file_count`. See *The route of a row, and of a file*. |
 | (new) | `row_route_counts` | row | The same routes per row. Sums to `card_row_count`. |
