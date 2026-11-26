@@ -41,7 +41,7 @@ def test_loader_keeps_the_manifest_markers(tmp_path: Path) -> None:
     stored = read_ntrs_claims(tmp_path)
     assert stored is not None
     assert stored.csv_sha256 == "a" * 64
-    assert stored.source_manifest == "https://example.test/m"
+    assert stored.corpus_manifest_url == "https://example.test/m"
 
 
 def test_matching_shas_apply_the_claims(tmp_path: Path) -> None:

@@ -233,7 +233,7 @@ def test_build_output_preserves_manifest_provenance_and_counts() -> None:
     assert out["claim_count"] == len(claims)
     assert out["card_count"] == len(manifest["cards"])
     assert out["csv_sha256"] == manifest.get("csv_sha256")
-    assert out["source_manifest"] == manifest.get("source_url")
+    assert out["corpus_manifest_url"] == manifest.get("source_url")
     assert len(out["claims"]) == len(claims)
     first = out["claims"][0]
     assert first["tier"] in {t.value for t in POSITIVE_TIERS}
