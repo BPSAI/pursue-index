@@ -33,6 +33,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from pursue_index.atomic_text import write_text_atomic
 from pursue_index.catalogue_load import LoadedCatalogue, load_catalogue
 from pursue_index.claim_precedence import primary_positive_claim
 from pursue_index.era_dates import ResolvedEraDate, resolve_era_date
@@ -46,7 +47,7 @@ from pursue_index.era_models import (
     era_rationale,
 )
 from pursue_index.era_supersession import SUPERSEDED_REASON, superseded_entry
-from pursue_index.ntrs_claims_load import claims_for_manifest
+from pursue_index.ntrs_claims_load import StaleNtrsClaimsError, claims_for_manifest
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.resolved_claim import ResolvedClaim
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
@@ -287,16 +288,17 @@ def main() -> int:
     repo_root = _resolve_repo_root()
     manifest = json.loads((repo_root / "data" / "manifests" / "latest.json").read_text())
     catalogue = load_catalogue(repo_root)
-    result = bucket(manifest, catalogue.entries, claims_for_manifest(repo_root, manifest))
+    try:
+        result = bucket(manifest, catalogue.entries, claims_for_manifest(repo_root, manifest))
+    except StaleNtrsClaimsError as exc:
+        print(f"era bucketing: refusing to apply stale NTRS claims: {exc}")
+        return 1
     out_path = repo_root / OUTPUT_PATH
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(build_output(manifest, result, catalogue), indent=2) + "\n")
+    write_text_atomic(out_path, json.dumps(build_output(manifest, result, catalogue), indent=2) + "\n")
     labelled = ", ".join(f"{ERA_LABELS[era]}={result.era_counts[era.value]}" for era in Era)
     print(f"era bucketing: {len(result.cards)} cards -> {labelled}")
-    print(f"  {len(result.claims)} no_prior_release (2015+); {len(result.triage)} undated (triage)")
-    print(f"  {len(result.superseded)} superseded by a prior-release claim")
-    print(f"  catalogue: {len(catalogue.entries)} entries, {catalogue.dropped_rows} row(s) skipped")
-    print(f"  wrote {out_path.relative_to(repo_root)}")
+    print(f"  {len(result.claims)} no_prior_release (2015+); {len(result.triage)} undated (triage)\n  {len(result.superseded)} superseded by a prior-release claim")
+    print(f"  catalogue: {len(catalogue.entries)} entries, {catalogue.dropped_rows} row(s) skipped\n  wrote {out_path.relative_to(repo_root)}")
     return 0
 
 

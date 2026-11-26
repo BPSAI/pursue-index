@@ -56,6 +56,7 @@ def test_the_ntrs_subcommand_exits_non_zero_on_429_and_writes_nothing(
     monkeypatch.setattr(ntrs_source, "default_get", net.get)
     result = CliRunner().invoke(provenance_app, ["ntrs"])
     assert result.exit_code != 0
+    assert "429" in result.output
     assert not (tmp_path / ntrs_source.OUTPUT_PATH).exists()
 
 

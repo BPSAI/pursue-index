@@ -18,6 +18,7 @@ from rich.console import Console
 from rich.markup import escape
 from rich.table import Table
 
+from pursue_index import ntrs_source
 from pursue_index.ntrs_claims_load import StaleNtrsClaimsError, claims_for_manifest
 from pursue_index.paths import repo_root
 from pursue_index.provenance_report import (
@@ -122,3 +123,11 @@ def provenance_report_cmd(
         json_out.parent.mkdir(parents=True, exist_ok=True)
         json_out.write_text(json.dumps(report.to_dict(), indent=2) + "\n")
         console.print(f"\n[green]✔[/green] summary written to {json_out}")
+
+
+@provenance_app.command("ntrs")
+def provenance_ntrs_cmd() -> None:
+    """Search NASA NTRS for unresolved NASA cards and write data/provenance/ntrs-claims.json."""
+    code = ntrs_source.main()
+    if code:
+        raise typer.Exit(code=code)

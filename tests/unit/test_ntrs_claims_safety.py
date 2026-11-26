@@ -83,7 +83,7 @@ def test_report_cli_applies_matching_claims(tmp_path: Path, monkeypatch: pytest.
     _run(tmp_path, Net(Resp(200, EARLY)))
     monkeypatch.setenv("PURSUE_REPO_ROOT", str(tmp_path))
     result = CliRunner().invoke(
-        provenance_app, ["--manifest", str(tmp_path / "data" / "manifests" / "latest.json")]
+        provenance_app, ["report", "--manifest", str(tmp_path / "data" / "manifests" / "latest.json")]
     )
     assert result.exit_code == 0, result.output
 

@@ -34,7 +34,6 @@ __all__ = [
     "POSITIVE_TIER_PRECEDENCE",
     "PositiveClaim",
     "positive_claims",
-    "positive_tiers",
     "primary_positive_claim",
     "primary_positive_tier",
     "primary_tier",
@@ -97,15 +96,6 @@ def positive_claims(
     card_id = str(card.get("card_id") or "")
     claims.extend(_from_resolved(claim) for claim in external if claim.card_id == card_id)
     return claims
-
-
-def positive_tiers(
-    card: dict[str, Any],
-    catalogue: Sequence[SourceEntry] = (),
-    external: Sequence[ResolvedClaim] = (),
-) -> set[ProvenanceTier]:
-    """Every positive prior-release tier the chain asserts for one card."""
-    return {claim.tier for claim in positive_claims(card, catalogue, external)}
 
 
 def primary_tier(tiers: set[ProvenanceTier]) -> ProvenanceTier | None:
