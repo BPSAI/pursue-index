@@ -111,8 +111,12 @@ The counts, each named for its unit:
 as `row_counts`, and the two `partially_resolved_*` keys. `partially_resolved_file_count`
 is a visibility count. Reconciliation gives a non-conflict file one era for all its rows, so it is `0` unless a file splits; it is emitted so that a future upstream change that splits a file's rows between `era` and `unresolved` is visible rather than absorbed.
 
-**Triage.** `undated_triage` lists every undated row of a non-conflict file, and every
-row of a conflict file that no claim resolves.
+**Triage.** `undated_triage` lists only rows whose route is `unresolved`: an undated row
+of a non-conflict file, and every row of a conflict file that no claim resolves. A row that
+routes `claim` is never listed, whatever its era; an undated row with a claim is resolved
+by it and emits neither a triage entry nor a negative. The identity that ties the counts
+together: `undated_triage_row_count` plus the undated rows that route `claim` equals
+`era_row_counts["undated"]` plus the dated rows of conflict files that stay unresolved.
 
 ## `era-buckets.json`
 

@@ -195,11 +195,14 @@ def bucket(
         card_era = row.era
         if row.route is Route.ERA:
             claims.append(_no_prior_release(card_era))
-        elif row.route is Route.CLAIM and row.claim is not None and card_era.era is Era.MODERN_OPERATIONAL:
-            superseded.append(superseded_entry(card_era, row.claim, row.inherited_from))
-        elif row.conflict is not None and row.route is Route.UNRESOLVED:
+        elif row.route is Route.CLAIM:
+            # A claim resolves the row whatever its era: a modern row is published
+            # as superseded; any other era (undated included) needs nothing more.
+            if card_era.era is Era.MODERN_OPERATIONAL and row.claim is not None:
+                superseded.append(superseded_entry(card_era, row.claim, row.inherited_from))
+        elif row.conflict is not None:
             triage.append(_triage_entry(card_era, card, row.conflict))
-        elif row.conflict is None and card_era.era is Era.UNDATED:
+        elif card_era.era is Era.UNDATED:
             triage.append(_triage_entry(card_era, card))
     counts = count_fields(reconciled.cards, claims, extra_claims, reconciled.conflicts)
     return BucketResult(reconciled.cards, claims, triage, superseded=superseded, **counts, **route_fields(rows))
