@@ -9,11 +9,11 @@
     "reason": "Dropped: a sitemap <loc> is a third-party string and a catalogue row is one hop from a citation, so a row whose URL is not plain http(s) is excluded rather than carried into the artifact."
   },
   "era_counts": {
-    "2015_plus": 225,
+    "2015_plus": 222,
     "1990_2014": 76,
     "1970_1989": 19,
     "pre_1970": 120,
-    "undated": 81
+    "undated": 84
   },
   "agency_counts": {
     "CIA": 29,
@@ -37,23 +37,23 @@
       "undated": 36
     },
     "current": {
-      "2015_plus": 225,
+      "2015_plus": 222,
       "1990_2014": 76,
       "1970_1989": 19,
       "pre_1970": 120,
-      "undated": 81
+      "undated": 84
     },
     "delta": {
-      "2015_plus": 19,
+      "2015_plus": 16,
       "1990_2014": 63,
       "1970_1989": 0,
       "pre_1970": 60,
-      "undated": 45
+      "undated": 48
     },
     "matches_reference": false,
     "note": "Two causes account for the undated delta, and they are separate. (1) Display-date curation: \u00a74a was computed against a manifest with that curation applied, and this manifest carries a curated display_date for only a handful of cards, so cards \u00a74a dated via display_date surface here as triage. (2) Two-digit years: a two-digit year states no century, so this stage reads one through a pivot and accepts the result only when a four-digit year elsewhere on the same card states the same year \u2014 a card whose only date is an uncorroborated two-digit year is undated here for that reason rather than for the first. In both cases release_date (the war.gov publication date) is never used as a document era."
   },
-  "no_prior_release_count": 223,
+  "no_prior_release_count": 220,
   "no_prior_release": [
     {
       "kind": "era_no_prior_release",
@@ -185,20 +185,6 @@
       "kind": "era_no_prior_release",
       "tier": "no_prior_release_found",
       "era": "2015_plus",
-      "card_id": "3a0d83f3e51179db",
-      "identifier": "dow-uap-d27-mission-report-united-arab-emirates-october-2023.pdf",
-      "title": "DOW-UAP-D027, Mission Report, United Arab Emirates, October 2023",
-      "agency": "Department of War",
-      "established_year": 2024,
-      "date_source": "incident_date",
-      "established_date": "6/7/2024",
-      "rationale": "This document is dated 2024 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
-      "disclaimer": "absence of a prior release is not established"
-    },
-    {
-      "kind": "era_no_prior_release",
-      "tier": "no_prior_release_found",
-      "era": "2015_plus",
       "card_id": "9151e15016109463",
       "identifier": "dow-uap-d28-mission-report-east-china-sea-2024.pdf",
       "title": "DOW-UAP-D028, Mission Report, Iraq, September 2024",
@@ -269,20 +255,6 @@
       "kind": "era_no_prior_release",
       "tier": "no_prior_release_found",
       "era": "2015_plus",
-      "card_id": "ff3939f95d878062",
-      "identifier": "DOW-UAP-D042-Range-Fouler-Debrief-Arabian-Gulf-2023.pdf",
-      "title": "DOW-UAP-D042, Range Fouler Debrief, Arabian Gulf, 2023",
-      "agency": "Department of War",
-      "established_year": 2020,
-      "date_source": "incident_date",
-      "established_date": "8/31/2020",
-      "rationale": "This document is dated 2020 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
-      "disclaimer": "absence of a prior release is not established"
-    },
-    {
-      "kind": "era_no_prior_release",
-      "tier": "no_prior_release_found",
-      "era": "2015_plus",
       "card_id": "cc33e8c352fc80ce",
       "identifier": "dow-uap-d44-range-fouler-arabian-sea-october-2020.pdf",
       "title": "DOW-UAP-D044, Range Fouler Reporting Form, Gulf of Aden, October 2020",
@@ -305,20 +277,6 @@
       "date_source": "incident_date",
       "established_date": "4/10/2025-4/11/2025",
       "rationale": "This document is dated 2025 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
-      "disclaimer": "absence of a prior release is not established"
-    },
-    {
-      "kind": "era_no_prior_release",
-      "tier": "no_prior_release_found",
-      "era": "2015_plus",
-      "card_id": "71758de42a2df926",
-      "identifier": "dow-uap-d51-email-correspondence-pacific-time-zone-march-2023.pdf",
-      "title": "DOW-UAP-D051, Email Correspondence, Pacific Time Zone, March 2023",
-      "agency": "Department of War",
-      "established_year": 2026,
-      "date_source": "incident_date",
-      "established_date": "3/23/2026",
-      "rationale": "This document is dated 2026 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
       "disclaimer": "absence of a prior release is not established"
     },
     {
@@ -3207,7 +3165,7 @@
       "reason": "A positive prior-release claim was found for this card, so the era-based no-prior-release conclusion does not apply: the claim is evidence the record did appear before this archive was assembled."
     }
   ],
-  "undated_triage_count": 81,
+  "undated_triage_count": 84,
   "undated_triage": [
     {
       "card_id": "ca4a3d21010eda4b",
@@ -3592,6 +3550,42 @@
         "release_date": "5/8/2026"
       },
       "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
+    },
+    {
+      "card_id": "3a0d83f3e51179db",
+      "identifier": "dow-uap-d27-mission-report-united-arab-emirates-october-2023.pdf",
+      "title": "DOW-UAP-D027, Mission Report, United Arab Emirates, October 2023",
+      "agency": "Department of War",
+      "available_dates": {
+        "display_date": null,
+        "incident_date": "6/7/2024",
+        "release_date": "5/8/2026"
+      },
+      "reason": "incident_date 6/7/2024 present but its century is uncorroborated (numeric M/D/YYYY year; no corroborating field); held undated"
+    },
+    {
+      "card_id": "ff3939f95d878062",
+      "identifier": "DOW-UAP-D042-Range-Fouler-Debrief-Arabian-Gulf-2023.pdf",
+      "title": "DOW-UAP-D042, Range Fouler Debrief, Arabian Gulf, 2023",
+      "agency": "Department of War",
+      "available_dates": {
+        "display_date": null,
+        "incident_date": "8/31/2020",
+        "release_date": "5/8/2026"
+      },
+      "reason": "incident_date 8/31/2020 present but its century is uncorroborated (numeric M/D/YYYY year; no corroborating field); held undated"
+    },
+    {
+      "card_id": "71758de42a2df926",
+      "identifier": "dow-uap-d51-email-correspondence-pacific-time-zone-march-2023.pdf",
+      "title": "DOW-UAP-D051, Email Correspondence, Pacific Time Zone, March 2023",
+      "agency": "Department of War",
+      "available_dates": {
+        "display_date": null,
+        "incident_date": "3/23/2026",
+        "release_date": "5/8/2026"
+      },
+      "reason": "incident_date 3/23/2026 present but its century is uncorroborated (numeric M/D/YYYY year; no corroborating field); held undated"
     },
     {
       "card_id": "2201422e542ed597",
@@ -5068,10 +5062,10 @@
       "identifier": "dow-uap-d27-mission-report-united-arab-emirates-october-2023.pdf",
       "title": "DOW-UAP-D027, Mission Report, United Arab Emirates, October 2023",
       "agency": "Department of War",
-      "era": "2015_plus",
-      "year": 2024,
-      "date_source": "incident_date",
-      "raw_date": "6/7/2024"
+      "era": "undated",
+      "year": 2026,
+      "date_source": "release_date",
+      "raw_date": "5/8/2026"
     },
     {
       "card_id": "9151e15016109463",
@@ -5128,10 +5122,10 @@
       "identifier": "DOW-UAP-D042-Range-Fouler-Debrief-Arabian-Gulf-2023.pdf",
       "title": "DOW-UAP-D042, Range Fouler Debrief, Arabian Gulf, 2023",
       "agency": "Department of War",
-      "era": "2015_plus",
-      "year": 2020,
-      "date_source": "incident_date",
-      "raw_date": "8/31/2020"
+      "era": "undated",
+      "year": 2026,
+      "date_source": "release_date",
+      "raw_date": "5/8/2026"
     },
     {
       "card_id": "cc33e8c352fc80ce",
@@ -5178,10 +5172,10 @@
       "identifier": "dow-uap-d51-email-correspondence-pacific-time-zone-march-2023.pdf",
       "title": "DOW-UAP-D051, Email Correspondence, Pacific Time Zone, March 2023",
       "agency": "Department of War",
-      "era": "2015_plus",
+      "era": "undated",
       "year": 2026,
-      "date_source": "incident_date",
-      "raw_date": "3/23/2026"
+      "date_source": "release_date",
+      "raw_date": "5/8/2026"
     },
     {
       "card_id": "a3f68d208681dc64",
