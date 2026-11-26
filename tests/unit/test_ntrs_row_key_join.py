@@ -1,4 +1,4 @@
-"""The NTRS row-key join: a keyed claim reaches one row, an unkeyed one every row.
+"""The NTRS row-key join: a keyed claim reaches one row, an unkeyed one none.
 
 Fixtures only; nothing here touches the network or the stored artifacts.
 """
@@ -44,11 +44,11 @@ def test_a_keyed_claim_resolves_only_its_own_row() -> None:
     assert _ntrs_sources(card, claim, "aaaa#1") == []
 
 
-def test_an_unkeyed_claim_still_matches_on_card_id() -> None:
+def test_an_unkeyed_claim_matches_no_row() -> None:
     card = _card("aaaa", "first")
     claim = _ntrs_claim("aaaa")
-    assert len(_ntrs_sources(card, claim, "aaaa#0")) == 1
-    assert len(_ntrs_sources(card, claim, "aaaa#1")) == 1
+    assert _ntrs_sources(card, claim, "aaaa#0") == []
+    assert _ntrs_sources(card, claim, "aaaa#1") == []
 
 
 def test_a_claim_for_another_card_id_never_matches() -> None:

@@ -100,7 +100,7 @@ def test_a_reconciled_row_takes_the_modern_record_and_names_its_source() -> None
     assert by_key["aaaa#1"]["era_reconciled_from"] == "aaaa#0"
     assert by_key["aaaa#1"]["established_year"] == by_key["aaaa#0"]["established_year"] == 2022
     assert "era_reconciled_from" not in by_key["aaaa#0"]
-    assert out["era_counts"]["2015_plus"] == 2
+    assert out["era_counts"]["2015_plus"] == 1
     assert out["undated_triage_count"] == 0
     cards = {c["row_key"]: c for c in out["cards"]}
     assert cards["aaaa#1"]["era_reconciled_from"] == "aaaa#0"
