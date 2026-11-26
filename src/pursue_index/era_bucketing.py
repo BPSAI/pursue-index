@@ -47,7 +47,7 @@ from pursue_index.era_models import (
     era_rationale,
 )
 from pursue_index.era_supersession import SUPERSEDED_REASON, superseded_entry
-from pursue_index.ntrs_claims_load import StaleNtrsClaimsError, claims_for_manifest
+from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.resolved_claim import ResolvedClaim
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
@@ -288,11 +288,10 @@ def main() -> int:
     repo_root = _resolve_repo_root()
     manifest = json.loads((repo_root / "data" / "manifests" / "latest.json").read_text())
     catalogue = load_catalogue(repo_root)
-    try:
-        result = bucket(manifest, catalogue.entries, claims_for_manifest(repo_root, manifest))
-    except StaleNtrsClaimsError as exc:
-        print(f"era bucketing: refusing to apply stale NTRS claims: {exc}")
-        return 1
+    ntrs = resolve_ntrs_claims(repo_root, manifest)
+    if ntrs.notice:
+        print(ntrs.notice)
+    result = bucket(manifest, catalogue.entries, ntrs.claims)
     out_path = repo_root / OUTPUT_PATH
     write_text_atomic(out_path, json.dumps(build_output(manifest, result, catalogue), indent=2) + "\n")
     labelled = ", ".join(f"{ERA_LABELS[era]}={result.era_counts[era.value]}" for era in Era)

@@ -19,7 +19,7 @@ from rich.markup import escape
 from rich.table import Table
 
 from pursue_index import ntrs_source
-from pursue_index.ntrs_claims_load import StaleNtrsClaimsError, claims_for_manifest
+from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root
 from pursue_index.provenance_report import (
     POSITIVE_TIER_PRECEDENCE,
@@ -111,17 +111,15 @@ def provenance_report_cmd(
     if json_out is not None:
         _reject_web_path(json_out)
     manifest_data = json.loads(manifest.read_text())
-    try:
-        ntrs_claims = claims_for_manifest(repo_root(), manifest_data)
-    except StaleNtrsClaimsError as exc:
-        console.print(f"[red]refusing to apply stale NTRS claims:[/red] {escape(str(exc))}", soft_wrap=True)
-        raise typer.Exit(1) from exc
-    report = build_report(manifest_data, load_catalogue(repo_root()), ntrs_claims)
+    ntrs = resolve_ntrs_claims(repo_root(), manifest_data)
+    if ntrs.notice:
+        console.print(escape(ntrs.notice), soft_wrap=True)
+    report = build_report(manifest_data, load_catalogue(repo_root()), ntrs.claims)
     _print_coverage(report)
     _print_unresolved(report)
     if json_out is not None:
         json_out.parent.mkdir(parents=True, exist_ok=True)
-        json_out.write_text(json.dumps(report.to_dict(), indent=2) + "\n")
+        json_out.write_text(json.dumps({**report.to_dict(), **ntrs.summary_fields()}, indent=2) + "\n")
         console.print(f"\n[green]✔[/green] summary written to {json_out}")
 
 
