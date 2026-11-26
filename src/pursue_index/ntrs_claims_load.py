@@ -18,7 +18,7 @@ The migration fails closed. Rows sharing a ``card_id`` that name different asset
 may carry the asset it was found for. A claim is applied only when exactly one
 asset is determined (the file's single asset, or the one the claim names and some
 row has); otherwise nothing is applied and the claim is counted in
-``ntrs_claims_migration_ambiguous_count``. It is never guessed.
+``ntrs_migration_ambiguous_claim_count``. It is never guessed.
 """
 
 from __future__ import annotations
@@ -145,7 +145,7 @@ class NtrsOutcome:
         return {
             "ntrs_claims_applied": self.applied,
             "ntrs_claims_csv_sha256": self.csv_sha256,
-            "ntrs_claims_migration_ambiguous_count": self.migration_ambiguous,
+            "ntrs_migration_ambiguous_claim_count": self.migration_ambiguous,
         }
 
 

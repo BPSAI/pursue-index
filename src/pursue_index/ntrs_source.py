@@ -194,7 +194,7 @@ def build_output(
         "corpus_manifest_url": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
         "card_row_count": len(manifest.get("cards", [])),
-        "searched_count": len(searches),
+        "searched_row_count": len(searches),
         "fetch": fetch_counts,
         "result_counts": dict(sorted(Counter(s.result for s in searches).items())),
         "claim_count": len(claims),

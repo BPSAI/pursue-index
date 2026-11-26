@@ -60,6 +60,7 @@ _BUCKETS: dict[str, tuple[str, str]] = {
     "file_count": ("files", "cards"),
     "era_file_counts": ("sum", "file_count"),
     "era_row_counts": ("sum", "card_row_count"),
+    "agency_file_counts": ("sum", "file_count"),
     "agency_row_counts": ("sum", "card_row_count"),
     "no_prior_release_file_count": ("ids", "no_prior_release_files"),
     "no_prior_release_row_count": ("rows", "no_prior_release_rows"),
@@ -82,7 +83,7 @@ _REPORT: dict[str, tuple[str, str]] = {
     "partially_resolved_file_count": ("ids", "partially_resolved_files"),
 }
 #: Counts that summarise no array in the output (what was searched, not what is listed).
-_EXEMPT = {"catalogue_rows_dropped.count", "ntrs_claims_applied_row_count", "ntrs_migration_ambiguous_claim_count"}
+_EXEMPT = {"catalogue_rows_dropped.count", "unkeyed_claim_count", "ntrs_claims_applied_row_count", "ntrs_migration_ambiguous_claim_count"}
 _ROW_NAMED = re.compile(r"_row_counts?$")
 
 

@@ -116,6 +116,7 @@ def classify(
     *,
     row_key: str,
     manifest: dict[str, Any] | None = None,
+    report: CoverageReport | None = None,
 ) -> CardOutcome:
     """Resolve one card through the chain and place it in exactly one route.
 
@@ -125,12 +126,23 @@ def classify(
     belongs to and the result is that row's outcome in :func:`build_report`, whatever
     its siblings. Without it the card is taken as the only row of its file, and the
     result is only that row's outcome when the file has no other row.
+
+    With a ``manifest``, ``card`` must be the manifest row ``row_key`` names, else
+    ``ValueError``. Building the report is the cost of a call, so a caller classifying
+    many rows passes the ``report`` it built once from that manifest (with the same
+    catalogue and claims); it is then not rebuilt.
     """
     if manifest is not None:
-        outcomes = {o.row_key: o for o in build_report(manifest, catalogue, external).outcomes}
-        if row_key not in outcomes:
-            raise KeyError(f"row_key {row_key!r} is not a row of the manifest")
-        return outcomes[row_key]
+        built = report if report is not None else build_report(manifest, catalogue, external)
+        cards = manifest.get("cards", [])
+        if len(built.outcomes) != len(cards):
+            raise ValueError("the report was not built from this manifest")
+        for outcome, row in zip(built.outcomes, cards, strict=True):
+            if outcome.row_key == row_key:
+                if row != card:
+                    raise ValueError(f"card is not the manifest row {row_key!r}")
+                return outcome
+        raise KeyError(f"row_key {row_key!r} is not a row of the manifest")
     card_era = replace(classify_rows([card])[0], row_key=row_key)
     (row,) = assess([card], FileEras([card_era], {}), catalogue, external)
     return _outcome(row)
@@ -177,7 +189,7 @@ class CoverageReport:
     catalogue_rows_dropped: int = 0
     file_count: int = 0
     row_counts: dict[str, int] = field(default_factory=dict)
-    claims_without_row_key: int = 0
+    unkeyed_claim_count: int = 0
     unresolved_files: tuple[str, ...] = ()
     page_image_flagged_files: tuple[str, ...] = ()
     ntrs_claims_applied_row_count: int = 0
@@ -194,7 +206,7 @@ class CoverageReport:
             "card_row_count": self.card_row_count,
             "file_count": self.file_count,
             "row_counts": self.row_counts,
-            "claims_without_row_key": self.claims_without_row_key,
+            "unkeyed_claim_count": self.unkeyed_claim_count,
             "resolved_by_claim": self.resolved_by_claim,
             "resolved_by_era": self.resolved_by_era,
             "resolved_by_claim_inherited": self.resolved_by_claim_inherited,
@@ -245,7 +257,7 @@ def build_report(
     ``unresolved`` (``partially_resolved_files`` lists those with an era row).
     ``row_counts`` keeps the per-row split. A file is page-image-flagged when any of
     its rows is. A claim that names no row resolves nothing and is counted in
-    ``claims_without_row_key``.
+    ``unkeyed_claim_count``.
 
     ``extra_claims`` are positive claims from any further source (e.g. the NTRS
     metadata search); one resolves its card in the ``claim`` route like any other positive claim.
@@ -285,7 +297,7 @@ def build_report(
         file_count=len(routes),
         row_counts={route: row_routes[route] for route in (RESOLVED_BY_CLAIM, _CLAIM_INHERITED, RESOLVED_BY_ERA, UNRESOLVED)},
         resolved_by_claim_inherited=row_routes[_CLAIM_INHERITED],
-        claims_without_row_key=unkeyed_claims(extra_claims),
+        unkeyed_claim_count=unkeyed_claims(extra_claims),
         unresolved_files=unresolved_files,
         page_image_flagged_files=tuple(flagged),
         ntrs_claims_applied_row_count=len({claim.row_key for claim in extra_claims} & {era.row_key for era in eras}),

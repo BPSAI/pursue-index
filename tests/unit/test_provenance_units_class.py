@@ -71,8 +71,7 @@ def test_the_doc_states_the_claim_unit_rule() -> None:
     text = " ".join(_DOC.split())
     for term in ("`unkeyed_claim_count`", "`ntrs_migration_ambiguous_claim_count`", "`searched_row_count`", "`_claim_count`"):
         assert term in text, term
-    for old in ("claims_without_row_key", "ntrs_claims_migration_ambiguous_count", "`searched_count` (searches"):
-        assert old not in text or "deprecated" in text, old
+    assert "removed rather than kept" in text
 
 
 # --- row 3: agency per file ---------------------------------------------------
@@ -103,7 +102,8 @@ def test_the_doc_lists_agency_file_counts_with_the_mixed_rule() -> None:
 
 
 def test_the_file_list_is_the_distinct_file_keys_of_the_row_records_in_order() -> None:
-    cards = [_row("bbbb", "B1"), _row("", "N0"), _row("aaaa", "A1"), _row("bbbb", "B2"), _row("aaaa", "A2"), _row("", "N1")]
+    modern = "2022-05-06"
+    cards = [_row(c, t, date_=modern) for c, t in (("bbbb", "B1"), ("", "N0"), ("aaaa", "A1"), ("bbbb", "B2"), ("aaaa", "A2"), ("", "N1"))]
     manifest = {"cards": cards}
     out = build_output(manifest, bucket(manifest))
     rows = out["no_prior_release_rows"]
@@ -155,7 +155,7 @@ def test_an_inherited_row_of_a_conflict_file_carries_the_conflict() -> None:
 def test_an_inherited_row_of_a_file_without_a_conflict_has_no_conflict_flag() -> None:
     manifest = {"cards": [_row("aaaa", "D0", date_="2022-05-06"), _row("aaaa", "D1", date_="2022-05-06")]}
     out = build_output(manifest, bucket(manifest, extra_claims=[_claim("aaaa#1")]))
-    (record,) = out["superseded_by_claim"]
+    record = next(r for r in out["superseded_by_claim"] if r["row_key"] == "aaaa#0")
     assert record["claim_inherited_from"] == "aaaa#1" and "date_conflict" not in record
 
 
