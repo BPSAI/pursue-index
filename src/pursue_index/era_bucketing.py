@@ -40,7 +40,6 @@ from typing import Any
 
 from pursue_index.atomic_text import write_text_atomic
 from pursue_index.catalogue_load import LoadedCatalogue, load_catalogue
-from pursue_index.claim_precedence import PositiveClaim, unkeyed_claims
 from pursue_index.era_dates import ResolvedEraDate, resolve_era_date
 from pursue_index.era_models import (
     DOCUMENT_DATE_FIELDS,
@@ -54,7 +53,7 @@ from pursue_index.era_models import (
 from pursue_index.era_reconcile import FileEras, reconcile_file_eras
 from pursue_index.era_supersession import SUPERSEDED_REASON, superseded_entry
 from pursue_index.era_triage import triage_entry as _triage_entry
-from pursue_index.file_basis import effective_claims, tallies
+from pursue_index.file_basis import count_fields, effective_claims
 from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.resolved_claim import ResolvedClaim
@@ -183,15 +182,6 @@ class BucketResult:
     superseded: list[dict[str, Any]] = field(default_factory=list)
 
 
-def _modern_outcome(
-    card_era: CardEra, claim: PositiveClaim | None
-) -> tuple[EraNoPriorRelease | None, dict[str, Any] | None]:
-    """For one modern card: its negative, or the claim row that supersedes it."""
-    if claim is not None:
-        return None, superseded_entry(card_era, claim)
-    return _no_prior_release(card_era), None
-
-
 def bucket(
     manifest: dict[str, Any],
     catalogue: Sequence[SourceEntry] = (),
@@ -222,24 +212,14 @@ def bucket(
     row_claims = effective_claims(raw_cards, classified, catalogue, extra_claims)
     for card_era, card, row_claim in zip(classified, raw_cards, row_claims, strict=True):
         if card_era.era is Era.MODERN_OPERATIONAL:
-            claim, row = _modern_outcome(card_era, row_claim)
-            claims.extend([claim] if claim is not None else [])
-            superseded.extend([row] if row is not None else [])
+            if row_claim is None:
+                claims.append(_no_prior_release(card_era))
+            else:
+                superseded.append(superseded_entry(card_era, row_claim))
         elif card_era.era is Era.UNDATED:
             triage.append(_triage_entry(card_era, card, reconciled.conflicts.get(card_era.row_key)))
-    era_counts, era_row_counts, agency_counts = tallies(classified)
-    return BucketResult(
-        cards=classified,
-        claims=claims,
-        triage=triage,
-        era_counts=era_counts,
-        era_row_counts=era_row_counts,
-        file_count=sum(era_counts.values()),
-        no_prior_release_files=len({c.card_id for c in claims}),
-        claims_without_row_key=unkeyed_claims(extra_claims),
-        agency_counts=agency_counts,
-        superseded=superseded,
-    )
+    counts = count_fields(classified, claims, extra_claims)
+    return BucketResult(classified, claims, triage, superseded=superseded, **counts)
 
 
 def _reconciliation(era_counts: dict[str, int]) -> dict[str, Any]:

@@ -21,12 +21,13 @@ from pursue_index.claim_precedence import (
     POSITIVE_TIER_PRECEDENCE,
     PositiveClaim,
     primary_positive_claim,
+    unkeyed_claims,
 )
-from pursue_index.era_models import CardEra, Era
+from pursue_index.era_models import CardEra, Era, EraNoPriorRelease
 from pursue_index.resolved_claim import ResolvedClaim
 from pursue_index.source_index import SourceEntry
 
-__all__ = ["effective_claims", "file_eras", "file_key", "tallies"]
+__all__ = ["count_fields", "effective_claims", "file_eras", "file_key", "tallies"]
 
 
 def file_key(card: CardEra) -> str:
@@ -49,6 +50,23 @@ def tallies(cards: Sequence[CardEra]) -> tuple[dict[str, int], dict[str, int], d
     per_row = {era.value: 0 for era in Era}
     per_row.update(Counter(card.era.value for card in cards))
     return per_file, per_row, dict(sorted(Counter(card.agency for card in cards).items()))
+
+
+def count_fields(
+    cards: Sequence[CardEra],
+    claims: Sequence[EraNoPriorRelease],
+    external: Sequence[ResolvedClaim] = (),
+) -> dict[str, Any]:
+    """The count-bearing ``BucketResult`` fields: per file, per row, and unkeyed claims."""
+    era_counts, era_row_counts, agency_counts = tallies(cards)
+    return {
+        "era_counts": era_counts,
+        "era_row_counts": era_row_counts,
+        "file_count": sum(era_counts.values()),
+        "no_prior_release_files": len({claim.card_id for claim in claims}),
+        "claims_without_row_key": unkeyed_claims(external),
+        "agency_counts": agency_counts,
+    }
 
 
 def _strongest(claims: list[PositiveClaim]) -> PositiveClaim | None:
