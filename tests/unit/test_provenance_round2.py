@@ -62,16 +62,20 @@ def test_the_console_headline_and_body_use_one_labelled_unit(monkeypatch) -> Non
     provenance_cli._print_coverage(report)
     text = console.file.getvalue()
     assert f"{report.file_count} files" in text
-    assert f"{report.card_row_count} rows" in text
+    assert f"unit: rows, {report.card_row_count} total" in text
+    assert f"unit: files, {report.file_count} total" in text
     assert "cards" not in text.lower()
     table_rows = {
         m.group(1): int(m.group(2))
         for m in re.finditer(r"│\s*(prior-release claim[^│]*|era alone[^│]*|unresolved)\s*│\s*(\d+)", text)
     }
     assert sum(table_rows.values()) == report.file_count
-    assert "Files" in text and "Rows" in text
-    row_split = re.search(r"rows by route: claim (\d+), era (\d+), unresolved (\d+)", text)
+    assert "Files" in text and "Row partition" in text
+    row_split = re.search(r"Row partition \(unit: rows, \d+ total\): claim (\d+), era (\d+), unresolved (\d+)", text)
     assert row_split and sum(map(int, row_split.groups())) == report.card_row_count
+    file_split = re.search(r"File partition \(unit: files, \d+ total\): claim (\d+), era (\d+), unresolved (\d+)", text)
+    assert file_split and sum(map(int, file_split.groups())) == report.file_count
+    assert "Partially resolved (unit: files" in text
 
 
 def test_the_doc_states_claim_count_for_each_claims_artifact() -> None:

@@ -85,7 +85,8 @@ def test_other_keys_and_entries_are_unchanged_and_output_is_deterministic(
     assert [k for k in out if k not in extra] == [
         "schema", "corpus_manifest_url", "csv_sha256", "card_row_count", "catalogue_entries",
         "catalogue_rows_dropped", "file_count", "era_file_counts", "era_row_counts", "agency_row_counts",
-        "reconciliation_4a", "no_prior_release_file_count", "no_prior_release_files",
+        "file_route_counts", "row_route_counts", "partially_resolved_file_count",
+        "partially_resolved_files", "reconciliation_4a", "no_prior_release_file_count", "no_prior_release_files",
         "no_prior_release_row_count", "claims_without_row_key", "no_prior_release_rows",
         "superseded_by_claim_row_count", "superseded_by_claim", "undated_triage_row_count",
         "undated_triage", "cards",

@@ -76,9 +76,17 @@ def _print_coverage(report: CoverageReport) -> None:
     )
     split = report.row_counts
     console.print(
-        f"Rows: {report.card_row_count} rows in total; rows by route: "
+        f"File partition (unit: files, {report.file_count} total): "
+        f"claim {report.resolved_by_claim}, era {report.resolved_by_era}, unresolved {report.unresolved}."
+    )
+    console.print(
+        f"Row partition (unit: rows, {report.card_row_count} total): "
         f"claim {split.get(RESOLVED_BY_CLAIM, 0)}, era {split.get(RESOLVED_BY_ERA, 0)}, "
         f"unresolved {split.get(UNRESOLVED, 0)}."
+    )
+    console.print(
+        f"Partially resolved (unit: files, unresolved files with at least one era row): "
+        f"{len(report.partially_resolved_files)}."
     )
 
 

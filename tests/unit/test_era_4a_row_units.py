@@ -17,7 +17,7 @@ def _row(card_id: str, **fields: Any) -> dict[str, Any]:
 
 
 def _manifest() -> dict[str, Any]:
-    # One file of three modern rows, and a mixed file: files and rows tally differently.
+    # One file of three modern rows, and a file of one dated and one undated row (reconciled): files and rows tally differently.
     return {
         "cards": [
             _row("aaaa", incident_date="2022-05-06"),
@@ -34,10 +34,10 @@ def test_the_comparison_reads_row_counts_and_names_the_unit() -> None:
     result = bucket(manifest)
     recon = build_output(manifest, result)["reconciliation_4a"]
     assert recon["unit"] == "rows"
-    assert result.era_row_counts["2015_plus"] == 4 and result.era_file_counts["2015_plus"] == 1
-    assert recon["current"]["2015_plus"] == result.era_row_counts["2015_plus"] == 4
-    assert recon["current"]["undated"] == result.era_row_counts["undated"] == 1
-    assert recon["delta"]["2015_plus"] == 4 - REFERENCE_4A["2015_plus"]
+    assert result.era_row_counts["2015_plus"] == 5 and result.era_file_counts["2015_plus"] == 2
+    assert recon["current"]["2015_plus"] == result.era_row_counts["2015_plus"] == 5
+    assert recon["current"]["undated"] == result.era_row_counts["undated"] == 0
+    assert recon["delta"]["2015_plus"] == 5 - REFERENCE_4A["2015_plus"]
 
 
 def test_the_comparison_never_carries_a_mixed_bucket() -> None:

@@ -10,20 +10,18 @@
   },
   "file_count": 509,
   "era_file_counts": {
-    "2015_plus": 213,
-    "1990_2014": 76,
-    "1970_1989": 19,
-    "pre_1970": 120,
-    "undated": 72,
-    "mixed": 9
-  },
-  "era_row_counts": {
     "2015_plus": 222,
     "1990_2014": 76,
     "1970_1989": 19,
     "pre_1970": 120,
-    "undated": 84,
-    "mixed": 0
+    "undated": 72
+  },
+  "era_row_counts": {
+    "2015_plus": 234,
+    "1990_2014": 76,
+    "1970_1989": 19,
+    "pre_1970": 120,
+    "undated": 72
   },
   "agency_row_counts": {
     "CIA": 29,
@@ -38,6 +36,18 @@
     "Office of the Director of National Intelligence": 1,
     "U.S. Government": 2
   },
+  "file_route_counts": {
+    "claim": 23,
+    "era": 220,
+    "unresolved": 266
+  },
+  "row_route_counts": {
+    "claim": 23,
+    "era": 232,
+    "unresolved": 266
+  },
+  "partially_resolved_file_count": 0,
+  "partially_resolved_files": [],
   "reconciliation_4a": {
     "unit": "rows",
     "reference_4a": {
@@ -48,18 +58,18 @@
       "undated": 36
     },
     "current": {
-      "2015_plus": 222,
+      "2015_plus": 234,
       "1990_2014": 76,
       "1970_1989": 19,
       "pre_1970": 120,
-      "undated": 84
+      "undated": 72
     },
     "delta": {
-      "2015_plus": 16,
+      "2015_plus": 28,
       "1990_2014": 63,
       "1970_1989": 0,
       "pre_1970": 60,
-      "undated": 48
+      "undated": 36
     },
     "matches_reference": false,
     "note": "Two causes account for the undated delta, and they are separate. (1) Display-date curation: \u00a74a was computed against a manifest with that curation applied, and this manifest carries a curated display_date for only a handful of cards, so cards \u00a74a dated via display_date surface here as triage. (2) Two-digit years: a two-digit year states no century, so this stage reads one through a pivot and accepts the result only when a four-digit year elsewhere on the same card states the same year \u2014 a card whose only date is an uncorroborated two-digit year is undated here for that reason rather than for the first. In both cases release_date (the war.gov publication date) is never used as a document era."
@@ -287,7 +297,7 @@
     "be533a4ab886eb11",
     "8d0b85ce46109d06"
   ],
-  "no_prior_release_row_count": 220,
+  "no_prior_release_row_count": 232,
   "claims_without_row_key": 0,
   "no_prior_release_rows": [
     {
@@ -969,6 +979,74 @@
       "kind": "era_no_prior_release",
       "tier": "no_prior_release_found",
       "era": "2015_plus",
+      "card_id": "c1c59236394f7b14",
+      "row_key": "c1c59236394f7b14#1",
+      "identifier": "dow-uap-d10-mission-report-middle-east-may-2022.pdf",
+      "title": "DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022",
+      "agency": "Department of War",
+      "established_year": 2022,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "5/6/2022",
+      "rationale": "This document is dated 2022 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as c1c59236394f7b14#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "c1c59236394f7b14#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
+      "card_id": "43db2719407a7897",
+      "row_key": "43db2719407a7897#1",
+      "identifier": "dow-uap-d14-mission-report-iraq-may-2022.pdf",
+      "title": "DOW-UAP-PR021, Unresolved UAP Report, Iraq, May 2022",
+      "agency": "Department of War",
+      "established_year": 2022,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "5/29/2022",
+      "rationale": "This document is dated 2022 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as 43db2719407a7897#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "43db2719407a7897#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
+      "card_id": "4555d94dd6067f57",
+      "row_key": "4555d94dd6067f57#1",
+      "identifier": "dow-uap-d16-mission-report-syria-july-2022.pdf",
+      "title": "DOW-UAP-PR022, Unresolved UAP Report, Syria, July 2022",
+      "agency": "Department of War",
+      "established_year": 2022,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "7/31/2022",
+      "rationale": "This document is dated 2022 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as 4555d94dd6067f57#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "4555d94dd6067f57#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
+      "card_id": "9961adf6adf1010b",
+      "row_key": "9961adf6adf1010b#1",
+      "identifier": "dow-uap-d18-mission-report-iraq-december-2022.pdf",
+      "title": "DOW-UAP-PR023, Unresolved UAP Report, Iraq, December 2022",
+      "agency": "Department of War",
+      "established_year": 2022,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "12/1/2022",
+      "rationale": "This document is dated 2022 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as 9961adf6adf1010b#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "9961adf6adf1010b#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
       "card_id": "a0c6bbafa1b45010",
       "row_key": "a0c6bbafa1b45010#0",
       "identifier": "DOW-UAP-PR024, Unresolved UAP Report, Middle East, 2023",
@@ -984,6 +1062,40 @@
       "kind": "era_no_prior_release",
       "tier": "no_prior_release_found",
       "era": "2015_plus",
+      "card_id": "d8e5687dc870892d",
+      "row_key": "d8e5687dc870892d#1",
+      "identifier": "dow-uap-d23-mission-report-united-arab-emirates-october-2023.pdf",
+      "title": "DOW-UAP-PR026, Unresolved UAP Report, United Arab Emirates, October 2023",
+      "agency": "Department of War",
+      "established_year": 2023,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "10/31/2023",
+      "rationale": "This document is dated 2023 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as d8e5687dc870892d#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "d8e5687dc870892d#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
+      "card_id": "d8e5687dc870892d",
+      "row_key": "d8e5687dc870892d#2",
+      "identifier": "dow-uap-d23-mission-report-united-arab-emirates-october-2023.pdf",
+      "title": "DOW-UAP-PR027, Unresolved UAP Report, United Arab Emirates, October 2023",
+      "agency": "Department of War",
+      "established_year": 2023,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "10/31/2023",
+      "rationale": "This document is dated 2023 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as d8e5687dc870892d#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "d8e5687dc870892d#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
       "card_id": "b27e6c5aaf095d57",
       "row_key": "b27e6c5aaf095d57#0",
       "identifier": "DOW-UAP-PR030, Unresolved UAP Report, Middle East, 2023",
@@ -994,6 +1106,108 @@
       "established_date": "2023",
       "rationale": "This document is dated 2023 (2015+ (modern operational)), established via the manifest 'incident_date' field. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established.",
       "disclaimer": "absence of a prior release is not established"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
+      "card_id": "ea029a05470b8f4e",
+      "row_key": "ea029a05470b8f4e#1",
+      "identifier": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
+      "title": "DOW-UAP-PR031, Unresolved UAP Report, Syria, October 2024",
+      "agency": "Department of War",
+      "established_year": 2024,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "10/20/2024",
+      "rationale": "This document is dated 2024 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as ea029a05470b8f4e#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "ea029a05470b8f4e#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
+      "card_id": "ea029a05470b8f4e",
+      "row_key": "ea029a05470b8f4e#2",
+      "identifier": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
+      "title": "DOW-UAP-PR032, Unresolved UAP Report, Syria, October 2024",
+      "agency": "Department of War",
+      "established_year": 2024,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "10/20/2024",
+      "rationale": "This document is dated 2024 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as ea029a05470b8f4e#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "ea029a05470b8f4e#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
+      "card_id": "ea029a05470b8f4e",
+      "row_key": "ea029a05470b8f4e#3",
+      "identifier": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
+      "title": "DOW-UAP-PR033, Unresolved UAP Report, Syria, October 2024",
+      "agency": "Department of War",
+      "established_year": 2024,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "10/20/2024",
+      "rationale": "This document is dated 2024 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as ea029a05470b8f4e#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "ea029a05470b8f4e#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
+      "card_id": "3746998b8c506e5c",
+      "row_key": "3746998b8c506e5c#1",
+      "identifier": "dow-uap-d33-mission-report-greece-october-2023.pdf",
+      "title": "DOW-UAP-PR034, Unresolved UAP Report, Greece, October 2023",
+      "agency": "Department of War",
+      "established_year": 2023,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "10/27/2023",
+      "rationale": "This document is dated 2023 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as 3746998b8c506e5c#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "3746998b8c506e5c#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
+      "card_id": "c788c17e8cc32230",
+      "row_key": "c788c17e8cc32230#1",
+      "identifier": "dow-uap-d35-mission-report-greece-october-2023.pdf",
+      "title": "DOW-UAP-PR035, Unresolved UAP Report, Greece, October 2023",
+      "agency": "Department of War",
+      "established_year": 2023,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "10/29/2023",
+      "rationale": "This document is dated 2023 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as c788c17e8cc32230#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "c788c17e8cc32230#0"
+    },
+    {
+      "kind": "era_no_prior_release",
+      "tier": "no_prior_release_found",
+      "era": "2015_plus",
+      "card_id": "88a20bf256ccce7a",
+      "row_key": "88a20bf256ccce7a#1",
+      "identifier": "dow-uap-d38-range-fouler-debrief-middle-east-may-2020.pdf",
+      "title": "DOW-UAP-PR036, Unresolved UAP Report, Middle East, May 2020",
+      "agency": "Department of War",
+      "established_year": 2020,
+      "date_source": "reconciled_from_sibling",
+      "established_date": "5/14/2020",
+      "rationale": "This document is dated 2020 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as 88a20bf256ccce7a#0, whose date it takes.",
+      "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
+      "era_reconciled_from": "88a20bf256ccce7a#0"
     },
     {
       "kind": "era_no_prior_release",
@@ -3622,7 +3836,7 @@
       "reason": "A positive prior-release claim was found for this card, so the era-based no-prior-release conclusion does not apply: the claim is evidence the record did appear before this archive was assembled."
     }
   ],
-  "undated_triage_row_count": 84,
+  "undated_triage_row_count": 53,
   "undated_triage": [
     {
       "card_id": "ca4a3d21010eda4b",
@@ -3634,19 +3848,6 @@
         "display_date": null,
         "incident_date": null,
         "release_date": "11/20/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "973c1f75f55d0d39",
-      "row_key": "973c1f75f55d0d39#0",
-      "identifier": "255_413270_ufo's_and_defense_what_should_we_prepare_for.pdf",
-      "title": "255_413270_UFO's_and_Defense_What_Should_we_Prepare_For",
-      "agency": "NASA",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
       },
       "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
     },
@@ -3682,240 +3883,6 @@
       "identifier": "38_143685_box7_incident_summaries_1-100.pdf",
       "title": "38_143685_box7_Incident_Summaries_1-100",
       "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "bcf2e688dfbc220d",
-      "row_key": "bcf2e688dfbc220d#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_section_1.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_001",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "4844321219e306af",
-      "row_key": "4844321219e306af#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_section_2.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_002",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "99c12a9c49a91750",
-      "row_key": "99c12a9c49a91750#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_section_3.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_003",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "5ecebc7c28a8d8c7",
-      "row_key": "5ecebc7c28a8d8c7#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_section_4.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_004",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "b246c782b16be168",
-      "row_key": "b246c782b16be168#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_section_5.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_005",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "13f86e95aed52840",
-      "row_key": "13f86e95aed52840#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_section_6.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_006",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "f85532f0514320be",
-      "row_key": "f85532f0514320be#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_section_7.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_007",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "ad721de274bb7d6c",
-      "row_key": "ad721de274bb7d6c#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_section_8.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_008",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "8bfd94484138d59b",
-      "row_key": "8bfd94484138d59b#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_section_9.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_009",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "7d58f0cac741650a",
-      "row_key": "7d58f0cac741650a#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_section_10.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Section_010",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "108379f8a86dbe9c",
-      "row_key": "108379f8a86dbe9c#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_serial_130.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_130",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "67c2ef13cc69891c",
-      "row_key": "67c2ef13cc69891c#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_serial_153.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_153",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "fa24eb58219a8dff",
-      "row_key": "fa24eb58219a8dff#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_serial_164.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_164",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "4b68726be4af8ff9",
-      "row_key": "4b68726be4af8ff9#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_serial_220.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_220",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "954d1e1944bc6d17",
-      "row_key": "954d1e1944bc6d17#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_serial_403.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_403",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "af42a6774881c110",
-      "row_key": "af42a6774881c110#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_serial_438.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_438",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "f42c11ca158aeffc",
-      "row_key": "f42c11ca158aeffc#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_serial_449.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_Serial_449",
-      "agency": "FBI",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "e897e67f95bc1e1b",
-      "row_key": "e897e67f95bc1e1b#0",
-      "identifier": "65_hs1-834228961_62-hq-83894_sub_a.pdf",
-      "title": "65_HS1-834228961_62-HQ-83894_SUB_A",
-      "agency": "FBI",
       "available_dates": {
         "display_date": null,
         "incident_date": null,
@@ -4171,88 +4138,10 @@
       "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
     },
     {
-      "card_id": "c1c59236394f7b14",
-      "row_key": "c1c59236394f7b14#1",
-      "identifier": "dow-uap-d10-mission-report-middle-east-may-2022.pdf",
-      "title": "DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
       "card_id": "1b522e779e72877c",
       "row_key": "1b522e779e72877c#0",
       "identifier": "dow-uap-pr20.pdf",
       "title": "DOW-UAP-PR020, Unresolved UAP Report, Kuwait, May 2022",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "43db2719407a7897",
-      "row_key": "43db2719407a7897#1",
-      "identifier": "dow-uap-d14-mission-report-iraq-may-2022.pdf",
-      "title": "DOW-UAP-PR021, Unresolved UAP Report, Iraq, May 2022",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "4555d94dd6067f57",
-      "row_key": "4555d94dd6067f57#1",
-      "identifier": "dow-uap-d16-mission-report-syria-july-2022.pdf",
-      "title": "DOW-UAP-PR022, Unresolved UAP Report, Syria, July 2022",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "9961adf6adf1010b",
-      "row_key": "9961adf6adf1010b#1",
-      "identifier": "dow-uap-d18-mission-report-iraq-december-2022.pdf",
-      "title": "DOW-UAP-PR023, Unresolved UAP Report, Iraq, December 2022",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "d8e5687dc870892d",
-      "row_key": "d8e5687dc870892d#1",
-      "identifier": "dow-uap-d23-mission-report-united-arab-emirates-october-2023.pdf",
-      "title": "DOW-UAP-PR026, Unresolved UAP Report, United Arab Emirates, October 2023",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "d8e5687dc870892d",
-      "row_key": "d8e5687dc870892d#2",
-      "identifier": "dow-uap-d23-mission-report-united-arab-emirates-october-2023.pdf",
-      "title": "DOW-UAP-PR027, Unresolved UAP Report, United Arab Emirates, October 2023",
       "agency": "Department of War",
       "available_dates": {
         "display_date": null,
@@ -4279,84 +4168,6 @@
       "row_key": "aa638778a043c89c#0",
       "identifier": "DOW-UAP-PR029, Unresolved UAP Report, United Arab Emirates, June 2024",
       "title": "DOW-UAP-PR029, Unresolved UAP Report, United Arab Emirates, June 2024",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "ea029a05470b8f4e",
-      "row_key": "ea029a05470b8f4e#1",
-      "identifier": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
-      "title": "DOW-UAP-PR031, Unresolved UAP Report, Syria, October 2024",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "ea029a05470b8f4e",
-      "row_key": "ea029a05470b8f4e#2",
-      "identifier": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
-      "title": "DOW-UAP-PR032, Unresolved UAP Report, Syria, October 2024",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "ea029a05470b8f4e",
-      "row_key": "ea029a05470b8f4e#3",
-      "identifier": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
-      "title": "DOW-UAP-PR033, Unresolved UAP Report, Syria, October 2024",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "3746998b8c506e5c",
-      "row_key": "3746998b8c506e5c#1",
-      "identifier": "dow-uap-d33-mission-report-greece-october-2023.pdf",
-      "title": "DOW-UAP-PR034, Unresolved UAP Report, Greece, October 2023",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "c788c17e8cc32230",
-      "row_key": "c788c17e8cc32230#1",
-      "identifier": "dow-uap-d35-mission-report-greece-october-2023.pdf",
-      "title": "DOW-UAP-PR035, Unresolved UAP Report, Greece, October 2023",
-      "agency": "Department of War",
-      "available_dates": {
-        "display_date": null,
-        "incident_date": null,
-        "release_date": "5/8/2026"
-      },
-      "reason": "only a war.gov release_date is present, which is a publication date, not a document era"
-    },
-    {
-      "card_id": "88a20bf256ccce7a",
-      "row_key": "88a20bf256ccce7a#1",
-      "identifier": "dow-uap-d38-range-fouler-debrief-middle-east-may-2020.pdf",
-      "title": "DOW-UAP-PR036, Unresolved UAP Report, Middle East, May 2020",
       "agency": "Department of War",
       "available_dates": {
         "display_date": null,
@@ -4727,7 +4538,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "8/14/1952"
+      "raw_date": "8/14/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0fc485e6efefdd92",
@@ -4738,7 +4550,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "10/28/1952"
+      "raw_date": "10/28/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ca4a3d21010eda4b",
@@ -4749,7 +4562,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "38c1c66ea5d971c9",
@@ -4760,7 +4574,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "7/30/2009"
+      "raw_date": "7/30/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "71634d539b50cb08",
@@ -4771,7 +4586,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "10/12/1957"
+      "raw_date": "10/12/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f4ab0c81beca7768",
@@ -4782,7 +4598,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "10/13/1957"
+      "raw_date": "10/13/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9e677b8697685311",
@@ -4793,7 +4610,8 @@
       "era": "pre_1970",
       "year": 1947,
       "date_source": "incident_date",
-      "raw_date": "12/30/1947"
+      "raw_date": "12/30/1947",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9317a6ea91f7425c",
@@ -4804,7 +4622,8 @@
       "era": "pre_1970",
       "year": 1948,
       "date_source": "incident_date",
-      "raw_date": "6/15/1948"
+      "raw_date": "6/15/1948",
+      "era_reconciled_from": null
     },
     {
       "card_id": "973c1f75f55d0d39",
@@ -4815,7 +4634,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "7bd99ac64660258e",
@@ -4826,7 +4646,8 @@
       "era": "pre_1970",
       "year": 1945,
       "date_source": "incident_date",
-      "raw_date": "3/18/1945"
+      "raw_date": "3/18/1945",
+      "era_reconciled_from": null
     },
     {
       "card_id": "6bda02c546051f43",
@@ -4837,7 +4658,8 @@
       "era": "pre_1970",
       "year": 1948,
       "date_source": "incident_date",
-      "raw_date": "11/8/1948"
+      "raw_date": "11/8/1948",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ed585fe68e3c4e7e",
@@ -4848,7 +4670,8 @@
       "era": "pre_1970",
       "year": 1955,
       "date_source": "incident_date",
-      "raw_date": "10/14/1955"
+      "raw_date": "10/14/1955",
+      "era_reconciled_from": null
     },
     {
       "card_id": "218e167fbd265d91",
@@ -4859,7 +4682,8 @@
       "era": "pre_1970",
       "year": 1950,
       "date_source": "incident_date",
-      "raw_date": "1/9/1950"
+      "raw_date": "1/9/1950",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7fd3d2656cbc83a6",
@@ -4870,7 +4694,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "be226374e719c729",
@@ -4881,7 +4706,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "b60b84a66715204a",
@@ -4892,7 +4718,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "9e2c2621d67dde12",
@@ -4903,7 +4730,8 @@
       "era": "pre_1970",
       "year": 1963,
       "date_source": "incident_date",
-      "raw_date": "7/18/1963"
+      "raw_date": "7/18/1963",
+      "era_reconciled_from": null
     },
     {
       "card_id": "df43a479bc891969",
@@ -4914,7 +4742,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "7/28/1952"
+      "raw_date": "7/28/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "239d049dab8c81d5",
@@ -4925,7 +4754,8 @@
       "era": "pre_1970",
       "year": 1958,
       "date_source": "incident_date",
-      "raw_date": "4/17/1958"
+      "raw_date": "4/17/1958",
+      "era_reconciled_from": null
     },
     {
       "card_id": "26b02d358ec20061",
@@ -4936,7 +4766,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "11/7/1957"
+      "raw_date": "11/7/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bcf2e688dfbc220d",
@@ -4947,7 +4778,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "4844321219e306af",
@@ -4958,7 +4790,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "99c12a9c49a91750",
@@ -4969,7 +4802,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "5ecebc7c28a8d8c7",
@@ -4980,7 +4814,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "b246c782b16be168",
@@ -4991,7 +4826,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "13f86e95aed52840",
@@ -5002,7 +4838,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "f85532f0514320be",
@@ -5013,7 +4850,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "ad721de274bb7d6c",
@@ -5024,7 +4862,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "8bfd94484138d59b",
@@ -5035,7 +4874,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "7d58f0cac741650a",
@@ -5046,7 +4886,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "108379f8a86dbe9c",
@@ -5057,7 +4898,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "67c2ef13cc69891c",
@@ -5068,7 +4910,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "fa24eb58219a8dff",
@@ -5079,7 +4922,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "4b68726be4af8ff9",
@@ -5090,7 +4934,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "954d1e1944bc6d17",
@@ -5101,7 +4946,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "af42a6774881c110",
@@ -5112,7 +4958,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "f42c11ca158aeffc",
@@ -5123,7 +4970,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "e897e67f95bc1e1b",
@@ -5134,7 +4982,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "811e54fbf8cff4cc",
@@ -5145,7 +4994,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "1952-1953"
+      "raw_date": "1952-1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8dfcf1050947c6d3",
@@ -5156,7 +5006,8 @@
       "era": "pre_1970",
       "year": 1954,
       "date_source": "incident_date",
-      "raw_date": "1954-1974"
+      "raw_date": "1954-1974",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7a47542be1be6d1f",
@@ -5167,7 +5018,8 @@
       "era": "pre_1970",
       "year": 1958,
       "date_source": "incident_date",
-      "raw_date": "1958"
+      "raw_date": "1958",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5a1026673150b72f",
@@ -5178,7 +5030,8 @@
       "era": "pre_1970",
       "year": 1950,
       "date_source": "incident_date",
-      "raw_date": "1950"
+      "raw_date": "1950",
+      "era_reconciled_from": null
     },
     {
       "card_id": "38ee227f22a33772",
@@ -5189,7 +5042,8 @@
       "era": "pre_1970",
       "year": 1955,
       "date_source": "incident_date",
-      "raw_date": "November, 1955"
+      "raw_date": "November, 1955",
+      "era_reconciled_from": null
     },
     {
       "card_id": "878ff82834953ea7",
@@ -5200,7 +5054,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "December, 1953"
+      "raw_date": "December, 1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "859cda8991e45dd7",
@@ -5211,7 +5066,8 @@
       "era": "1970_1989",
       "year": 1972,
       "date_source": "incident_date",
-      "raw_date": "1972"
+      "raw_date": "1972",
+      "era_reconciled_from": null
     },
     {
       "card_id": "29f1035b2cdde6b7",
@@ -5222,7 +5078,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "1957"
+      "raw_date": "1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "4825c416e6afe557",
@@ -5233,7 +5090,8 @@
       "era": "pre_1970",
       "year": 1967,
       "date_source": "incident_date",
-      "raw_date": "August, 1967"
+      "raw_date": "August, 1967",
+      "era_reconciled_from": null
     },
     {
       "card_id": "076e3a3c73273efe",
@@ -5244,7 +5102,8 @@
       "era": "1970_1989",
       "year": 1973,
       "date_source": "incident_date",
-      "raw_date": "December, 1973"
+      "raw_date": "December, 1973",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8aba1dc72a19b94a",
@@ -5255,7 +5114,8 @@
       "era": "1970_1989",
       "year": 1976,
       "date_source": "incident_date",
-      "raw_date": "November, 1976"
+      "raw_date": "November, 1976",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ad63a61ed36f167c",
@@ -5266,7 +5126,8 @@
       "era": "pre_1970",
       "year": 1956,
       "date_source": "incident_date",
-      "raw_date": "1956"
+      "raw_date": "1956",
+      "era_reconciled_from": null
     },
     {
       "card_id": "626d8e51b2efc972",
@@ -5277,7 +5138,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "December, 1952"
+      "raw_date": "December, 1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a8ec637d35fd011e",
@@ -5288,7 +5150,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "774ebdca92c34892",
@@ -5299,7 +5162,8 @@
       "era": "pre_1970",
       "year": 1968,
       "date_source": "incident_date",
-      "raw_date": "1968"
+      "raw_date": "1968",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8533936c8107767b",
@@ -5310,7 +5174,8 @@
       "era": "1990_2014",
       "year": 2008,
       "date_source": "incident_date",
-      "raw_date": "July, 2008"
+      "raw_date": "July, 2008",
+      "era_reconciled_from": null
     },
     {
       "card_id": "91887620fa8361e5",
@@ -5321,7 +5186,8 @@
       "era": "pre_1970",
       "year": 1955,
       "date_source": "incident_date",
-      "raw_date": "1955"
+      "raw_date": "1955",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e2371ff7657d231e",
@@ -5332,7 +5198,8 @@
       "era": "1970_1989",
       "year": 1971,
       "date_source": "incident_date",
-      "raw_date": "1971"
+      "raw_date": "1971",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0f469fcf6fb42875",
@@ -5343,7 +5210,8 @@
       "era": "1970_1989",
       "year": 1973,
       "date_source": "incident_date",
-      "raw_date": "12/20/1973"
+      "raw_date": "12/20/1973",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2b98fd7cde9b31bc",
@@ -5354,7 +5222,8 @@
       "era": "pre_1970",
       "year": 1955,
       "date_source": "incident_date",
-      "raw_date": "1955"
+      "raw_date": "1955",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e277f0b4d0fa62b9",
@@ -5365,7 +5234,8 @@
       "era": "pre_1970",
       "year": 1955,
       "date_source": "incident_date",
-      "raw_date": "1955"
+      "raw_date": "1955",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7b2fec96cf493ed7",
@@ -5376,7 +5246,8 @@
       "era": "pre_1970",
       "year": 1965,
       "date_source": "incident_date",
-      "raw_date": "2/1/1965"
+      "raw_date": "2/1/1965",
+      "era_reconciled_from": null
     },
     {
       "card_id": "64b4b5770a796616",
@@ -5387,7 +5258,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "e7fe45b51f32ed87",
@@ -5398,7 +5270,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "Late 1952"
+      "raw_date": "Late 1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "02e22fd004affc47",
@@ -5409,7 +5282,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "10/2/1952"
+      "raw_date": "10/2/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "92ae35347234224a",
@@ -5420,7 +5294,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "8/1/1952"
+      "raw_date": "8/1/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fa93265239231a44",
@@ -5431,7 +5306,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "10/13/1952"
+      "raw_date": "10/13/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "aaafecbc47103f4b",
@@ -5442,7 +5318,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "8156067f7ff4b983",
@@ -5453,7 +5330,8 @@
       "era": "1970_1989",
       "year": 1970,
       "date_source": "incident_date",
-      "raw_date": "1970s"
+      "raw_date": "1970s",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b1c6f5c4a7fbeee1",
@@ -5464,7 +5342,8 @@
       "era": "1970_1989",
       "year": 1986,
       "date_source": "incident_date",
-      "raw_date": "5/20/1986"
+      "raw_date": "5/20/1986",
+      "era_reconciled_from": null
     },
     {
       "card_id": "81a3947abfb387af",
@@ -5475,7 +5354,8 @@
       "era": "pre_1970",
       "year": 1949,
       "date_source": "incident_date",
-      "raw_date": "3/22/1949"
+      "raw_date": "3/22/1949",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7e0b4624ee81788e",
@@ -5486,7 +5366,8 @@
       "era": "2015_plus",
       "year": 2015,
       "date_source": "incident_date",
-      "raw_date": "9/1/2015"
+      "raw_date": "9/1/2015",
+      "era_reconciled_from": null
     },
     {
       "card_id": "09ab9032c16fbaa2",
@@ -5497,7 +5378,8 @@
       "era": "pre_1970",
       "year": 1963,
       "date_source": "incident_date",
-      "raw_date": "11/14/1963"
+      "raw_date": "11/14/1963",
+      "era_reconciled_from": null
     },
     {
       "card_id": "942f77cebc0a64c6",
@@ -5508,7 +5390,8 @@
       "era": "pre_1970",
       "year": 1963,
       "date_source": "incident_date",
-      "raw_date": "11/20/1963"
+      "raw_date": "11/20/1963",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fd8bfb9481bcbdd3",
@@ -5519,7 +5402,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "4382ccbf2a39513d",
@@ -5530,7 +5414,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "b21122b1b7b2d953",
@@ -5541,7 +5426,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "f6d9556247ebeb2d",
@@ -5552,7 +5438,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "6fc6419676926f13",
@@ -5563,7 +5450,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "33cca99659328520",
@@ -5574,7 +5462,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "c1c59236394f7b14",
@@ -5585,7 +5474,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "5/6/2022"
+      "raw_date": "5/6/2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9a0a2d62e9f47eb8",
@@ -5596,7 +5486,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "5/20/2022"
+      "raw_date": "5/20/2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "43db2719407a7897",
@@ -5607,7 +5498,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "5/29/2022"
+      "raw_date": "5/29/2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "4555d94dd6067f57",
@@ -5618,7 +5510,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "7/31/2022"
+      "raw_date": "7/31/2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "09001c140b97a5db",
@@ -5629,7 +5522,8 @@
       "era": "pre_1970",
       "year": 1948,
       "date_source": "incident_date",
-      "raw_date": "1948-1950"
+      "raw_date": "1948-1950",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9961adf6adf1010b",
@@ -5640,7 +5534,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "12/1/2022"
+      "raw_date": "12/1/2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "57e9cc7f9942e2cf",
@@ -5651,7 +5546,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2/21/2023"
+      "raw_date": "2/21/2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "085c019c9899db9b",
@@ -5662,7 +5558,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "3/31/2023"
+      "raw_date": "3/31/2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d8e5687dc870892d",
@@ -5673,7 +5570,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "10/31/2023"
+      "raw_date": "10/31/2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "15d23b5f88df64fa",
@@ -5684,7 +5582,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "1/25/2024"
+      "raw_date": "1/25/2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "3a0d83f3e51179db",
@@ -5695,7 +5594,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "9151e15016109463",
@@ -5706,7 +5606,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "9/20/2024"
+      "raw_date": "9/20/2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -5717,7 +5618,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "10/20/2024"
+      "raw_date": "10/20/2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "3746998b8c506e5c",
@@ -5728,7 +5630,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "10/27/2023"
+      "raw_date": "10/27/2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c788c17e8cc32230",
@@ -5739,7 +5642,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "10/29/2023"
+      "raw_date": "10/29/2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "88a20bf256ccce7a",
@@ -5750,7 +5654,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "5/14/2020"
+      "raw_date": "5/14/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ff3939f95d878062",
@@ -5761,7 +5666,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "cc33e8c352fc80ce",
@@ -5772,7 +5678,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "10/15/2020"
+      "raw_date": "10/15/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "17a8cc07fd8c694f",
@@ -5783,7 +5690,8 @@
       "era": "1990_2014",
       "year": 1996,
       "date_source": "incident_date",
-      "raw_date": "9/10/1996"
+      "raw_date": "9/10/1996",
+      "era_reconciled_from": null
     },
     {
       "card_id": "775d16ead1ec8fa1",
@@ -5794,7 +5702,8 @@
       "era": "1990_2014",
       "year": 2000,
       "date_source": "incident_date",
-      "raw_date": "2/3/2000"
+      "raw_date": "2/3/2000",
+      "era_reconciled_from": null
     },
     {
       "card_id": "6d7faf71150107e9",
@@ -5805,7 +5714,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "4/10/2025-4/11/2025"
+      "raw_date": "4/10/2025-4/11/2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "71758de42a2df926",
@@ -5816,7 +5726,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "a3f68d208681dc64",
@@ -5827,7 +5738,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "10/31/2024"
+      "raw_date": "10/31/2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2201422e542ed597",
@@ -5838,7 +5750,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "669dd29723dd423f",
@@ -5849,7 +5762,8 @@
       "era": "2015_plus",
       "year": 2016,
       "date_source": "incident_date",
-      "raw_date": "11/18/2016"
+      "raw_date": "11/18/2016",
+      "era_reconciled_from": null
     },
     {
       "card_id": "205f9d0f627074c3",
@@ -5860,7 +5774,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "8/24/2020"
+      "raw_date": "8/24/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c2961d7ccb95ae45",
@@ -5871,7 +5786,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "9/4/2020"
+      "raw_date": "9/4/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9a3f23d9136eddf3",
@@ -5882,7 +5798,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "10/27/2020"
+      "raw_date": "10/27/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "39c999bd61b2e20f",
@@ -5893,7 +5810,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "8/8/2020"
+      "raw_date": "8/8/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a33faf4c40674462",
@@ -5904,7 +5822,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "8/27/2020"
+      "raw_date": "8/27/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b8b5b17a6d70ef39",
@@ -5915,7 +5834,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "9/16/2020"
+      "raw_date": "9/16/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8e727ae36892cba9",
@@ -5926,7 +5846,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "10/1/2020"
+      "raw_date": "10/1/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2fecc4f3b434e64d",
@@ -5937,7 +5858,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "11/2/2020"
+      "raw_date": "11/2/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "aef933642db8134a",
@@ -5948,7 +5870,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "7/16/2020"
+      "raw_date": "7/16/2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bbc494426d526bdc",
@@ -5959,7 +5882,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "11/9/2023"
+      "raw_date": "11/9/2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "852224ee097b52cf",
@@ -5970,7 +5894,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "7/14/2024"
+      "raw_date": "7/14/2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "88479e3245f9bf15",
@@ -5981,7 +5906,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "323b9443e6f5ea56",
@@ -5992,7 +5918,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c2da7eaaedbf533a",
@@ -6003,7 +5930,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d7f72a4106a917f6",
@@ -6014,7 +5942,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ccb9a10f4d8b2c3d",
@@ -6025,7 +5954,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bf08008b8a1aa79e",
@@ -6036,7 +5966,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "907982561e907539",
@@ -6047,7 +5978,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b869fd5353d5c853",
@@ -6058,7 +5990,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "a83dedef9d19fcb5",
@@ -6069,7 +6002,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "1953"
+      "raw_date": "1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "48502ae871d53621",
@@ -6080,7 +6014,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "98c1575170956515",
@@ -6091,7 +6026,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "a4f1672d4f893c75",
@@ -6102,7 +6038,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "042b3e178a68a19c",
@@ -6113,7 +6050,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "02fa613f21662149",
@@ -6124,7 +6062,8 @@
       "era": "2015_plus",
       "year": 2019,
       "date_source": "incident_date",
-      "raw_date": "2019"
+      "raw_date": "2019",
+      "era_reconciled_from": null
     },
     {
       "card_id": "24f4178ed9082f2c",
@@ -6135,7 +6074,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8c22358135a85824",
@@ -6146,7 +6086,8 @@
       "era": "pre_1970",
       "year": 1967,
       "date_source": "incident_date",
-      "raw_date": "4/17/1967"
+      "raw_date": "4/17/1967",
+      "era_reconciled_from": null
     },
     {
       "card_id": "213ab63a7aefa8fd",
@@ -6157,7 +6098,8 @@
       "era": "pre_1970",
       "year": 1948,
       "date_source": "incident_date",
-      "raw_date": "12/10/1948"
+      "raw_date": "12/10/1948",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b0fa7140b0776b42",
@@ -6168,7 +6110,8 @@
       "era": "pre_1970",
       "year": 1949,
       "date_source": "incident_date",
-      "raw_date": "4/28/1949"
+      "raw_date": "4/28/1949",
+      "era_reconciled_from": null
     },
     {
       "card_id": "92b2d78bb19ee094",
@@ -6179,7 +6122,8 @@
       "era": "pre_1970",
       "year": 1955,
       "date_source": "incident_date",
-      "raw_date": "1955"
+      "raw_date": "1955",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1c2287cdf770e344",
@@ -6190,7 +6134,8 @@
       "era": "pre_1970",
       "year": 1955,
       "date_source": "incident_date",
-      "raw_date": "1955"
+      "raw_date": "1955",
+      "era_reconciled_from": null
     },
     {
       "card_id": "051a07582a23df10",
@@ -6201,7 +6146,8 @@
       "era": "pre_1970",
       "year": 1948,
       "date_source": "incident_date",
-      "raw_date": "1948"
+      "raw_date": "1948",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b77560f5f255a661",
@@ -6212,7 +6158,8 @@
       "era": "pre_1970",
       "year": 1950,
       "date_source": "incident_date",
-      "raw_date": "1950, 1952"
+      "raw_date": "1950, 1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fad6007114b5eb63",
@@ -6223,7 +6170,8 @@
       "era": "pre_1970",
       "year": 1947,
       "date_source": "incident_date",
-      "raw_date": "1/9/1947"
+      "raw_date": "1/9/1947",
+      "era_reconciled_from": null
     },
     {
       "card_id": "da533c72f476d84f",
@@ -6234,7 +6182,8 @@
       "era": "pre_1970",
       "year": 1947,
       "date_source": "incident_date",
-      "raw_date": "1947-1948"
+      "raw_date": "1947-1948",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d973d98ce1f1f852",
@@ -6245,7 +6194,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "9/8/2021"
+      "raw_date": "9/8/2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "6c3f5372eae29724",
@@ -6256,7 +6206,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "7/2/1952"
+      "raw_date": "7/2/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "49e0690a6f5bb74f",
@@ -6267,7 +6218,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "7/2/1952"
+      "raw_date": "7/2/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ca69163315f5ff40",
@@ -6278,7 +6230,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "5/2/1957"
+      "raw_date": "5/2/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fec5b139eb7b0a4f",
@@ -6289,7 +6242,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "September - December 1952"
+      "raw_date": "September - December 1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "022308e774bc2f25",
@@ -6300,7 +6254,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b02c9d82381561f8",
@@ -6311,7 +6266,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "2025"
+      "raw_date": "2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1f5dcf09c3bcc614",
@@ -6322,7 +6278,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "2025"
+      "raw_date": "2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c0bf728e03f3f8c2",
@@ -6333,7 +6290,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2d5ef2241949cd51",
@@ -6344,7 +6302,8 @@
       "era": "1990_2014",
       "year": 2008,
       "date_source": "incident_date",
-      "raw_date": "7/18/2008"
+      "raw_date": "7/18/2008",
+      "era_reconciled_from": null
     },
     {
       "card_id": "419ad0ffefd1343c",
@@ -6355,7 +6314,8 @@
       "era": "1990_2014",
       "year": 2008,
       "date_source": "incident_date",
-      "raw_date": "9/22/2008"
+      "raw_date": "9/22/2008",
+      "era_reconciled_from": null
     },
     {
       "card_id": "568e636bceebb3e7",
@@ -6366,7 +6326,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "9/2/2009"
+      "raw_date": "9/2/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "3bccb95aaaf026b3",
@@ -6377,7 +6338,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "2/2/2010"
+      "raw_date": "2/2/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c529da40cb35cf7f",
@@ -6388,7 +6350,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "5/18/2010"
+      "raw_date": "5/18/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7f9ed9588e40c25f",
@@ -6399,7 +6362,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "5/18/2010"
+      "raw_date": "5/18/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "be0a81d67c57548d",
@@ -6410,7 +6374,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "9/28/2010"
+      "raw_date": "9/28/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "65bf775b2dfd9f61",
@@ -6421,7 +6386,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "12/14/2009"
+      "raw_date": "12/14/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "4afde1c0cbccf94e",
@@ -6432,7 +6398,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "12/14/2009"
+      "raw_date": "12/14/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d6220a5956fb219b",
@@ -6443,7 +6410,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "1/7/2010"
+      "raw_date": "1/7/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5338a8eba1537603",
@@ -6454,7 +6422,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "1/12/2010"
+      "raw_date": "1/12/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b1a2a12d04e5784e",
@@ -6465,7 +6434,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "1/28/2010"
+      "raw_date": "1/28/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "972621a74b470223",
@@ -6476,7 +6446,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/2/2010"
+      "raw_date": "3/2/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1cc0bf60aba6d0eb",
@@ -6487,7 +6458,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/2/2010"
+      "raw_date": "3/2/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "468222f8338376d2",
@@ -6498,7 +6470,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/8/2010"
+      "raw_date": "3/8/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d7db401d52ec0bfc",
@@ -6509,7 +6482,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/10/2010"
+      "raw_date": "3/10/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "dfec531c907eaa8c",
@@ -6520,7 +6494,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/11/2010"
+      "raw_date": "3/11/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "aad2f416c0513745",
@@ -6531,7 +6506,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/11/2010"
+      "raw_date": "3/11/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "171b0f8c71e0ae7d",
@@ -6542,7 +6518,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/11/2010"
+      "raw_date": "3/11/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b73a7101dc25e2ad",
@@ -6553,7 +6530,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/23/2010"
+      "raw_date": "3/23/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c9a17def8cbea854",
@@ -6564,7 +6542,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/23/2010"
+      "raw_date": "3/23/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "28f551c3ef1a3d55",
@@ -6575,7 +6554,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/23/2010"
+      "raw_date": "3/23/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1c87b710594da1f8",
@@ -6586,7 +6566,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/29/2010"
+      "raw_date": "3/29/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ae790d0f8fc88afb",
@@ -6597,7 +6578,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/30/2010"
+      "raw_date": "3/30/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c094d943b5fcf8a2",
@@ -6608,7 +6590,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/30/2010"
+      "raw_date": "3/30/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9967c1c0868ab289",
@@ -6619,7 +6602,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/30/2010"
+      "raw_date": "3/30/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1b4f11abb8ce89e0",
@@ -6630,7 +6614,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/31/2010"
+      "raw_date": "3/31/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "90fb386c2e32f003",
@@ -6641,7 +6626,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "3/31/2010"
+      "raw_date": "3/31/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "628ebe1fba435604",
@@ -6652,7 +6638,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "4/2/2010"
+      "raw_date": "4/2/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "22e9a98032b28fc5",
@@ -6663,7 +6650,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "4/6/2010"
+      "raw_date": "4/6/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "619c9d455bbb6bb5",
@@ -6674,7 +6662,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "4/6/2010"
+      "raw_date": "4/6/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "79507cf7383f8c6b",
@@ -6685,7 +6674,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "4/6/2010"
+      "raw_date": "4/6/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "519c181f4a5aede0",
@@ -6696,7 +6686,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "4/6/2010"
+      "raw_date": "4/6/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "347808dc9e66aa78",
@@ -6707,7 +6698,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "11/1/2010"
+      "raw_date": "11/1/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "79fc255ea64dc7be",
@@ -6718,7 +6710,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "11/1/2010"
+      "raw_date": "11/1/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fd42060875c9ee92",
@@ -6729,7 +6722,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "11/1/2010"
+      "raw_date": "11/1/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "47785325ca6c118d",
@@ -6740,7 +6734,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "11/1/2010"
+      "raw_date": "11/1/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b4916a5d2b6d8f0f",
@@ -6751,7 +6746,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "11/1/2010"
+      "raw_date": "11/1/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0824ea3832738511",
@@ -6762,7 +6758,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "11/20/2010"
+      "raw_date": "11/20/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ac9f24575bf2c5de",
@@ -6773,7 +6770,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "11/21/2010"
+      "raw_date": "11/21/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "57b9d4711a5ad034",
@@ -6784,7 +6782,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "12/10/2010"
+      "raw_date": "12/10/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "052b7e0358386432",
@@ -6795,7 +6794,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "12/15/2010"
+      "raw_date": "12/15/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "aca09795e3f15ada",
@@ -6806,7 +6806,8 @@
       "era": "1990_2014",
       "year": 2011,
       "date_source": "incident_date",
-      "raw_date": "1/3/2011"
+      "raw_date": "1/3/2011",
+      "era_reconciled_from": null
     },
     {
       "card_id": "aa5c76b65d29b476",
@@ -6817,7 +6818,8 @@
       "era": "1990_2014",
       "year": 2011,
       "date_source": "incident_date",
-      "raw_date": "1/11/2011"
+      "raw_date": "1/11/2011",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e7f5382c5349c6e8",
@@ -6828,7 +6830,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "3/26/1952"
+      "raw_date": "3/26/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "cb5426fe2a0b512d",
@@ -6839,7 +6842,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "1/18/1957"
+      "raw_date": "1/18/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "338995394c698b33",
@@ -6850,7 +6854,8 @@
       "era": "pre_1970",
       "year": 1956,
       "date_source": "incident_date",
-      "raw_date": "12/31/1956"
+      "raw_date": "12/31/1956",
+      "era_reconciled_from": null
     },
     {
       "card_id": "3d74932e77e7868e",
@@ -6861,7 +6866,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "8/27/1952"
+      "raw_date": "8/27/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e5c4575f838f0175",
@@ -6872,7 +6878,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "11/13/1953"
+      "raw_date": "11/13/1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2570557981d64cc7",
@@ -6883,7 +6890,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "8/10/1953"
+      "raw_date": "8/10/1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fc95f65e81965edf",
@@ -6894,7 +6902,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "12/16/1953"
+      "raw_date": "12/16/1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f52425adaa32c4f2",
@@ -6905,7 +6914,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "10/6/1953"
+      "raw_date": "10/6/1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d3cb04b8e4d55dc1",
@@ -6916,7 +6926,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "12/1/1953"
+      "raw_date": "12/1/1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "81fe3a1b9cd4bf42",
@@ -6927,7 +6938,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "12/17/1953"
+      "raw_date": "12/17/1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "6f5beb626837fa74",
@@ -6938,7 +6950,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "12/1/1953"
+      "raw_date": "12/1/1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9bd42e0157fe4697",
@@ -6949,7 +6962,8 @@
       "era": "1990_2014",
       "year": 2008,
       "date_source": "incident_date",
-      "raw_date": "11/1/2008"
+      "raw_date": "11/1/2008",
+      "era_reconciled_from": null
     },
     {
       "card_id": "149f0e075ae4517d",
@@ -6960,7 +6974,8 @@
       "era": "1990_2014",
       "year": 2008,
       "date_source": "incident_date",
-      "raw_date": "12/10/2008"
+      "raw_date": "12/10/2008",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b87355e7ab051114",
@@ -6971,7 +6986,8 @@
       "era": "1990_2014",
       "year": 2008,
       "date_source": "incident_date",
-      "raw_date": "12/2/2008"
+      "raw_date": "12/2/2008",
+      "era_reconciled_from": null
     },
     {
       "card_id": "85fd315af4b25993",
@@ -6982,7 +6998,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "4/10/2009"
+      "raw_date": "4/10/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "12a7f37083cf2b87",
@@ -6993,7 +7010,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "4/1/2009"
+      "raw_date": "4/1/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "6a7a525ada83a4d6",
@@ -7004,7 +7022,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "7/9/2009"
+      "raw_date": "7/9/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ffea128d68063d60",
@@ -7015,7 +7034,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "11/1/2009"
+      "raw_date": "11/1/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d6016299267e9604",
@@ -7026,7 +7046,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "March, April 2010"
+      "raw_date": "March, April 2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "82f2e60220d94740",
@@ -7037,7 +7058,8 @@
       "era": "1990_2014",
       "year": 2010,
       "date_source": "incident_date",
-      "raw_date": "11/23/2010"
+      "raw_date": "11/23/2010",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0e2f21236a2289fa",
@@ -7048,7 +7070,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "June, 2026"
+      "raw_date": "June, 2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b63bea0452d1d4b3",
@@ -7059,7 +7082,8 @@
       "era": "pre_1970",
       "year": 1955,
       "date_source": "incident_date",
-      "raw_date": "3/15/1955"
+      "raw_date": "3/15/1955",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a3a9754af3184c3b",
@@ -7070,7 +7094,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "11/16/1953"
+      "raw_date": "11/16/1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1af7a333fa99bdd9",
@@ -7081,7 +7106,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "6/25/1952"
+      "raw_date": "6/25/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "3acf9cf5047465bd",
@@ -7092,7 +7118,8 @@
       "era": "pre_1970",
       "year": 1954,
       "date_source": "incident_date",
-      "raw_date": "8/31/1954"
+      "raw_date": "8/31/1954",
+      "era_reconciled_from": null
     },
     {
       "card_id": "55f5f0db04de21f2",
@@ -7103,7 +7130,8 @@
       "era": "pre_1970",
       "year": 1949,
       "date_source": "incident_date",
-      "raw_date": "4/28/1949"
+      "raw_date": "4/28/1949",
+      "era_reconciled_from": null
     },
     {
       "card_id": "87e825d57fc835d5",
@@ -7114,7 +7142,8 @@
       "era": "1990_2014",
       "year": 2008,
       "date_source": "incident_date",
-      "raw_date": "8/22/2008"
+      "raw_date": "8/22/2008",
+      "era_reconciled_from": null
     },
     {
       "card_id": "3450511c8f84fe3d",
@@ -7125,7 +7154,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "6/24/2009"
+      "raw_date": "6/24/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7b0ca66a91c704d1",
@@ -7136,7 +7166,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "5/4/2009"
+      "raw_date": "5/4/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "85845b4df2788776",
@@ -7147,7 +7178,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "11/13/2009"
+      "raw_date": "11/13/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e19fbb338efc608c",
@@ -7158,7 +7190,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "eb84be089be1d2ad",
@@ -7169,7 +7202,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "1/2/2009"
+      "raw_date": "1/2/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2c859e85c982478e",
@@ -7180,7 +7214,8 @@
       "era": "1990_2014",
       "year": 2009,
       "date_source": "incident_date",
-      "raw_date": "10/30/2009"
+      "raw_date": "10/30/2009",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d7fb87e7264437e1",
@@ -7191,7 +7226,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "10/13/1957"
+      "raw_date": "10/13/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "aabeb328d198e646",
@@ -7202,7 +7238,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "11/2/1957"
+      "raw_date": "11/2/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "40fedc1b5ac50804",
@@ -7213,7 +7250,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "11/5/1957"
+      "raw_date": "11/5/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "12fdfdceb484077d",
@@ -7224,7 +7262,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "11/13/1957"
+      "raw_date": "11/13/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "410d4f43f987ebe0",
@@ -7235,7 +7274,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "11/4/1957"
+      "raw_date": "11/4/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1692a5ac126b1882",
@@ -7246,7 +7286,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "11/4/1957"
+      "raw_date": "11/4/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1112b7dd6ccb2120",
@@ -7257,7 +7298,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "10/19/1957"
+      "raw_date": "10/19/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "46b0bdbffa5057ca",
@@ -7268,7 +7310,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "10/2/1957"
+      "raw_date": "10/2/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a174b43c290ec6b8",
@@ -7279,7 +7322,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "10/23/1957"
+      "raw_date": "10/23/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "78cc379f877a9b6f",
@@ -7290,7 +7334,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "10/28/1957"
+      "raw_date": "10/28/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "277c4861b2c8f432",
@@ -7301,7 +7346,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "3733c21347b9cf9c",
@@ -7312,7 +7358,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "11/8/1957"
+      "raw_date": "11/8/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a0af4c515f2652c5",
@@ -7323,7 +7370,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "9/5/1957"
+      "raw_date": "9/5/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c0a0002c885b68f4",
@@ -7334,7 +7382,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "11/6/1957"
+      "raw_date": "11/6/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9c56a31448466b18",
@@ -7345,7 +7394,8 @@
       "era": "pre_1970",
       "year": 1956,
       "date_source": "incident_date",
-      "raw_date": "12/17/1956"
+      "raw_date": "12/17/1956",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ba7b99c93f272808",
@@ -7356,7 +7406,8 @@
       "era": "pre_1970",
       "year": 1953,
       "date_source": "incident_date",
-      "raw_date": "12/16/1953"
+      "raw_date": "12/16/1953",
+      "era_reconciled_from": null
     },
     {
       "card_id": "43981ff03d1a20cd",
@@ -7367,7 +7418,8 @@
       "era": "pre_1970",
       "year": 1956,
       "date_source": "incident_date",
-      "raw_date": "8/22/1956"
+      "raw_date": "8/22/1956",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e17f6bbdcf28f734",
@@ -7378,7 +7430,8 @@
       "era": "pre_1970",
       "year": 1965,
       "date_source": "incident_date",
-      "raw_date": "8/8/1965"
+      "raw_date": "8/8/1965",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f2ddd70dd412e9a6",
@@ -7389,7 +7442,8 @@
       "era": "pre_1970",
       "year": 1955,
       "date_source": "incident_date",
-      "raw_date": "3/15/1955"
+      "raw_date": "3/15/1955",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8a91112c87333afb",
@@ -7400,7 +7454,8 @@
       "era": "pre_1970",
       "year": 1957,
       "date_source": "incident_date",
-      "raw_date": "12/1/1957"
+      "raw_date": "12/1/1957",
+      "era_reconciled_from": null
     },
     {
       "card_id": "91c156310f4b438a",
@@ -7411,7 +7466,8 @@
       "era": "pre_1970",
       "year": 1956,
       "date_source": "incident_date",
-      "raw_date": "8/21/1956"
+      "raw_date": "8/21/1956",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b3eb75295aabe90f",
@@ -7422,7 +7478,8 @@
       "era": "pre_1970",
       "year": 1966,
       "date_source": "incident_date",
-      "raw_date": "11/30/1966"
+      "raw_date": "11/30/1966",
+      "era_reconciled_from": null
     },
     {
       "card_id": "41b2beb95f631614",
@@ -7433,7 +7490,8 @@
       "era": "pre_1970",
       "year": 1949,
       "date_source": "incident_date",
-      "raw_date": "6/17/1949"
+      "raw_date": "6/17/1949",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c1c59236394f7b14",
@@ -7441,10 +7499,11 @@
       "identifier": "dow-uap-d10-mission-report-middle-east-may-2022.pdf",
       "title": "DOW-UAP-PR019, Unresolved UAP Report, Middle East, May 2022",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2022,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "5/6/2022",
+      "era_reconciled_from": "c1c59236394f7b14#0"
     },
     {
       "card_id": "1b522e779e72877c",
@@ -7455,7 +7514,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "43db2719407a7897",
@@ -7463,10 +7523,11 @@
       "identifier": "dow-uap-d14-mission-report-iraq-may-2022.pdf",
       "title": "DOW-UAP-PR021, Unresolved UAP Report, Iraq, May 2022",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2022,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "5/29/2022",
+      "era_reconciled_from": "43db2719407a7897#0"
     },
     {
       "card_id": "4555d94dd6067f57",
@@ -7474,10 +7535,11 @@
       "identifier": "dow-uap-d16-mission-report-syria-july-2022.pdf",
       "title": "DOW-UAP-PR022, Unresolved UAP Report, Syria, July 2022",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2022,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "7/31/2022",
+      "era_reconciled_from": "4555d94dd6067f57#0"
     },
     {
       "card_id": "9961adf6adf1010b",
@@ -7485,10 +7547,11 @@
       "identifier": "dow-uap-d18-mission-report-iraq-december-2022.pdf",
       "title": "DOW-UAP-PR023, Unresolved UAP Report, Iraq, December 2022",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2022,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "12/1/2022",
+      "era_reconciled_from": "9961adf6adf1010b#0"
     },
     {
       "card_id": "a0c6bbafa1b45010",
@@ -7499,7 +7562,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d8e5687dc870892d",
@@ -7507,10 +7571,11 @@
       "identifier": "dow-uap-d23-mission-report-united-arab-emirates-october-2023.pdf",
       "title": "DOW-UAP-PR026, Unresolved UAP Report, United Arab Emirates, October 2023",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2023,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "10/31/2023",
+      "era_reconciled_from": "d8e5687dc870892d#0"
     },
     {
       "card_id": "d8e5687dc870892d",
@@ -7518,10 +7583,11 @@
       "identifier": "dow-uap-d23-mission-report-united-arab-emirates-october-2023.pdf",
       "title": "DOW-UAP-PR027, Unresolved UAP Report, United Arab Emirates, October 2023",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2023,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "10/31/2023",
+      "era_reconciled_from": "d8e5687dc870892d#0"
     },
     {
       "card_id": "5ffbe11403179567",
@@ -7532,7 +7598,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "aa638778a043c89c",
@@ -7543,7 +7610,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "b27e6c5aaf095d57",
@@ -7554,7 +7622,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -7562,10 +7631,11 @@
       "identifier": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
       "title": "DOW-UAP-PR031, Unresolved UAP Report, Syria, October 2024",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2024,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "10/20/2024",
+      "era_reconciled_from": "ea029a05470b8f4e#0"
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -7573,10 +7643,11 @@
       "identifier": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
       "title": "DOW-UAP-PR032, Unresolved UAP Report, Syria, October 2024",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2024,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "10/20/2024",
+      "era_reconciled_from": "ea029a05470b8f4e#0"
     },
     {
       "card_id": "ea029a05470b8f4e",
@@ -7584,10 +7655,11 @@
       "identifier": "dow-uap-d32-mission-report,-syria-october-2024.pdf",
       "title": "DOW-UAP-PR033, Unresolved UAP Report, Syria, October 2024",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2024,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "10/20/2024",
+      "era_reconciled_from": "ea029a05470b8f4e#0"
     },
     {
       "card_id": "3746998b8c506e5c",
@@ -7595,10 +7667,11 @@
       "identifier": "dow-uap-d33-mission-report-greece-october-2023.pdf",
       "title": "DOW-UAP-PR034, Unresolved UAP Report, Greece, October 2023",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2023,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "10/27/2023",
+      "era_reconciled_from": "3746998b8c506e5c#0"
     },
     {
       "card_id": "c788c17e8cc32230",
@@ -7606,10 +7679,11 @@
       "identifier": "dow-uap-d35-mission-report-greece-october-2023.pdf",
       "title": "DOW-UAP-PR035, Unresolved UAP Report, Greece, October 2023",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2023,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "10/29/2023",
+      "era_reconciled_from": "c788c17e8cc32230#0"
     },
     {
       "card_id": "88a20bf256ccce7a",
@@ -7617,10 +7691,11 @@
       "identifier": "dow-uap-d38-range-fouler-debrief-middle-east-may-2020.pdf",
       "title": "DOW-UAP-PR036, Unresolved UAP Report, Middle East, May 2020",
       "agency": "Department of War",
-      "era": "undated",
-      "year": null,
-      "date_source": null,
-      "raw_date": null
+      "era": "2015_plus",
+      "year": 2020,
+      "date_source": "reconciled_from_sibling",
+      "raw_date": "5/14/2020",
+      "era_reconciled_from": "88a20bf256ccce7a#0"
     },
     {
       "card_id": "46d871c93e4585fd",
@@ -7631,7 +7706,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "9532749afe2d4273",
@@ -7642,7 +7718,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "e924a48f55719a0d",
@@ -7653,7 +7730,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "0499d6dc86c848d6",
@@ -7664,7 +7742,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "cf5c53c84485c70d",
@@ -7675,7 +7754,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "c4da38582fc64334",
@@ -7686,7 +7766,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "7aede23a09ee4c6b",
@@ -7697,7 +7778,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "42158cfc89c7ab84",
@@ -7708,7 +7790,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "2b6de60628336eb8",
@@ -7719,7 +7802,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "9fdc75d250206f65",
@@ -7730,7 +7814,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "86c966cdd1f9f31a",
@@ -7741,7 +7826,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "c5850afb384c768b",
@@ -7752,7 +7838,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "8d3833f36d05ec03",
@@ -7763,7 +7850,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "d7c07f24a96f8bac",
@@ -7774,7 +7862,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d6efb186cd925560",
@@ -7785,7 +7874,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "2021"
+      "raw_date": "2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "76780f0336af79e1",
@@ -7796,7 +7886,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "cf4f6f5ebf7dfd51",
@@ -7807,7 +7898,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "09fef4b135f48798",
@@ -7818,7 +7910,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "03b017d5b76f3a7e",
@@ -7829,7 +7922,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7c49f1a10e1d45ec",
@@ -7840,7 +7934,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "e04b05b132f03e28",
@@ -7851,7 +7946,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b4dc3f79f7616313",
@@ -7862,7 +7958,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "47cb76adb62d7e44",
@@ -7873,7 +7970,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "414f485a5a580d74",
@@ -7884,7 +7982,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f8810c11687af675",
@@ -7895,7 +7994,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "2021"
+      "raw_date": "2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a7ec8e0ae80d9061",
@@ -7906,7 +8006,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "2021"
+      "raw_date": "2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0cccf7db865c827c",
@@ -7917,7 +8018,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "2021"
+      "raw_date": "2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8f68a0b98c4647ab",
@@ -7928,7 +8030,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "2021"
+      "raw_date": "2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b6549669cd12c33f",
@@ -7939,7 +8042,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "034173b3a4641614",
@@ -7950,7 +8054,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "2024"
+      "raw_date": "2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "cd8858cf829e6ef7",
@@ -7961,7 +8066,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "2024"
+      "raw_date": "2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9fedb1373b50d856",
@@ -7972,7 +8078,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "ea2e2a6496bbdbb1",
@@ -7983,7 +8090,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0699b4948ba6fb90",
@@ -7994,7 +8102,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "bff6df8420d4cbdc",
@@ -8005,7 +8114,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b242f32347c819a5",
@@ -8016,7 +8126,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2a9f746d66a05666",
@@ -8027,7 +8138,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e07aead6d20b2925",
@@ -8038,7 +8150,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "cc72a9adcc562f7a",
@@ -8049,7 +8162,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bb61c203319b4b25",
@@ -8060,7 +8174,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "2021"
+      "raw_date": "2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "58402012053be609",
@@ -8071,7 +8186,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "2021"
+      "raw_date": "2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "22f4d050e1dad88c",
@@ -8082,7 +8198,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d02f9eac223b1525",
@@ -8093,7 +8210,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "814d0aa44e632c73",
@@ -8104,7 +8222,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "62abad9fdfc1652e",
@@ -8115,7 +8234,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2163031bf38f0a63",
@@ -8126,7 +8246,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "44209964c97d2c53",
@@ -8137,7 +8258,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d8944e2bc6627e5d",
@@ -8148,7 +8270,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d42052963cb29aaa",
@@ -8159,7 +8282,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a021a640e3108c35",
@@ -8170,7 +8294,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "4b0bd5b1c75a0c6f",
@@ -8181,7 +8306,8 @@
       "era": "2015_plus",
       "year": 2019,
       "date_source": "incident_date",
-      "raw_date": "2019"
+      "raw_date": "2019",
+      "era_reconciled_from": null
     },
     {
       "card_id": "aec4d4da8ac17636",
@@ -8192,7 +8318,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "4649af95e88b6643",
@@ -8203,7 +8330,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b2a7526ec9774d17",
@@ -8214,7 +8342,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "10d757c7b1bf6aa1",
@@ -8225,7 +8354,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "4af74afe8dc054bc",
@@ -8236,7 +8366,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9dfbbb6de5c73272",
@@ -8247,7 +8378,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "40a4c3e0843b0de7",
@@ -8258,7 +8390,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5f526642200e3985",
@@ -8269,7 +8402,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "804d5367a7e29ee0",
@@ -8280,7 +8414,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5f5e3ee158c91a63",
@@ -8291,7 +8426,8 @@
       "era": "2015_plus",
       "year": 2018,
       "date_source": "incident_date",
-      "raw_date": "2018"
+      "raw_date": "2018",
+      "era_reconciled_from": null
     },
     {
       "card_id": "23e7db6d552332e5",
@@ -8302,7 +8438,8 @@
       "era": "2015_plus",
       "year": 2019,
       "date_source": "incident_date",
-      "raw_date": "2019"
+      "raw_date": "2019",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f3ef3a248b605aa0",
@@ -8313,7 +8450,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "7d5b9bff15c9a44d",
@@ -8324,7 +8462,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "645f4e5fb99f3a03",
@@ -8335,7 +8474,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5193addba248e2e6",
@@ -8346,7 +8486,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "2024"
+      "raw_date": "2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bd0ac2e91db204dd",
@@ -8357,7 +8498,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "2024"
+      "raw_date": "2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2d67ff61a60197c1",
@@ -8368,7 +8510,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "2024"
+      "raw_date": "2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c86ed74d472f44e2",
@@ -8379,7 +8522,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "2025"
+      "raw_date": "2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "83710a4764f1d256",
@@ -8390,7 +8534,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "2025"
+      "raw_date": "2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e07c4debd3995e21",
@@ -8401,7 +8546,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "09aba3bd555a2a03",
@@ -8412,7 +8558,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8c4dcc4cb8f0126f",
@@ -8423,7 +8570,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "99c19cd85911e400",
@@ -8434,7 +8582,8 @@
       "era": "2015_plus",
       "year": 2015,
       "date_source": "incident_date",
-      "raw_date": "2015"
+      "raw_date": "2015",
+      "era_reconciled_from": null
     },
     {
       "card_id": "12ae49ccbb59bb04",
@@ -8445,7 +8594,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ae5a00986bae42be",
@@ -8456,7 +8606,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f101096677191bf4",
@@ -8467,7 +8618,8 @@
       "era": "2015_plus",
       "year": 2019,
       "date_source": "incident_date",
-      "raw_date": "2019"
+      "raw_date": "2019",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bec4cc1e81a258eb",
@@ -8478,7 +8630,8 @@
       "era": "1990_2014",
       "year": 1996,
       "date_source": "incident_date",
-      "raw_date": "1996"
+      "raw_date": "1996",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5e7c32c5682fc491",
@@ -8489,7 +8642,8 @@
       "era": "2015_plus",
       "year": 2016,
       "date_source": "incident_date",
-      "raw_date": "2016"
+      "raw_date": "2016",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ca537f49a429b502",
@@ -8500,7 +8654,8 @@
       "era": "2015_plus",
       "year": 2019,
       "date_source": "incident_date",
-      "raw_date": "2019"
+      "raw_date": "2019",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a878d3e7a9cae5be",
@@ -8511,7 +8666,8 @@
       "era": "2015_plus",
       "year": 2020,
       "date_source": "incident_date",
-      "raw_date": "2020"
+      "raw_date": "2020",
+      "era_reconciled_from": null
     },
     {
       "card_id": "66aa3ed8dece9d00",
@@ -8522,7 +8678,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "9/8/2021"
+      "raw_date": "9/8/2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c9ce3532ab1da4db",
@@ -8533,7 +8690,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "9/8/2021"
+      "raw_date": "9/8/2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "6e05a612ac25118f",
@@ -8544,7 +8702,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "9/8/2021"
+      "raw_date": "9/8/2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "11913b109df5d044",
@@ -8555,7 +8714,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "9/8/2021"
+      "raw_date": "9/8/2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0cb19530b1379e8c",
@@ -8566,7 +8726,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "9/8/2021"
+      "raw_date": "9/8/2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7c5da8ac3a325589",
@@ -8577,7 +8738,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "9/8/2021"
+      "raw_date": "9/8/2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "da746aeac188479d",
@@ -8588,7 +8750,8 @@
       "era": "2015_plus",
       "year": 2019,
       "date_source": "incident_date",
-      "raw_date": "2019"
+      "raw_date": "2019",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fa01f053b19d1511",
@@ -8599,7 +8762,8 @@
       "era": "2015_plus",
       "year": 2019,
       "date_source": "incident_date",
-      "raw_date": "2019"
+      "raw_date": "2019",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ff28c2957fe10ad3",
@@ -8610,7 +8774,8 @@
       "era": "2015_plus",
       "year": 2019,
       "date_source": "incident_date",
-      "raw_date": "2019"
+      "raw_date": "2019",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b496575fcd6e393d",
@@ -8621,7 +8786,8 @@
       "era": "2015_plus",
       "year": 2019,
       "date_source": "incident_date",
-      "raw_date": "2019"
+      "raw_date": "2019",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1e5e506cfdc6e993",
@@ -8632,7 +8798,8 @@
       "era": "2015_plus",
       "year": 2019,
       "date_source": "incident_date",
-      "raw_date": "2019"
+      "raw_date": "2019",
+      "era_reconciled_from": null
     },
     {
       "card_id": "036bef3a429ef20f",
@@ -8643,7 +8810,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7ae45b701d61a023",
@@ -8654,7 +8822,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "08b858a6b7a581fd",
@@ -8665,7 +8834,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "2025"
+      "raw_date": "2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "83de7afa55d15b09",
@@ -8676,7 +8846,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "2025"
+      "raw_date": "2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bbed279533fca922",
@@ -8687,7 +8858,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "2025"
+      "raw_date": "2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5f5553c56c931b34",
@@ -8698,7 +8870,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a86dbdfe36cc97a3",
@@ -8709,7 +8882,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "45f736169651df3b",
@@ -8720,7 +8894,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c50be3b65e2340d6",
@@ -8731,7 +8906,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "2025"
+      "raw_date": "2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f70c87daafb7daa0",
@@ -8742,7 +8918,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1770d8bd71372ef6",
@@ -8753,7 +8930,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "59bb7a090a1c8af6",
@@ -8764,7 +8942,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "09fb644cefa66f93",
@@ -8775,7 +8954,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "07ba861acb370d16",
@@ -8786,7 +8966,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7acc575e603e3e42",
@@ -8797,7 +8978,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f2a08ed7a261c1a2",
@@ -8808,7 +8990,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2fde9a0c4dee513c",
@@ -8819,7 +9002,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "7/2/1952"
+      "raw_date": "7/2/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "208d494dece9b545",
@@ -8830,7 +9014,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "3/26/1952"
+      "raw_date": "3/26/1952",
+      "era_reconciled_from": null
     },
     {
       "card_id": "04a82a0332cfe988",
@@ -8841,7 +9026,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "6c65ac68d3cf00f3",
@@ -8852,7 +9038,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "c178dd1cd7415f1c",
@@ -8863,7 +9050,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "ea1e7c4a981bdd8b",
@@ -8874,7 +9062,8 @@
       "era": "pre_1970",
       "year": 1963,
       "date_source": "incident_date",
-      "raw_date": "11/13/1963"
+      "raw_date": "11/13/1963",
+      "era_reconciled_from": null
     },
     {
       "card_id": "38e700c6f51082f0",
@@ -8885,7 +9074,8 @@
       "era": "pre_1970",
       "year": 1963,
       "date_source": "incident_date",
-      "raw_date": "5/29/1963"
+      "raw_date": "5/29/1963",
+      "era_reconciled_from": null
     },
     {
       "card_id": "3893e5d0279db3b1",
@@ -8896,7 +9086,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ba30b5fdb4f6d153",
@@ -8907,7 +9098,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "93cbdaad1d4ac853",
@@ -8918,7 +9110,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "04b9179a7637d6ad",
@@ -8929,7 +9122,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "613dc8ef961f9399",
@@ -8940,7 +9134,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5a487c793b488382",
@@ -8951,7 +9146,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c142741e8cafc659",
@@ -8962,7 +9158,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "819e725592d1ba79",
@@ -8973,7 +9170,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1e63919cc6c3daf4",
@@ -8984,7 +9182,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "67ab3ffef2aecf70",
@@ -8995,7 +9194,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0e3b3ec17a9ae021",
@@ -9006,7 +9206,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "672ae7eab15481ff",
@@ -9017,7 +9218,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "36bcfe2cfb5f3f54",
@@ -9028,7 +9230,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b279eac8e49cf4fe",
@@ -9039,7 +9242,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ccd932b4f40e8de7",
@@ -9050,7 +9254,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0d7a23b29e6de1bf",
@@ -9061,7 +9266,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fd8286ffc6fbc1fb",
@@ -9072,7 +9278,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "af047a976bac0c89",
@@ -9083,7 +9290,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "19d8e1d503211c84",
@@ -9094,7 +9302,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2b947223739f5bd4",
@@ -9105,7 +9314,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "16fcb501de623b9c",
@@ -9116,7 +9326,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7d1b50162c29378a",
@@ -9127,7 +9338,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "3a5445e8aa7985d4",
@@ -9138,7 +9350,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "3b36f3dc3b51cf3b",
@@ -9149,7 +9362,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f8bd1f11b7a2ae48",
@@ -9160,7 +9374,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c568aea24f3aef31",
@@ -9171,7 +9386,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "eda0a3d37c6dbbc3",
@@ -9182,7 +9398,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bdf033d4a47eaad3",
@@ -9193,7 +9410,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c304734c04357887",
@@ -9204,7 +9422,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "dc9f45a9ec6feb00",
@@ -9215,7 +9434,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a417f61b2dbd671f",
@@ -9226,7 +9446,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "6ded7ef20ded84c7",
@@ -9237,7 +9458,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1701a0f307714921",
@@ -9248,7 +9470,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "9/1/2023"
+      "raw_date": "9/1/2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b03309df6758ab15",
@@ -9259,7 +9482,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "9/1/2023"
+      "raw_date": "9/1/2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e93f6997811954dc",
@@ -9270,7 +9494,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "9/1/2023"
+      "raw_date": "9/1/2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "83aa439781e60e7b",
@@ -9281,7 +9506,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "9/1/2023"
+      "raw_date": "9/1/2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2cd799fd0c70eda2",
@@ -9292,7 +9518,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "February, 2022"
+      "raw_date": "February, 2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8e4cbdbd3583feba",
@@ -9303,7 +9530,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "464f81c988dcee9e",
@@ -9314,7 +9542,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fb116547cbbf33d4",
@@ -9325,7 +9554,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "October, 2024"
+      "raw_date": "October, 2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0f025bcbd048e738",
@@ -9336,7 +9566,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "October, 2024"
+      "raw_date": "October, 2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a14bb8678727f0c0",
@@ -9347,7 +9578,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "November, 2024"
+      "raw_date": "November, 2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ce9a5971eec321e8",
@@ -9358,7 +9590,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "November, 2024"
+      "raw_date": "November, 2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "31064dd56886eae1",
@@ -9369,7 +9602,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "December, 2024"
+      "raw_date": "December, 2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7838ea3bee6bd8a7",
@@ -9380,7 +9614,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d983745c9c3a4709",
@@ -9391,7 +9626,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d7538e35ff11c7d3",
@@ -9402,7 +9638,8 @@
       "era": "pre_1970",
       "year": 1949,
       "date_source": "incident_date",
-      "raw_date": "1949"
+      "raw_date": "1949",
+      "era_reconciled_from": null
     },
     {
       "card_id": "df252334c73a9019",
@@ -9413,7 +9650,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "August 1952-1967"
+      "raw_date": "August 1952-1967",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a814dead4ae07667",
@@ -9424,7 +9662,8 @@
       "era": "pre_1970",
       "year": 1952,
       "date_source": "incident_date",
-      "raw_date": "July 1952-1960"
+      "raw_date": "July 1952-1960",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fab845f51c10fdc0",
@@ -9435,7 +9674,8 @@
       "era": "1970_1989",
       "year": 1974,
       "date_source": "incident_date",
-      "raw_date": "10/10/1974"
+      "raw_date": "10/10/1974",
+      "era_reconciled_from": null
     },
     {
       "card_id": "6058b5fa79221835",
@@ -9446,7 +9686,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e418f6fe8d2a4595",
@@ -9457,7 +9698,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0afe3cfea622505c",
@@ -9468,7 +9710,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a86f79c3de423c13",
@@ -9479,7 +9722,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "260eb5f4eba61b65",
@@ -9490,7 +9734,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d1f561b646aaed40",
@@ -9501,7 +9746,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "45588f73ddfaad6d",
@@ -9512,7 +9758,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "cf19931bc3e5efda",
@@ -9523,7 +9770,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a0ec63eff6d4d643",
@@ -9534,7 +9782,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fc9cb08cad327063",
@@ -9545,7 +9794,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "78312c1c607632c6",
@@ -9556,7 +9806,8 @@
       "era": "1990_2014",
       "year": 2002,
       "date_source": "incident_date",
-      "raw_date": "2002, 2023-2024"
+      "raw_date": "2002, 2023-2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7be8e1bf34990b50",
@@ -9567,7 +9818,8 @@
       "era": "1990_2014",
       "year": 2002,
       "date_source": "incident_date",
-      "raw_date": "2002"
+      "raw_date": "2002",
+      "era_reconciled_from": null
     },
     {
       "card_id": "4ea340f612c3f8c2",
@@ -9578,7 +9830,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "adf867b347d0d376",
@@ -9589,7 +9842,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b3cb1b38bffcb4eb",
@@ -9600,7 +9854,8 @@
       "era": "1990_2014",
       "year": 2011,
       "date_source": "incident_date",
-      "raw_date": "2011"
+      "raw_date": "2011",
+      "era_reconciled_from": null
     },
     {
       "card_id": "979639dbe9247069",
@@ -9611,7 +9866,8 @@
       "era": "1990_2014",
       "year": 2011,
       "date_source": "incident_date",
-      "raw_date": "2011"
+      "raw_date": "2011",
+      "era_reconciled_from": null
     },
     {
       "card_id": "96f4d5e8c8f90ee5",
@@ -9622,7 +9878,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "db390eba790bd5cd",
@@ -9633,7 +9890,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0aa52db3ec97c002",
@@ -9644,7 +9902,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0e40c556fc072f29",
@@ -9655,7 +9914,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "98a873861e250b9e",
@@ -9666,7 +9926,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "4cf7750d0dd1edd3",
@@ -9677,7 +9938,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bcb9232007cbebf4",
@@ -9688,7 +9950,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c97db00a65aa4abe",
@@ -9699,7 +9962,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "06c5cecc4018786c",
@@ -9710,7 +9974,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "87a17be77dae3d9f",
@@ -9721,7 +9986,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ee657817d068d59b",
@@ -9732,7 +9998,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "June, 2026"
+      "raw_date": "June, 2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fcbd7e953ec292de",
@@ -9743,7 +10010,8 @@
       "era": "2015_plus",
       "year": 2021,
       "date_source": "incident_date",
-      "raw_date": "November, 2021"
+      "raw_date": "November, 2021",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2b80b41d1b25a46f",
@@ -9754,7 +10022,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "March, 2022"
+      "raw_date": "March, 2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bbd205a2256b39c9",
@@ -9765,7 +10034,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "October, 2024"
+      "raw_date": "October, 2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "56c379b8fb673028",
@@ -9776,7 +10046,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "July, 2025"
+      "raw_date": "July, 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b771e5a588793b5d",
@@ -9787,7 +10058,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "41ba3dea9b211d5c",
@@ -9798,7 +10070,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f634a8f291eb0280",
@@ -9809,7 +10082,8 @@
       "era": "2015_plus",
       "year": 2026,
       "date_source": "incident_date",
-      "raw_date": "2026"
+      "raw_date": "2026",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ea18e274b06b352e",
@@ -9820,7 +10094,8 @@
       "era": "2015_plus",
       "year": 2022,
       "date_source": "incident_date",
-      "raw_date": "2022"
+      "raw_date": "2022",
+      "era_reconciled_from": null
     },
     {
       "card_id": "88443d8d0c5b0c44",
@@ -9831,7 +10106,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "247e6e1bd6da7377",
@@ -9842,7 +10118,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "31656bd3e7de783d",
@@ -9853,7 +10130,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "b1d24cb7f46cfa20",
@@ -9864,7 +10142,8 @@
       "era": "2015_plus",
       "year": 2024,
       "date_source": "incident_date",
-      "raw_date": "January, 2024"
+      "raw_date": "January, 2024",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1b33dafd36c74c06",
@@ -9875,7 +10154,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "78236aa834b34246",
@@ -9886,7 +10166,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f55d5c010b11b301",
@@ -9897,7 +10178,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "cb8be77a22e07f9b",
@@ -9908,7 +10190,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "October, 2023"
+      "raw_date": "October, 2023",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5d9d3147f0b62d0c",
@@ -9919,7 +10202,8 @@
       "era": "pre_1970",
       "year": 1969,
       "date_source": "incident_date",
-      "raw_date": "1969"
+      "raw_date": "1969",
+      "era_reconciled_from": null
     },
     {
       "card_id": "78dc972c0c143d1e",
@@ -9930,7 +10214,8 @@
       "era": "1970_1989",
       "year": 1972,
       "date_source": "incident_date",
-      "raw_date": "1972"
+      "raw_date": "1972",
+      "era_reconciled_from": null
     },
     {
       "card_id": "48e4bc1bdb5a66e8",
@@ -9941,7 +10226,8 @@
       "era": "pre_1970",
       "year": 1965,
       "date_source": "incident_date",
-      "raw_date": "12/5/1965"
+      "raw_date": "12/5/1965",
+      "era_reconciled_from": null
     },
     {
       "card_id": "167f6a21c7238d0c",
@@ -9952,7 +10238,8 @@
       "era": "pre_1970",
       "year": 1965,
       "date_source": "incident_date",
-      "raw_date": "12/5/1965"
+      "raw_date": "12/5/1965",
+      "era_reconciled_from": null
     },
     {
       "card_id": "d14e0371a5bf0f5e",
@@ -9963,7 +10250,8 @@
       "era": "pre_1970",
       "year": 1969,
       "date_source": "incident_date",
-      "raw_date": "1969"
+      "raw_date": "1969",
+      "era_reconciled_from": null
     },
     {
       "card_id": "63c47bad93af4c92",
@@ -9974,7 +10262,8 @@
       "era": "1970_1989",
       "year": 1973,
       "date_source": "incident_date",
-      "raw_date": "1973"
+      "raw_date": "1973",
+      "era_reconciled_from": null
     },
     {
       "card_id": "0b298cfc9c65a4d6",
@@ -9985,7 +10274,8 @@
       "era": "1970_1989",
       "year": 1973,
       "date_source": "incident_date",
-      "raw_date": "1973"
+      "raw_date": "1973",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8bb54e0aec5e91ad",
@@ -9996,7 +10286,8 @@
       "era": "1970_1989",
       "year": 1973,
       "date_source": "incident_date",
-      "raw_date": "1973"
+      "raw_date": "1973",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9ed140b9186c20c5",
@@ -10007,7 +10298,8 @@
       "era": "pre_1970",
       "year": 1969,
       "date_source": "incident_date",
-      "raw_date": "1969"
+      "raw_date": "1969",
+      "era_reconciled_from": null
     },
     {
       "card_id": "002eaa383e76a277",
@@ -10018,7 +10310,8 @@
       "era": "1970_1989",
       "year": 1972,
       "date_source": "incident_date",
-      "raw_date": "12/7/1972"
+      "raw_date": "12/7/1972",
+      "era_reconciled_from": null
     },
     {
       "card_id": "1bc28d0e03b79e35",
@@ -10029,7 +10322,8 @@
       "era": "pre_1970",
       "year": 1963,
       "date_source": "incident_date",
-      "raw_date": "5/15/1963"
+      "raw_date": "5/15/1963",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ef779c3f0f7ba4d3",
@@ -10040,7 +10334,8 @@
       "era": "pre_1970",
       "year": 1963,
       "date_source": "incident_date",
-      "raw_date": "5/15/1963"
+      "raw_date": "5/15/1963",
+      "era_reconciled_from": null
     },
     {
       "card_id": "35e0a7cff95a3e93",
@@ -10051,7 +10346,8 @@
       "era": "pre_1970",
       "year": 1962,
       "date_source": "incident_date",
-      "raw_date": "10/3/1962"
+      "raw_date": "10/3/1962",
+      "era_reconciled_from": null
     },
     {
       "card_id": "6b12c3ddc6a96008",
@@ -10062,7 +10358,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "01765a63bbd3f02f",
@@ -10073,7 +10370,8 @@
       "era": "pre_1970",
       "year": 1961,
       "date_source": "incident_date",
-      "raw_date": "7/21/1961"
+      "raw_date": "7/21/1961",
+      "era_reconciled_from": null
     },
     {
       "card_id": "765a28effad5ab93",
@@ -10084,7 +10382,8 @@
       "era": "pre_1970",
       "year": 1962,
       "date_source": "incident_date",
-      "raw_date": "1962-1963"
+      "raw_date": "1962-1963",
+      "era_reconciled_from": null
     },
     {
       "card_id": "56bd12ff7be6f4ee",
@@ -10095,7 +10394,8 @@
       "era": "pre_1970",
       "year": 1965,
       "date_source": "incident_date",
-      "raw_date": "6/9/1965"
+      "raw_date": "6/9/1965",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e6d06ce60662cdcf",
@@ -10106,7 +10406,8 @@
       "era": "pre_1970",
       "year": 1965,
       "date_source": "incident_date",
-      "raw_date": "6/9/1965"
+      "raw_date": "6/9/1965",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c8d89f235e487961",
@@ -10117,7 +10418,8 @@
       "era": "pre_1970",
       "year": 1965,
       "date_source": "incident_date",
-      "raw_date": "June 3-7, 1965"
+      "raw_date": "June 3-7, 1965",
+      "era_reconciled_from": null
     },
     {
       "card_id": "662eb9fef6e109d2",
@@ -10128,7 +10430,8 @@
       "era": "pre_1970",
       "year": 1965,
       "date_source": "incident_date",
-      "raw_date": "August 2 - September 2, 1965"
+      "raw_date": "August 2 - September 2, 1965",
+      "era_reconciled_from": null
     },
     {
       "card_id": "f6935b10dea56aa5",
@@ -10139,7 +10442,8 @@
       "era": "pre_1970",
       "year": 1965,
       "date_source": "incident_date",
-      "raw_date": "August 30 - September 2, 1965"
+      "raw_date": "August 30 - September 2, 1965",
+      "era_reconciled_from": null
     },
     {
       "card_id": "e18cac08048b6c28",
@@ -10150,7 +10454,8 @@
       "era": "pre_1970",
       "year": 1965,
       "date_source": "incident_date",
-      "raw_date": "December 19-21, 1965"
+      "raw_date": "December 19-21, 1965",
+      "era_reconciled_from": null
     },
     {
       "card_id": "a3672ccd47d5503a",
@@ -10161,7 +10466,8 @@
       "era": "pre_1970",
       "year": 1966,
       "date_source": "incident_date",
-      "raw_date": "June 3-6, 1966"
+      "raw_date": "June 3-6, 1966",
+      "era_reconciled_from": null
     },
     {
       "card_id": "79efc12f4c2ebae9",
@@ -10172,7 +10478,8 @@
       "era": "pre_1970",
       "year": 1962,
       "date_source": "incident_date",
-      "raw_date": "November, 1962"
+      "raw_date": "November, 1962",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5ef405481cb69a03",
@@ -10183,7 +10490,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "a7455a1d0c406174",
@@ -10194,7 +10502,8 @@
       "era": "undated",
       "year": null,
       "date_source": null,
-      "raw_date": null
+      "raw_date": null,
+      "era_reconciled_from": null
     },
     {
       "card_id": "ffd9dfd4bceb163f",
@@ -10205,7 +10514,8 @@
       "era": "1970_1989",
       "year": 1971,
       "date_source": "incident_date",
-      "raw_date": "2/18/1971"
+      "raw_date": "2/18/1971",
+      "era_reconciled_from": null
     },
     {
       "card_id": "69f1874d972fb44c",
@@ -10216,7 +10526,8 @@
       "era": "1970_1989",
       "year": 1971,
       "date_source": "incident_date",
-      "raw_date": "2/18/1971"
+      "raw_date": "2/18/1971",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ed534f618f0c3501",
@@ -10227,7 +10538,8 @@
       "era": "1970_1989",
       "year": 1972,
       "date_source": "incident_date",
-      "raw_date": "12/21/1972"
+      "raw_date": "12/21/1972",
+      "era_reconciled_from": null
     },
     {
       "card_id": "aa2e4d84861d5006",
@@ -10238,7 +10550,8 @@
       "era": "1970_1989",
       "year": 1972,
       "date_source": "incident_date",
-      "raw_date": "12/21/1972"
+      "raw_date": "12/21/1972",
+      "era_reconciled_from": null
     },
     {
       "card_id": "2681dbf5da52e042",
@@ -10249,7 +10562,8 @@
       "era": "1990_2014",
       "year": 1996,
       "date_source": "incident_date",
-      "raw_date": "1996"
+      "raw_date": "1996",
+      "era_reconciled_from": null
     },
     {
       "card_id": "90a8c6493f04d6e3",
@@ -10260,7 +10574,8 @@
       "era": "1990_2014",
       "year": 1996,
       "date_source": "incident_date",
-      "raw_date": "1996"
+      "raw_date": "1996",
+      "era_reconciled_from": null
     },
     {
       "card_id": "07214d7d1343a4b4",
@@ -10271,7 +10586,8 @@
       "era": "1990_2014",
       "year": 1996,
       "date_source": "incident_date",
-      "raw_date": "1996"
+      "raw_date": "1996",
+      "era_reconciled_from": null
     },
     {
       "card_id": "303ad110cb5fa8b4",
@@ -10282,7 +10598,8 @@
       "era": "pre_1970",
       "year": 1969,
       "date_source": "incident_date",
-      "raw_date": "1969"
+      "raw_date": "1969",
+      "era_reconciled_from": null
     },
     {
       "card_id": "bd9411951868bc3e",
@@ -10293,7 +10610,8 @@
       "era": "pre_1970",
       "year": 1969,
       "date_source": "incident_date",
-      "raw_date": "1969"
+      "raw_date": "1969",
+      "era_reconciled_from": null
     },
     {
       "card_id": "19b18b71420602c5",
@@ -10304,7 +10622,8 @@
       "era": "pre_1970",
       "year": 1969,
       "date_source": "incident_date",
-      "raw_date": "1969"
+      "raw_date": "1969",
+      "era_reconciled_from": null
     },
     {
       "card_id": "34f3278ad20d348f",
@@ -10315,7 +10634,8 @@
       "era": "pre_1970",
       "year": 1969,
       "date_source": "incident_date",
-      "raw_date": "1969"
+      "raw_date": "1969",
+      "era_reconciled_from": null
     },
     {
       "card_id": "784dc42f885dc12e",
@@ -10326,7 +10646,8 @@
       "era": "pre_1970",
       "year": 1969,
       "date_source": "incident_date",
-      "raw_date": "1969"
+      "raw_date": "1969",
+      "era_reconciled_from": null
     },
     {
       "card_id": "3deb237b1d68e203",
@@ -10337,7 +10658,8 @@
       "era": "1970_1989",
       "year": 1972,
       "date_source": "incident_date",
-      "raw_date": "1972"
+      "raw_date": "1972",
+      "era_reconciled_from": null
     },
     {
       "card_id": "fd342b7508668b0e",
@@ -10348,7 +10670,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "2025"
+      "raw_date": "2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8f354cf1d1f821f0",
@@ -10359,7 +10682,8 @@
       "era": "1970_1989",
       "year": 1985,
       "date_source": "incident_date",
-      "raw_date": "1/24/1985"
+      "raw_date": "1/24/1985",
+      "era_reconciled_from": null
     },
     {
       "card_id": "9877727cd0d1bbfe",
@@ -10370,7 +10694,8 @@
       "era": "1990_2014",
       "year": 1994,
       "date_source": "incident_date",
-      "raw_date": "1/27/1994"
+      "raw_date": "1/27/1994",
+      "era_reconciled_from": null
     },
     {
       "card_id": "ff30c985595153f3",
@@ -10381,7 +10706,8 @@
       "era": "1990_2014",
       "year": 2001,
       "date_source": "incident_date",
-      "raw_date": "10/28/2001-10/29/2001"
+      "raw_date": "10/28/2001-10/29/2001",
+      "era_reconciled_from": null
     },
     {
       "card_id": "5847028ebb855cf8",
@@ -10392,7 +10718,8 @@
       "era": "1990_2014",
       "year": 2004,
       "date_source": "incident_date",
-      "raw_date": "11/5/2004"
+      "raw_date": "11/5/2004",
+      "era_reconciled_from": null
     },
     {
       "card_id": "c48c078b811c0fd7",
@@ -10403,7 +10730,8 @@
       "era": "1990_2014",
       "year": 2003,
       "date_source": "incident_date",
-      "raw_date": "9/12/2003"
+      "raw_date": "9/12/2003",
+      "era_reconciled_from": null
     },
     {
       "card_id": "7c0e38a8a433ebaa",
@@ -10414,7 +10742,8 @@
       "era": "1990_2014",
       "year": 1998,
       "date_source": "incident_date",
-      "raw_date": "1998"
+      "raw_date": "1998",
+      "era_reconciled_from": null
     },
     {
       "card_id": "21c9fa9b9a543068",
@@ -10425,7 +10754,8 @@
       "era": "pre_1970",
       "year": 1962,
       "date_source": "incident_date",
-      "raw_date": "1962-1964"
+      "raw_date": "1962-1964",
+      "era_reconciled_from": null
     },
     {
       "card_id": "be533a4ab886eb11",
@@ -10436,7 +10766,8 @@
       "era": "2015_plus",
       "year": 2025,
       "date_source": "incident_date",
-      "raw_date": "Late 2025"
+      "raw_date": "Late 2025",
+      "era_reconciled_from": null
     },
     {
       "card_id": "8d0b85ce46109d06",
@@ -10447,7 +10778,8 @@
       "era": "2015_plus",
       "year": 2023,
       "date_source": "incident_date",
-      "raw_date": "2023"
+      "raw_date": "2023",
+      "era_reconciled_from": null
     }
   ],
   "ntrs_claims_applied": true,

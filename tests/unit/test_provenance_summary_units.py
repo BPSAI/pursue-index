@@ -65,6 +65,9 @@ _BUCKETS: dict[str, tuple[str, str]] = {
     "no_prior_release_row_count": ("rows", "no_prior_release_rows"),
     "superseded_by_claim_row_count": ("rows", "superseded_by_claim"),
     "undated_triage_row_count": ("rows", "undated_triage"),
+    "file_route_counts": ("sum", "file_count"),
+    "row_route_counts": ("sum", "card_row_count"),
+    "partially_resolved_file_count": ("ids", "partially_resolved_files"),
 }
 _REPORT: dict[str, tuple[str, str]] = {
     "card_row_count": ("sum", "row_counts"),
@@ -75,6 +78,7 @@ _REPORT: dict[str, tuple[str, str]] = {
     "unresolved_by_era": ("sum", "unresolved"),
     "unresolved_row_count": ("rows", "unresolved_rows"),
     "page_image_flagged": ("ids", "page_image_flagged_files"),
+    "partially_resolved_file_count": ("ids", "partially_resolved_files"),
 }
 #: Counts that summarise no array in the output (what was searched, not what is listed).
 _EXEMPT = {"catalogue_rows_dropped.count", "ntrs_claims_applied_row_count", "ntrs_claims_migration_ambiguous_count"}
@@ -173,28 +177,26 @@ def test_no_prior_release_count_is_per_file_with_a_file_list_beside_the_row_list
     assert out["no_prior_release_row_count"] == len(out["no_prior_release_rows"]) == 3
 
 
-# --- item 2: a file whose rows land in different eras counts once, as mixed ----------
+# --- item 2: a file whose rows land in different eras is reconciled to one -----------
 
 
-def test_a_file_with_one_modern_row_and_one_undated_row_counts_once_as_mixed() -> None:
+def test_a_file_with_one_modern_row_and_one_undated_row_is_one_modern_file() -> None:
     manifest = {"cards": [_row("aaaa", "M1", incident_date="2022-05-06"), _row("aaaa", "M2")]}
     out = build_output(manifest, bucket(manifest))
-    assert out["era_file_counts"]["mixed"] == 1 and out["file_count"] == 1
-    assert out["era_file_counts"]["2015_plus"] == out["era_file_counts"]["undated"] == 0
-    # The rows keep their own outcome: the modern row its negative, the undated row its triage.
-    assert [r["row_key"] for r in out["no_prior_release_rows"]] == ["aaaa#0"]
-    assert [r["row_key"] for r in out["undated_triage"]] == ["aaaa#1"]
-    assert out["era_row_counts"]["2015_plus"] == 1 and out["era_row_counts"]["undated"] == 1
-    assert out["era_row_counts"]["mixed"] == 0
-    assert [c["era"] for c in out["cards"]] == ["2015_plus", "undated"]
+    assert out["era_file_counts"]["2015_plus"] == 1 and out["file_count"] == 1
+    assert out["era_file_counts"]["undated"] == 0 and "mixed" not in out["era_file_counts"]
+    assert [r["row_key"] for r in out["no_prior_release_rows"]] == ["aaaa#0", "aaaa#1"]
+    assert out["undated_triage"] == []
+    assert out["era_row_counts"]["2015_plus"] == 2 and out["era_row_counts"]["undated"] == 0
+    assert [c["era"] for c in out["cards"]] == ["2015_plus", "2015_plus"]
 
 
-def test_a_mixed_file_is_counted_once_in_the_report_and_never_resolved_by_era_as_a_whole() -> None:
+def test_a_reconciled_old_file_is_counted_once_in_the_report_and_unresolved() -> None:
     manifest = {"cards": [_row("aaaa", "M1", incident_date="1952-07-01"), _row("aaaa", "M2")]}
     report = build_report(manifest)
     assert report.file_count == 1 and report.card_row_count == 2
     assert (report.resolved_by_era, report.unresolved) == (0, 1)
-    assert report.unresolved_by_era == {"mixed": 1}
+    assert report.unresolved_by_era == {"pre_1970": 1}
     assert sum(report.row_counts.values()) == 2
 
 

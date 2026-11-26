@@ -86,11 +86,22 @@ def test_no_date_reason_is_unchanged() -> None:
     assert row["reason"] == _NO_DATE
 
 
-def test_duplicate_card_ids_keep_their_own_outcome() -> None:
+def test_a_file_shared_by_a_dated_and_two_undated_rows_takes_the_dated_era() -> None:
     cards = [
         {**_card("dup", incident_date="6/7/2024", release_date="5/8/2026"), "title": "Report 2024"},
         _card("dup", incident_date="Undated", release_date="5/8/2026"),
         _card("dup", release_date="5/8/2026"),
+    ]
+    result = bucket({"cards": cards})
+    assert [c.era for c in result.cards] == [Era.MODERN_OPERATIONAL] * 3
+    assert result.triage == []
+
+
+def test_distinct_undated_files_keep_their_own_triage_reasons() -> None:
+    cards = [
+        {**_card("dup", incident_date="6/7/2024", release_date="5/8/2026"), "title": "Report 2024"},
+        _card("dup2", incident_date="Undated", release_date="5/8/2026"),
+        _card("dup3", release_date="5/8/2026"),
     ]
     result = bucket({"cards": cards})
     assert [c.era for c in result.cards] == [

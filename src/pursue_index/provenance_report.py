@@ -29,8 +29,10 @@ file and is not unique upstream, since several rows can share one. A count named
 ``*_row_count`` (or ``row_counts``) counts rows and equals the length of the row array
 beside it. Every other count is per file: ``unresolved`` is the length of
 ``unresolved_files`` (one id per file), and ``unresolved_rows`` lists the rows, counted
-by ``unresolved_row_count``. A file whose rows land in different eras is counted
-once under ``mixed``. Pure computation + (de)serialisation over an
+by ``unresolved_row_count``. A file has one era, and its route is the mixed-outcome
+partition of :mod:`pursue_index.file_basis`: ``claim`` if any row has a claim, ``era`` if
+every row routes ``era``, else ``unresolved``, with ``partially_resolved_files`` naming
+the unresolved files that still have an era row. Pure computation + (de)serialisation over an
 already-loaded manifest; the CLI (:mod:`pursue_index.cli.provenance_cli`) owns
 all rendering and the read-only guard. No web payload is ever touched.
 """
@@ -45,12 +47,17 @@ from typing import Any
 from pursue_index.catalogue_load import LoadedCatalogue, load_catalogue
 from pursue_index.claim_precedence import (
     POSITIVE_TIER_PRECEDENCE,
-    PositiveClaim,
-    primary_positive_claim,
     unkeyed_claims,
 )
-from pursue_index.era_bucketing import classify_rows
-from pursue_index.era_models import CardEra, Era
+from pursue_index.era_bucketing import classify_reconciled, classify_rows
+from pursue_index.era_reconcile import FileEras
+from pursue_index.file_basis import (
+    Route,
+    RowBasis,
+    assess,
+    file_routes,
+    partially_resolved_files,
+)
 from pursue_index.file_counts import file_eras, file_key
 from pursue_index.provenance import ProvenanceTier
 from pursue_index.resolved_claim import ResolvedClaim
@@ -114,25 +121,20 @@ def classify(
     row it names, so the key is never assumed.
     """
     card_era = replace(classify_rows([card])[0], row_key=row_key)
-    return _outcome(card_era, primary_positive_claim(card, catalogue, external, row_key=row_key))
+    (row,) = assess([card], FileEras([card_era], {}), catalogue, external)
+    return _outcome(row)
 
 
-def _outcome(card_era: CardEra, claim: PositiveClaim | None) -> CardOutcome:
-    """Place one keyed row in exactly one route, given its strongest claim."""
-    primary = claim.tier if claim is not None else None
-    if primary is not None:
-        resolved_by = RESOLVED_BY_CLAIM
-    elif card_era.era is Era.MODERN_OPERATIONAL:
-        resolved_by = RESOLVED_BY_ERA
-    else:
-        resolved_by = UNRESOLVED
+def _outcome(row: RowBasis) -> CardOutcome:
+    """Place one reconciled, keyed row in exactly one route, as :func:`assess` routed it."""
+    card_era, primary = row.era, (row.claim.tier if row.claim is not None else None)
     return CardOutcome(
         card_id=card_era.card_id,
         title=card_era.title,
         agency=card_era.agency,
         era=card_era.era.value,
         primary_tier=primary.value if primary is not None else None,
-        resolved_by=resolved_by,
+        resolved_by=row.route.value,
         needs_page_image_comparison=primary is ProvenanceTier.PREVIOUSLY_RELEASED_IN_PART,
         row_key=card_era.row_key,
     )
@@ -168,6 +170,7 @@ class CoverageReport:
     unresolved_files: tuple[str, ...] = ()
     page_image_flagged_files: tuple[str, ...] = ()
     ntrs_claims_applied_row_count: int = 0
+    partially_resolved_files: tuple[str, ...] = ()
 
     def unresolved_rows(self) -> list[CardOutcome]:
         """The rows no route resolved — what Phase B would have to reach."""
@@ -184,6 +187,8 @@ class CoverageReport:
             "resolved_by_era": self.resolved_by_era,
             "unresolved": self.unresolved,
             "unresolved_files": list(self.unresolved_files),
+            "partially_resolved_file_count": len(self.partially_resolved_files),
+            "partially_resolved_files": list(self.partially_resolved_files),
             "tier_file_counts": self.tier_counts,
             "page_image_flagged": self.page_image_flagged,
             "unresolved_by_era": self.unresolved_by_era,
@@ -222,10 +227,11 @@ def build_report(
     that: a coverage figure is a statement about how much was searched, so the
     part of the catalogue that was unreadable belongs in it.
 
-    A file (rows sharing a ``card_id``) is counted once: it takes the strongest
-    route any of its rows has (claim, then era, then unresolved), and a file whose
-    rows land in different eras is counted ``mixed``. ``row_counts`` keeps the
-    per-row split. A file is page-image-flagged when any of its rows is. A claim that names no row resolves nothing and is counted in
+    A file (rows sharing a ``card_id``) is counted once, by the mixed-outcome partition:
+    ``claim`` if any row has a claim, ``era`` if every row routes ``era``, else
+    ``unresolved`` (``partially_resolved_files`` lists those with an era row).
+    ``row_counts`` keeps the per-row split. A file is page-image-flagged when any of
+    its rows is. A claim that names no row resolves nothing and is counted in
     ``claims_without_row_key``.
 
     ``extra_claims`` are positive claims from any further source (e.g. the NTRS
@@ -233,13 +239,13 @@ def build_report(
     """
     loaded = catalogue if isinstance(catalogue, LoadedCatalogue) else LoadedCatalogue(list(catalogue), 0)
     cards = manifest.get("cards", [])
-    eras = classify_rows(cards)
-    outcomes = [
-        _outcome(era, primary_positive_claim(card, loaded.entries, extra_claims, row_key=era.row_key))
-        for card, era in zip(cards, eras, strict=True)
-    ]
+    reconciled = classify_reconciled(cards)
+    rows = assess(cards, reconciled, loaded.entries, extra_claims)
+    eras = reconciled.cards
+    outcomes = [_outcome(row) for row in rows]
     row_routes = Counter(o.resolved_by for o in outcomes)
-    file_era = file_eras(eras)
+    routes = file_routes(rows)
+    file_era = file_eras(eras, reconciled.conflicts)
     best: dict[str, CardOutcome] = {}
     flagged: dict[str, None] = {}
     for era, outcome in zip(eras, outcomes, strict=True):
@@ -248,24 +254,28 @@ def build_report(
             flagged[key] = None
         if key not in best or _rank(outcome) < _rank(best[key]):
             best[key] = outcome
-    routes = Counter(o.resolved_by for o in best.values())
-    tier_counts = Counter(o.primary_tier for o in best.values() if o.primary_tier is not None)
-    unresolved_by_era = Counter(file_era[k] for k, o in best.items() if o.resolved_by == UNRESOLVED)
+    by_route = Counter(route.value for route in routes.values())
+    tier_counts = Counter(best[k].primary_tier for k, r in routes.items() if r is Route.CLAIM and best[k].primary_tier)
+    unresolved_files = tuple(k for k, r in routes.items() if r is Route.UNRESOLVED)
+    unresolved_by_era = Counter(file_era[k] for k in unresolved_files)
     return CoverageReport(
         card_row_count=len(outcomes),
-        resolved_by_claim=routes[RESOLVED_BY_CLAIM],
-        resolved_by_era=routes[RESOLVED_BY_ERA],
-        unresolved=routes[UNRESOLVED],
+        resolved_by_claim=by_route[RESOLVED_BY_CLAIM],
+        resolved_by_era=by_route[RESOLVED_BY_ERA],
+        unresolved=by_route[UNRESOLVED],
         tier_counts={t.value: tier_counts[t.value] for t in POSITIVE_TIER_PRECEDENCE if tier_counts[t.value]},
         page_image_flagged=len(flagged),
         unresolved_by_era=dict(sorted(unresolved_by_era.items())),
         outcomes=tuple(outcomes),
         catalogue_entries=len(loaded.entries),
         catalogue_rows_dropped=loaded.dropped_rows,
-        file_count=len(file_era),
+        file_count=len(routes),
         row_counts={route: row_routes[route] for route in (RESOLVED_BY_CLAIM, RESOLVED_BY_ERA, UNRESOLVED)},
         claims_without_row_key=unkeyed_claims(extra_claims),
-        unresolved_files=tuple(k for k, o in best.items() if o.resolved_by == UNRESOLVED),
+        unresolved_files=unresolved_files,
         page_image_flagged_files=tuple(flagged),
         ntrs_claims_applied_row_count=len({claim.row_key for claim in extra_claims} & {era.row_key for era in eras}),
+        partially_resolved_files=tuple(
+            partially_resolved_files([row.route for row in rows], [file_key(row.era) for row in rows])
+        ),
     )
