@@ -23,6 +23,7 @@ __all__ = [
     "ERA_LABELS",
     "ERA_RATIONALE",
     "MODERN_MIN_YEAR",
+    "RECONCILED_SOURCE",
     "CardEra",
     "Era",
     "EraNoPriorRelease",
@@ -39,6 +40,8 @@ MODERN_MIN_YEAR = 2015
 #: Fields that carry a document era (``release_date`` deliberately excluded — it
 #: is the war.gov publication date, ≈2026 for every card, not a document era).
 DOCUMENT_DATE_FIELDS = ("display_date", "incident_date")
+#: The date source of an undated row that took its era from a dated row of the same file.
+RECONCILED_SOURCE = "reconciled_from_sibling"
 
 
 class Era(StrEnum):
@@ -75,9 +78,14 @@ def era_for_year(year: int) -> Era:
 def era_rationale(year: int, source: str) -> str:
     """The per-card rationale: era reasoning (§4a) + the §5 disclaimer verbatim."""
     disclaimer = NO_PRIOR_RELEASE_DISCLAIMER[0].upper() + NO_PRIOR_RELEASE_DISCLAIMER[1:]
+    basis = (
+        "inferred from another row of the same source file"
+        if source == RECONCILED_SOURCE
+        else f"established via the manifest '{source}' field"
+    )
     return (
         f"This document is dated {year} ({ERA_LABELS[Era.MODERN_OPERATIONAL]}), "
-        f"established via the manifest '{source}' field. {ERA_RATIONALE} A modern "
+        f"{basis}. {ERA_RATIONALE} A modern "
         f"operational record has no plausible prior-release surface. {disclaimer}."
     )
 
@@ -148,7 +156,7 @@ class EraNoPriorRelease:
                 "an era no-prior-release record is only for 2015+ cards; "
                 f"got established_year={self.established_year!r}"
             )
-        if self.date_source not in DOCUMENT_DATE_FIELDS:
+        if self.date_source not in (*DOCUMENT_DATE_FIELDS, RECONCILED_SOURCE):
             raise ValueError(
                 f"era must rest on a document-date field {DOCUMENT_DATE_FIELDS}, "
                 f"not {self.date_source!r} (release_date is not a document era)"

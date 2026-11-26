@@ -2,10 +2,10 @@
 
 Rows sharing a ``card_id`` name one file. Each row is resolved on its own first
 (with the same two-digit-year guard as everywhere else). If the file's dated rows
-agree on one era and year, each undated row takes that era, the year and the date source
-from the dated row, and is labelled with that row's key. Upstream fields are not
-touched. If dated rows disagree on either, nothing is reconciled and the undated rows say
-why they stayed undated.
+agree on one era and year, each undated row takes that era and year
+from the dated row, takes the date source "reconciled_from_sibling", and is labelled
+with that row's key. Upstream fields are not touched. If dated rows disagree on either, nothing is
+reconciled and the undated rows say why they stayed undated.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from collections.abc import Sequence
 from dataclasses import replace
 from typing import Any, NamedTuple
 
-from pursue_index.era_models import CardEra, Era
+from pursue_index.era_models import RECONCILED_SOURCE, CardEra, Era
 from pursue_index.row_key import row_keys
 
 __all__ = ["FileEras", "reconcile_file_eras"]
@@ -57,7 +57,7 @@ def reconcile_file_eras(cards: Sequence[dict[str, Any]], resolved: Sequence[Card
                 keyed[i],
                 era=source.era,
                 year=source.year,
-                date_source=source.date_source,
+                date_source=RECONCILED_SOURCE,
                 raw_date=source.raw_date,
                 era_reconciled_from=source.row_key,
             )

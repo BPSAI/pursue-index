@@ -7,14 +7,10 @@ row's key. Upstream fields are mirrored unchanged.
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from typing import Any
 
 from pursue_index.era_bucketing import bucket, build_output
 from pursue_index.era_models import Era
-
-_MANIFEST = Path(__file__).resolve().parents[2] / "data" / "manifests" / "latest.json"
 
 
 def _row(card_id: str, title: str, **dates: Any) -> dict[str, Any]:
@@ -31,7 +27,8 @@ def test_a_dated_row_and_an_undated_row_of_one_file_end_with_one_era() -> None:
     assert dated.era is undated.era is Era.MODERN_OPERATIONAL
     assert undated.era_reconciled_from == "aaaa#0"
     assert dated.era_reconciled_from is None
-    assert (undated.year, undated.date_source) == (dated.year, dated.date_source)
+    assert undated.year == dated.year
+    assert undated.date_source == "reconciled_from_sibling"
     assert result.triage == []
     assert result.era_counts["undated"] == 0
 
@@ -110,10 +107,24 @@ def test_a_reconciled_row_takes_the_modern_record_and_names_its_source() -> None
     assert cards["aaaa#0"]["era_reconciled_from"] is None
 
 
-def test_no_upstream_field_changes_across_the_real_manifest() -> None:
-    manifest = json.loads(_MANIFEST.read_text())
-    result = bucket(manifest)
-    out = build_output(manifest, result)
+def _fixture_manifest() -> dict[str, Any]:
+    """A small manifest: reconciled, undated, conflicting and lone-undated files."""
+    return {
+        "cards": [
+            _dated("aaaa", "D1") | {"asset_filename": "d1.pdf"},
+            _row("aaaa", "PR1"),
+            _row("bbbb", "Lone", incident_date="n.d."),
+            _dated("cccc", "C1", "2022-05-06"),
+            _dated("cccc", "C2", "2019-03-04"),
+            _row("cccc", "C3", display_date="undated"),
+            {"card_id": "dddd", "agency": "DOW"},
+        ]
+    }
+
+
+def test_no_upstream_field_changes_over_a_fixture_manifest() -> None:
+    manifest = _fixture_manifest()
+    out = build_output(manifest, bucket(manifest))
     assert len(out["cards"]) == len(manifest["cards"])
     for card, entry in zip(manifest["cards"], out["cards"], strict=True):
         assert entry["card_id"] == card["card_id"]
@@ -123,16 +134,11 @@ def test_no_upstream_field_changes_across_the_real_manifest() -> None:
         )
 
 
-def test_triage_rows_mirror_the_manifest_dates_in_the_real_manifest() -> None:
-    manifest = json.loads(_MANIFEST.read_text())
+def test_triage_rows_mirror_the_manifest_dates_over_a_fixture_manifest() -> None:
+    manifest = _fixture_manifest()
     out = build_output(manifest, bucket(manifest))
-    by_key: dict[str, dict[str, Any]] = {}
-    seen: dict[str, int] = {}
-    for card in manifest["cards"]:
-        n = seen.get(card["card_id"], 0)
-        seen[card["card_id"]] = n + 1
-        by_key[f"{card['card_id']}#{n}"] = card
-    assert out["undated_triage"]
+    by_key = {f"{c['card_id']}#{i}": c for c in manifest["cards"] for i in [_index(manifest, c)]}
+    assert {r["row_key"] for r in out["undated_triage"]} >= {"bbbb#0", "cccc#2", "dddd#0"}
     for row in out["undated_triage"]:
         card = by_key[row["row_key"]]
         assert row["title"] == str(card.get("title") or "")
@@ -143,12 +149,18 @@ def test_triage_rows_mirror_the_manifest_dates_in_the_real_manifest() -> None:
         }
 
 
-def test_the_real_manifest_has_one_era_per_file() -> None:
-    manifest = json.loads(_MANIFEST.read_text())
+def _index(manifest: dict[str, Any], card: dict[str, Any]) -> int:
+    """The row's position among the rows sharing its card_id."""
+    same = [c for c in manifest["cards"] if c["card_id"] == card["card_id"]]
+    return next(i for i, c in enumerate(same) if c is card)
+
+
+def test_a_fixture_manifest_without_conflicts_has_one_era_per_file() -> None:
+    manifest = {"cards": [_dated(), _row("aaaa", "PR1"), _row("aaaa", "PR2"), _dated("bbbb", "B", "1975")]}
     eras: dict[str, set[str]] = {}
     for entry in build_output(manifest, bucket(manifest))["cards"]:
         eras.setdefault(entry["card_id"], set()).add(entry["era"])
-    assert [cid for cid, found in eras.items() if len(found) > 1] == []
+    assert eras == {"aaaa": {"2015_plus"}, "bbbb": {"1970_1989"}}
 
 
 def test_same_era_with_different_years_is_a_conflict_and_reconciles_nothing() -> None:

@@ -69,7 +69,6 @@ __all__ = [
     "run_searches",
     "title_matches",
     "token_set_ratio",
-    "unresolved_nasa_cards",
     "unresolved_nasa_rows",
     "write_output",
 ]
@@ -164,13 +163,6 @@ def unresolved_nasa_rows(
     wanted = {o.row_key for o in report.unresolved_cards() if o.agency.strip().casefold() == "nasa"}
     cards = manifest.get("cards", [])
     return [(key, card) for key, card in zip(row_keys(cards), cards, strict=True) if key in wanted]
-
-
-def unresolved_nasa_cards(
-    manifest: dict[str, Any], catalogue: Sequence[SourceEntry] = ()
-) -> list[dict[str, Any]]:
-    """The NASA cards the coverage report leaves unresolved, in manifest order."""
-    return [card for _, card in unresolved_nasa_rows(manifest, catalogue)]
 
 
 def run_searches(

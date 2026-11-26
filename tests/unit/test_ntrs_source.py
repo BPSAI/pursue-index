@@ -23,7 +23,6 @@ from pursue_index.ntrs_source import (
     normalize_query,
     run_searches,
     title_matches,
-    unresolved_nasa_cards,
 )
 from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.provenance_report import RESOLVED_BY_CLAIM, UNRESOLVED, build_report
@@ -42,19 +41,6 @@ def test_query_strips_prefix_collapses_whitespace_and_drops_quotes() -> None:
 
 def _pre2015_nasa(card_id: str, title: str, **over: Any) -> dict[str, Any]:
     return card(card_id=card_id, title=title, **over)
-
-
-def test_only_unresolved_nasa_cards_are_selected() -> None:
-    manifest = {
-        "cards": [
-            _pre2015_nasa("n1", "NASA-UAP-D001, Apollo 12 Transcript, 1969"),
-            _pre2015_nasa("n2", "NASA-UAP-D030, STS-80 Unidentified Object Image 1, 1996", incident_date="1996"),
-            _pre2015_nasa("n3", "NASA-UAP-D090, Modern Thing, 2019", incident_date="2019"),
-            _pre2015_nasa("f1", "FBI-UAP-D001, Some File, 1969", agency="FBI"),
-        ]
-    }
-    ids = [c["card_id"] for c in unresolved_nasa_cards(manifest)]
-    assert ids == ["n1", "n2"]
 
 
 # --- matching ----------------------------------------------------------------
