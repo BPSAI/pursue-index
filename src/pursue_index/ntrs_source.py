@@ -47,6 +47,7 @@ from pursue_index.ntrs_match import (
     normalize_query,
     title_matches,
     token_set_ratio,
+    utc_today,
 )
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import NO_PRIOR_RELEASE_DISCLAIMER, ProvenanceTier
@@ -231,7 +232,7 @@ def main() -> int:
     except NtrsFetchError as exc:
         print(f"ntrs-source: aborted — {exc}")
         return 1
-    return run(repo_root, NtrsFetcher(get=default_get, hosts=hosts), date.today())
+    return run(repo_root, NtrsFetcher(get=default_get, hosts=hosts), utc_today())
 
 
 if __name__ == "__main__":

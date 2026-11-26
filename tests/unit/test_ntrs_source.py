@@ -37,7 +37,7 @@ def test_query_strips_prefix_collapses_whitespace_and_drops_quotes() -> None:
     assert normalize_query("NASA-UAP-D024, “Apollo 16   Scientific\tDebriefing”") == (
         "Apollo 16 Scientific Debriefing"
     )
-    assert normalize_query('NASA-UAP-D003A,  Gemini "7" Audio Excerpt, 1965') == "Gemini 7 Audio Excerpt, 1965"
+    assert normalize_query('NASA-UAP-D003A,  Gemini "7" Audio Excerpt, 1965') == "Gemini 7 Audio Excerpt"
 
 
 def _pre2015_nasa(card_id: str, title: str, **over: Any) -> dict[str, Any]:
@@ -214,7 +214,7 @@ def test_run_searches_queries_each_unresolved_nasa_card_once() -> None:
     searches = run_searches(manifest, net.fetcher(), TODAY)
     assert [s.card_id for s in searches] == ["a", "b"]
     assert len(net.urls) == 2
-    assert "q=Gemini+7+Transcript%2C+1965" in net.urls[1]
+    assert "q=Gemini+7+Transcript&" in net.urls[1]
 
 
 def test_output_has_schema_card_count_fetch_counts_and_claims() -> None:
