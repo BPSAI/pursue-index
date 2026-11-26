@@ -9,7 +9,7 @@
     "reason": "Dropped: a sitemap <loc> is a third-party string and a catalogue row is one hop from a citation, so a row whose URL is not plain http(s) is excluded rather than carried into the artifact."
   },
   "file_count": 509,
-  "era_counts": {
+  "era_file_counts": {
     "2015_plus": 213,
     "1990_2014": 76,
     "1970_1989": 19,
@@ -63,7 +63,7 @@
     "matches_reference": false,
     "note": "Two causes account for the undated delta, and they are separate. (1) Display-date curation: \u00a74a was computed against a manifest with that curation applied, and this manifest carries a curated display_date for only a handful of cards, so cards \u00a74a dated via display_date surface here as triage. (2) Two-digit years: a two-digit year states no century, so this stage reads one through a pivot and accepts the result only when a four-digit year elsewhere on the same card states the same year \u2014 a card whose only date is an uncorroborated two-digit year is undated here for that reason rather than for the first. In both cases release_date (the war.gov publication date) is never used as a document era."
   },
-  "no_prior_release_count": 220,
+  "no_prior_release_file_count": 220,
   "no_prior_release_files": [
     "c1c59236394f7b14",
     "9a0a2d62e9f47eb8",
