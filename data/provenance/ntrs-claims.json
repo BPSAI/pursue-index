@@ -1,7 +1,7 @@
 {
   "schema": "ntrs-claims/v1",
   "source": "NASA NTRS",
-  "source_manifest": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
+  "corpus_manifest_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
   "csv_sha256": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247",
   "card_count": 521,
   "searched_count": 38,

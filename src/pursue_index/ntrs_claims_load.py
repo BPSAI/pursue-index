@@ -40,15 +40,17 @@ class NtrsClaims:
 
     claims: list[ResolvedClaim]
     csv_sha256: str | None
-    source_manifest: str | None
+    corpus_manifest_url: str | None
 
 
 def load_ntrs_claims(data: dict[str, Any]) -> NtrsClaims:
     """The positive claims held by a parsed ``ntrs-claims.json``, with their markers."""
+    # Files written before the key was renamed carry ``source_manifest``.
+    url = data.get("corpus_manifest_url", data.get("source_manifest"))
     return NtrsClaims(
         claims=[ResolvedClaim.from_dict(row) for row in data.get("claims", [])],
         csv_sha256=data.get("csv_sha256"),
-        source_manifest=data.get("source_manifest"),
+        corpus_manifest_url=url,
     )
 
 
