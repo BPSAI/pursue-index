@@ -14,7 +14,7 @@ import pytest
 from pursue_index.era_bucketing import bucket, build_output
 from pursue_index.era_models import Era
 from pursue_index.provenance import DateBasis, ProvenanceTier
-from pursue_index.provenance_report import RESOLVED_BY_CLAIM, UNRESOLVED, build_report
+from pursue_index.provenance_report import RESOLVED_BY_CLAIM, build_report
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 
 

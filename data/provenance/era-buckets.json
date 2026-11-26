@@ -43,6 +43,7 @@
   },
   "row_route_counts": {
     "claim": 23,
+    "claim_inherited": 0,
     "era": 232,
     "unresolved": 266
   },

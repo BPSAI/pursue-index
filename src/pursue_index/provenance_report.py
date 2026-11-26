@@ -79,6 +79,7 @@ __all__ = [
 #: The route a card was resolved by. The first two are kept strictly apart —
 #: an era conclusion is never counted as a resolved prior-release claim.
 RESOLVED_BY_CLAIM = "claim"
+_CLAIM_INHERITED = "claim_inherited"
 RESOLVED_BY_ERA = "era"
 UNRESOLVED = "unresolved"
 
@@ -171,6 +172,7 @@ class CoverageReport:
     page_image_flagged_files: tuple[str, ...] = ()
     ntrs_claims_applied_row_count: int = 0
     partially_resolved_files: tuple[str, ...] = ()
+    resolved_by_claim_inherited: int = 0
 
     def unresolved_rows(self) -> list[CardOutcome]:
         """The rows no route resolved — what Phase B would have to reach."""
@@ -185,6 +187,7 @@ class CoverageReport:
             "claims_without_row_key": self.claims_without_row_key,
             "resolved_by_claim": self.resolved_by_claim,
             "resolved_by_era": self.resolved_by_era,
+            "resolved_by_claim_inherited": self.resolved_by_claim_inherited,
             "unresolved": self.unresolved,
             "unresolved_files": list(self.unresolved_files),
             "partially_resolved_file_count": len(self.partially_resolved_files),
@@ -204,7 +207,7 @@ class CoverageReport:
         }
 
 
-_ROUTE_RANK = {RESOLVED_BY_CLAIM: 0, RESOLVED_BY_ERA: 1, UNRESOLVED: 2}
+_ROUTE_RANK = {RESOLVED_BY_CLAIM: 0, _CLAIM_INHERITED: 1, RESOLVED_BY_ERA: 2, UNRESOLVED: 3}
 
 
 def _rank(outcome: CardOutcome) -> tuple[int, int]:
@@ -270,7 +273,8 @@ def build_report(
         catalogue_entries=len(loaded.entries),
         catalogue_rows_dropped=loaded.dropped_rows,
         file_count=len(routes),
-        row_counts={route: row_routes[route] for route in (RESOLVED_BY_CLAIM, RESOLVED_BY_ERA, UNRESOLVED)},
+        row_counts={route: row_routes[route] for route in (RESOLVED_BY_CLAIM, _CLAIM_INHERITED, RESOLVED_BY_ERA, UNRESOLVED)},
+        resolved_by_claim_inherited=row_routes[_CLAIM_INHERITED],
         claims_without_row_key=unkeyed_claims(extra_claims),
         unresolved_files=unresolved_files,
         page_image_flagged_files=tuple(flagged),

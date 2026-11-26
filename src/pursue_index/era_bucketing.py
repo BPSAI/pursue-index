@@ -195,9 +195,9 @@ def bucket(
         card_era = row.era
         if row.route is Route.ERA:
             claims.append(_no_prior_release(card_era))
-        elif row.route is Route.CLAIM:
-            # A claim resolves the row whatever its era: a modern row is published
-            # as superseded; any other era (undated included) needs nothing more.
+        elif row.route in (Route.CLAIM, Route.CLAIM_INHERITED):
+            # A claim, own or inherited, resolves the row whatever its era: a modern row
+            # is published as superseded; any other era (undated included) needs nothing more.
             if card_era.era is Era.MODERN_OPERATIONAL and row.claim is not None:
                 superseded.append(superseded_entry(card_era, row.claim, row.inherited_from))
         elif row.conflict is not None:
