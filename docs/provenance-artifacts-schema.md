@@ -88,8 +88,8 @@ emits the negative, labelled `reconciled: true` (with `era_reconciled_from`) in
 route, so that no unresolved row is hidden behind a stronger sibling:
 
 - **claim**: **any** row of the file has a positive claim. A claim is about the
-  document, and every row is that document. *This is a chosen rule; Prime may require
-  all rows instead.*
+  document, and every row is that document. *This is a chosen rule; requiring every row to
+  be claimed is the documented alternative.*
 - **era**: no row has a claim and **every** row routes to `era`.
 - **unresolved**: otherwise (a conflict file with no claim, or a file where only some
   rows reach `era`).
