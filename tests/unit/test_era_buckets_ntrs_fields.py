@@ -88,7 +88,8 @@ def test_other_keys_and_entries_are_unchanged_and_output_is_deterministic(
         "file_route_counts", "row_route_counts", "partially_resolved_file_count",
         "partially_resolved_files", "reconciliation_4a", "no_prior_release_file_count", "no_prior_release_files",
         "no_prior_release_row_count", "claims_without_row_key", "no_prior_release_rows",
-        "superseded_by_claim_row_count", "superseded_by_claim", "undated_triage_row_count",
+        "superseded_by_claim_row_count", "superseded_by_claim", "claim_resolved_row_count",
+        "claim_resolved_rows", "undated_triage_row_count",
         "undated_triage", "cards",
     ]
     assert out["card_row_count"] == len(out["cards"]) == 1

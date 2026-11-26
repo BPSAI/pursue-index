@@ -121,6 +121,15 @@ by it and emits neither a triage entry nor a negative. The identity that ties th
 together: `undated_triage_row_count` plus the undated rows that route `claim` or `claim_inherited` equals
 `era_row_counts["undated"]` plus the dated rows of conflict files that stay unresolved.
 
+**Where every row is recorded.** Each manifest row is in exactly one of
+`no_prior_release_rows` (route `era`), `superseded_by_claim` (a modern row with a claim, own
+or inherited), `claim_resolved_rows` (any other row with a claim, own or inherited) and
+`undated_triage` (route `unresolved`: an undated row, or a row of a conflict file). One set of
+rows is in none of them, on purpose: a dated row that routes `unresolved` with no date conflict,
+which is a pre-2015 document with no claim. It is not a negative, because its era is not 2015+,
+and it is not triage, because its date is known. It is still counted, in `row_route_counts`
+and `era_row_counts`.
+
 ## `era-buckets.json`
 
 | v1 key | v2 key | Unit | Meaning |
@@ -136,6 +145,8 @@ together: `undated_triage_row_count` plus the undated rows that route `claim` or
 | (new) | `no_prior_release_row_count` | row | Rows holding a record. Equals `len(no_prior_release_rows)`. |
 | `no_prior_release` | `no_prior_release_rows` | row | One record per row (v1 `no_prior_release`, renamed for its unit). |
 | `superseded_by_claim_count` | `superseded_by_claim_row_count` | row | Equals `len(superseded_by_claim)`. |
+| (new) | `claim_resolved_row_count` | row | Equals `len(claim_resolved_rows)`. |
+| (new) | `claim_resolved_rows` | row | One record per row that routes `claim` or `claim_inherited` and is not already in `superseded_by_claim`: a claimed row that is not modern, an undated one for example. Same fields as a `superseded_by_claim` record, with its own `reason`. |
 | `undated_triage_count` | `undated_triage_row_count` | row | Equals `len(undated_triage)`. |
 | (new) | `claims_without_row_key` | claim | Loaded external claims that name no row. They match no row and are counted here. |
 | (new, per record) | `row_key` | row | See above. |

@@ -115,12 +115,22 @@ def classify(
     external: Sequence[ResolvedClaim] = (),
     *,
     row_key: str,
+    manifest: dict[str, Any] | None = None,
 ) -> CardOutcome:
     """Resolve one card through the chain and place it in exactly one route.
 
     ``row_key`` is the row's real key in its manifest; a claim resolves only the
-    row it names, so the key is never assumed.
+    row it names, so the key is never assumed. A row's route depends on its file: its
+    siblings reconcile its era and lend it a claim. Pass the ``manifest`` the row
+    belongs to and the result is that row's outcome in :func:`build_report`, whatever
+    its siblings. Without it the card is taken as the only row of its file, and the
+    result is only that row's outcome when the file has no other row.
     """
+    if manifest is not None:
+        outcomes = {o.row_key: o for o in build_report(manifest, catalogue, external).outcomes}
+        if row_key not in outcomes:
+            raise KeyError(f"row_key {row_key!r} is not a row of the manifest")
+        return outcomes[row_key]
     card_era = replace(classify_rows([card])[0], row_key=row_key)
     (row,) = assess([card], FileEras([card_era], {}), catalogue, external)
     return _outcome(row)

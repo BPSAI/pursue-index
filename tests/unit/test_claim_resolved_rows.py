@@ -15,10 +15,9 @@ from typing import Any
 
 from pursue_index.catalogue_load import load_catalogue
 from pursue_index.claim_precedence import POSITIVE_TIER_PRECEDENCE
-from pursue_index.era_bucketing import bucket, build_output
+from pursue_index.era_bucketing import bucket, build_output, classify_reconciled
 from pursue_index.era_models import Era
 from pursue_index.file_basis import assess
-from pursue_index.era_bucketing import classify_reconciled
 from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root
 from pursue_index.provenance import DateBasis
