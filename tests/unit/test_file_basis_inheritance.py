@@ -117,3 +117,62 @@ def test_a_reconciled_record_is_labelled_and_names_its_sibling() -> None:
     assert records["aaaa#1"]["era_reconciled_from"] == "aaaa#0"
     assert "aaaa#0" in records["aaaa#1"]["rationale"]
     assert "reconciled" not in records["aaaa#0"]
+
+
+# --- inheritance is file-level: any row's claim covers every row of its file --
+
+
+def _undated(title: str = "U1") -> dict[str, Any]:
+    return _row("aaaa", title)
+
+
+def test_an_undated_claimed_row_covers_its_dated_unclaimed_sibling() -> None:
+    manifest = {"cards": [_undated(), _dated()]}
+    claims = [_claim("aaaa", "aaaa#0")]
+    result = bucket(manifest, extra_claims=claims)
+    out = build_output(manifest, result)
+    assert out["no_prior_release_rows"] == []
+    assert result.claims == []
+    by_key = {s["row_key"]: s for s in result.superseded}
+    assert sorted(by_key) == ["aaaa#0", "aaaa#1"]
+    assert by_key["aaaa#1"]["claim_inherited_from"] == "aaaa#0"
+    assert "claim_inherited_from" not in by_key["aaaa#0"]
+    assert out["file_route_counts"]["claim"] == 1
+    report = build_report(manifest, extra_claims=claims)
+    assert [o.resolved_by for o in report.outcomes] == ["claim", "claim"]
+    assert report.file_route_counts["claim"] == 1
+
+
+def test_a_dated_claimed_row_still_covers_its_reconciled_sibling() -> None:
+    manifest = {"cards": [_dated(), _undated()]}
+    result = bucket(manifest, extra_claims=[_claim("aaaa", "aaaa#0")])
+    assert result.claims == []
+    by_key = {s["row_key"]: s for s in result.superseded}
+    assert by_key["aaaa#1"]["era_reconciled_from"] == "aaaa#0"
+    assert by_key["aaaa#1"]["claim_inherited_from"] == "aaaa#0"
+
+
+def test_a_conflicting_file_with_one_claimed_row_emits_no_negative() -> None:
+    cards = [_dated(date_="2022-05-06"), _dated(title="D2", date_="2019-03-04"), _undated()]
+    result = bucket({"cards": cards}, extra_claims=[_claim("aaaa", "aaaa#2")])
+    assert result.claims == []
+    by_key = {s["row_key"]: s for s in result.superseded}
+    assert sorted(by_key) == ["aaaa#0", "aaaa#1"]
+    assert {e["claim_inherited_from"] for e in by_key.values()} == {"aaaa#2"}
+    assert build_output({"cards": cards}, result)["no_prior_release_rows"] == []
+
+
+def test_the_strongest_claim_in_the_file_is_inherited_ties_by_lowest_row_key() -> None:
+    cards = [_undated("U0"), _dated(title="D1"), _dated(title="D2", date_="2023-01-01")]
+    claims = [_claim("aaaa", "aaaa#2"), _claim("aaaa", "aaaa#0")]
+    result = bucket({"cards": cards}, extra_claims=claims)
+    by_key = {s["row_key"]: s for s in result.superseded}
+    assert by_key["aaaa#1"]["claim_inherited_from"] == "aaaa#0"
+    assert "claim_inherited_from" not in by_key["aaaa#2"]
+
+
+def test_a_file_with_no_claim_is_unchanged() -> None:
+    manifest = {"cards": [_undated(), _dated()]}
+    result = bucket(manifest)
+    assert result.superseded == []
+    assert [c.row_key for c in result.claims] == ["aaaa#0", "aaaa#1"]
