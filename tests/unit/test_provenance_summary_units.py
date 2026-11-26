@@ -133,6 +133,23 @@ def test_every_summary_count_equals_the_array_it_summarises_on_the_stored_data()
     _check_units(build_report(manifest).to_dict(), _REPORT)
 
 
+def _count_beside_a_same_named_list(out: dict[str, Any]) -> list[str]:
+    """Every ``X_count`` whose sibling ``X`` is a list must equal ``len(X)``."""
+    return [
+        f"{key}={value} but len({key[: -len('_count')]})={len(out[key[: -len('_count')]])}"
+        for key, value in out.items()
+        if key.endswith("_count") and isinstance(out.get(key[: -len("_count")]), list)
+        and value != len(out[key[: -len("_count")]])
+    ]
+
+
+def test_no_count_sits_beside_a_same_named_array_of_a_different_length() -> None:
+    stored = json.loads((_REPO / "data" / "provenance" / "era-buckets.json").read_text())
+    buckets, _ = _outputs(_fixture())
+    assert _count_beside_a_same_named_list(buckets) == []
+    assert _count_beside_a_same_named_list(stored) == []
+
+
 def test_a_future_count_with_no_declared_unit_fails_the_walk() -> None:
     buckets, _ = _outputs(_fixture())
     buckets["mystery_count"] = 3
