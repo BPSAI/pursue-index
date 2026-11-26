@@ -94,10 +94,12 @@ class CardEra:
     year: int | None
     date_source: str | None
     raw_date: str | None
+    row_key: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "identifier": self.identifier,
             "title": self.title,
             "agency": self.agency,
@@ -127,6 +129,7 @@ class EraNoPriorRelease:
     date_source: str
     established_date: str
     rationale: str
+    row_key: str = ""
 
     era: ClassVar[Era] = Era.MODERN_OPERATIONAL
     tier: ClassVar[ProvenanceTier] = ProvenanceTier.NO_PRIOR_RELEASE_FOUND
@@ -156,6 +159,7 @@ class EraNoPriorRelease:
             "tier": self.tier.value,
             "era": self.era.value,
             "card_id": self.card_id,
+            "row_key": self.row_key,
             "identifier": self.identifier,
             "title": self.title,
             "agency": self.agency,

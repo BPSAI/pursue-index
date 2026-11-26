@@ -22,14 +22,24 @@ Two honest restraints, both from the §5 doctrine:
 The model lives in :mod:`pursue_index.era_models`; this module classifies,
 aggregates, reconciles against the §4a reference table, and writes the tracked
 artifact.
+
+Schema units. ``row_key`` (``<card_id>#<n>``) is the per-row key; ``card_id`` names a
+source file and is not unique upstream, since several rows can share one. A count
+named ``*_row_count`` (or ``*_row_counts``) counts rows and equals the length of the
+row array beside it. Every other count is per file: rows sharing a ``card_id`` are one
+file, and a file whose rows land in different eras is counted once under ``mixed``
+(each row keeps its own era). ``no_prior_release_count`` is the length of
+``no_prior_release_files`` (one id per file); ``no_prior_release_rows`` is one record
+per row, counted by ``no_prior_release_row_count``. The triage list, the superseded
+list and ``cards`` stay one entry per manifest row. The §4a reference is a per-row
+baseline, so the comparison reads ``era_row_counts``.
 """
 
 from __future__ import annotations
 
 import json
-from collections import Counter
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -48,9 +58,11 @@ from pursue_index.era_models import (
 )
 from pursue_index.era_supersession import SUPERSEDED_REASON, superseded_entry
 from pursue_index.era_triage import triage_entry as _triage_entry
+from pursue_index.file_counts import count_fields
 from pursue_index.ntrs_claims_load import resolve_ntrs_claims
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.resolved_claim import ResolvedClaim
+from pursue_index.row_key import row_keys
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
 
 __all__ = [
@@ -61,6 +73,7 @@ __all__ = [
     "bucket",
     "build_output",
     "classify_card",
+    "classify_rows",
 ]
 
 #: Tracked output artifact (under ``data/``, never an ignored directory).
@@ -76,7 +89,7 @@ REFERENCE_4A: dict[str, int] = {
     "undated": 36,
 }
 
-_SCHEMA = "era-agency-buckets/v1"
+_SCHEMA = "era-agency-buckets/v2"
 
 
 def _era_of(resolved: ResolvedEraDate) -> Era:
@@ -89,6 +102,11 @@ def _era_of(resolved: ResolvedEraDate) -> Era:
 def _identifier(card: dict[str, Any]) -> str:
     """The most stable identifier available for a card."""
     return str(card.get("asset_filename") or card.get("title") or card.get("card_id") or "")
+
+
+def classify_rows(cards: Sequence[dict[str, Any]]) -> list[CardEra]:
+    """Classify every row and key it ``<card_id>#<n>``, in manifest order."""
+    return [replace(classify_card(card), row_key=key) for card, key in zip(cards, row_keys(cards), strict=True)]
 
 
 def classify_card(card: dict[str, Any]) -> CardEra:
@@ -132,12 +150,18 @@ def _no_prior_release(card_era: CardEra) -> EraNoPriorRelease:
         date_source=card_era.date_source,
         established_date=card_era.raw_date or str(card_era.year),
         rationale=era_rationale(card_era.year, card_era.date_source),
+        row_key=card_era.row_key,
     )
 
 
 @dataclass
 class BucketResult:
     """The full outcome: per-card assignments, 2015+ negatives, triage, counts.
+
+    ``era_counts`` (with ``mixed``) and ``no_prior_release_files`` (the ids of the
+    files holding a negative) are per source file; ``era_row_counts`` is the same
+    tally per manifest row. ``claims_without_row_key`` is how many loaded claims
+    named no row and so resolved nothing.
 
     ``superseded`` holds the modern cards that would have taken a negative but
     carry a positive prior-release claim instead — the suppression is published,
@@ -148,7 +172,11 @@ class BucketResult:
     claims: list[EraNoPriorRelease]
     triage: list[dict[str, Any]]
     era_counts: dict[str, int] = field(default_factory=dict)
-    agency_counts: dict[str, int] = field(default_factory=dict)
+    era_row_counts: dict[str, int] = field(default_factory=dict)
+    file_count: int = 0
+    no_prior_release_files: list[str] = field(default_factory=list)
+    claims_without_row_key: int = 0
+    agency_row_counts: dict[str, int] = field(default_factory=dict)
     superseded: list[dict[str, Any]] = field(default_factory=list)
 
 
@@ -159,7 +187,7 @@ def _modern_outcome(
     extra_claims: Sequence[ResolvedClaim] = (),
 ) -> tuple[EraNoPriorRelease | None, dict[str, Any] | None]:
     """For one modern card: its negative, or the claim row that supersedes it."""
-    claim = primary_positive_claim(card, catalogue, extra_claims)
+    claim = primary_positive_claim(card, catalogue, extra_claims, row_key=card_era.row_key)
     if claim is not None:
         return None, superseded_entry(card_era, claim)
     return _no_prior_release(card_era), None
@@ -187,7 +215,7 @@ def bucket(
     the card is also a 2015+ document.
     """
     raw_cards = manifest.get("cards", [])
-    classified = [classify_card(card) for card in raw_cards]
+    classified = classify_rows(raw_cards)
     claims: list[EraNoPriorRelease] = []
     superseded: list[dict[str, Any]] = []
     triage: list[dict[str, Any]] = []
@@ -198,18 +226,20 @@ def bucket(
             superseded.extend([row] if row is not None else [])
         elif card_era.era is Era.UNDATED:
             triage.append(_triage_entry(card_era, card))
-    era_counts = {era.value: 0 for era in Era}
-    era_counts.update(Counter(ce.era.value for ce in classified))
-    agency_counts = dict(sorted(Counter(ce.agency for ce in classified).items()))
-    return BucketResult(classified, claims, triage, era_counts, agency_counts, superseded)
+    return BucketResult(classified, claims, triage, superseded=superseded, **count_fields(classified, claims, extra_claims))
 
 
-def _reconciliation(era_counts: dict[str, int]) -> dict[str, Any]:
-    """Compare current-manifest era counts against the §4a reference table."""
-    deltas = {key: era_counts.get(key, 0) - ref for key, ref in REFERENCE_4A.items()}
+def _reconciliation(era_row_counts: dict[str, int]) -> dict[str, Any]:
+    """Compare current-manifest per-row era counts against the §4a reference table.
+
+    ``REFERENCE_4A`` is a per-row baseline from an earlier corpus, so it is compared
+    with the per-row counts (never the per-file ones, which hold a ``mixed`` bucket).
+    """
+    deltas = {key: era_row_counts.get(key, 0) - ref for key, ref in REFERENCE_4A.items()}
     return {
+        "unit": "rows",
         "reference_4a": REFERENCE_4A,
-        "current": {key: era_counts.get(key, 0) for key in REFERENCE_4A},
+        "current": {key: era_row_counts.get(key, 0) for key in REFERENCE_4A},
         "delta": deltas,
         "matches_reference": all(delta == 0 for delta in deltas.values()),
         "note": (
@@ -243,20 +273,25 @@ def build_output(
         "schema": _SCHEMA,
         "corpus_manifest_url": manifest.get("source_url"),
         "csv_sha256": manifest.get("csv_sha256"),
-        "card_count": len(result.cards),
+        "card_row_count": len(result.cards),
         "catalogue_entries": len(loaded.entries),
         "catalogue_rows_dropped": {
             "count": loaded.dropped_rows,
             "reason": INVALID_URL_EXCLUSION_REASON,
         },
+        "file_count": result.file_count,
         "era_counts": result.era_counts,
-        "agency_counts": result.agency_counts,
-        "reconciliation_4a": _reconciliation(result.era_counts),
-        "no_prior_release_count": len(result.claims),
-        "no_prior_release": [claim.to_dict() for claim in result.claims],
-        "superseded_by_claim_count": len(result.superseded),
+        "era_row_counts": result.era_row_counts,
+        "agency_row_counts": result.agency_row_counts,
+        "reconciliation_4a": _reconciliation(result.era_row_counts),
+        "no_prior_release_count": len(result.no_prior_release_files),
+        "no_prior_release_files": result.no_prior_release_files,
+        "no_prior_release_row_count": len(result.claims),
+        "claims_without_row_key": result.claims_without_row_key,
+        "no_prior_release_rows": [claim.to_dict() for claim in result.claims],
+        "superseded_by_claim_row_count": len(result.superseded),
         "superseded_by_claim": result.superseded,
-        "undated_triage_count": len(result.triage),
+        "undated_triage_row_count": len(result.triage),
         "undated_triage": result.triage,
         "cards": [ce.to_dict() for ce in result.cards],
     }
@@ -279,8 +314,9 @@ def main() -> int:
     output = {**build_output(manifest, result, catalogue), **ntrs.summary_fields()}
     write_text_atomic(out_path, json.dumps(output, indent=2) + "\n")
     labelled = ", ".join(f"{ERA_LABELS[era]}={result.era_counts[era.value]}" for era in Era)
-    print(f"era bucketing: {len(result.cards)} cards -> {labelled}")
-    print(f"  {len(result.claims)} no_prior_release (2015+); {len(result.triage)} undated (triage)\n  {len(result.superseded)} superseded by a prior-release claim")
+    print(f"era bucketing: {result.file_count} files / {len(result.cards)} rows -> {labelled}, mixed={result.era_counts['mixed']} (files)")
+    print(f"  {len(result.no_prior_release_files)} files ({len(result.claims)} rows) no_prior_release (2015+); {len(result.triage)} undated rows (triage)")
+    print(f"  {len(result.superseded)} rows superseded by a prior-release claim; {result.claims_without_row_key} claim(s) without a row_key")
     print(f"  catalogue: {len(catalogue.entries)} entries, {catalogue.dropped_rows} row(s) skipped\n  wrote {out_path.relative_to(repo_root)}")
     return 0
 

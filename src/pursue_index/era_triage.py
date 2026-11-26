@@ -51,6 +51,7 @@ def triage_entry(card_era: CardEra, card: dict[str, Any]) -> dict[str, Any]:
     reason = triage_reason(card)
     return {
         "card_id": card_era.card_id,
+        "row_key": card_era.row_key,
         "identifier": card_era.identifier,
         "title": card_era.title,
         "agency": card_era.agency,

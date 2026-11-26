@@ -165,7 +165,7 @@ def test_a_future_count_with_no_declared_unit_fails_the_walk() -> None:
 
 
 def test_no_prior_release_count_is_per_file_with_a_file_list_beside_the_row_list() -> None:
-    manifest = {"cards": [_row("aaaa", "A1", incident_date="2022-05-06"), _row("aaaa", "A2"), _row("aaaa", "A3")]}
+    manifest = {"cards": [_row("aaaa", f"A{i}", incident_date="2022-05-06") for i in range(3)]}
     out = build_output(manifest, bucket(manifest))
     assert out["no_prior_release_count"] == len(out["no_prior_release_files"]) == 1
     assert out["no_prior_release_files"] == ["aaaa"]

@@ -52,7 +52,7 @@ from pursue_index.identifier_collections import entry_in_identifier_collection
 from pursue_index.identifiers import Identifier, IdentifierKind, extract_identifiers
 from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import DateBasis, ProvenanceTier
-from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
+from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim, row_keys
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
 from pursue_index.tier0_sweep import detect_claim as detect_tier0_claim
 
@@ -91,7 +91,7 @@ MIN_NUMERIC_IDENTIFIER_DIGITS = 5
 #: that could distinguish them from an archive's own numbering.
 _NUMERIC_IDENTIFIER_KINDS = frozenset({IdentifierKind.BLUE_BOOK_CASE, IdentifierKind.NAID})
 
-_SCHEMA = "identifier-resolver-claims/v1"
+_SCHEMA = "identifier-resolver-claims/v2"
 
 # A card that is a numbered *section* / *part* of a larger file, or whose own
 # description concedes it is partial, is an omnibus subset.
@@ -311,6 +311,17 @@ def resolve_card(
     return claims
 
 
+def resolve_manifest(
+    manifest: dict[str, Any], catalogue: Sequence[SourceEntry] = ()
+) -> list[ResolvedClaim]:
+    """Every claim the resolver supports across the manifest, in row order."""
+    claims: list[ResolvedClaim] = []
+    cards = manifest.get("cards", [])
+    for card, key in zip(cards, row_keys(cards), strict=True):
+        claims.extend(replace(c, row_key=key) for c in resolve_card(card, catalogue=catalogue))
+    return claims
+
+
 def build_output(
     manifest: dict[str, Any],
     claims: Sequence[ResolvedClaim],
@@ -333,7 +344,7 @@ def build_output(
             "count": catalogue_rows_dropped,
             "reason": INVALID_URL_EXCLUSION_REASON,
         },
-        "card_count": len(manifest.get("cards", [])),
+        "card_row_count": len(manifest.get("cards", [])),
         "claim_count": len(claims),
         "tier_counts": dict(Counter(c.tier.value for c in claims)),
         "needs_page_image_comparison": sum(1 for c in claims if c.needs_page_image_comparison),
@@ -353,9 +364,7 @@ def main() -> int:
     repo_root = _resolve_repo_root()
     manifest = json.loads((repo_root / "data" / "manifests" / "latest.json").read_text())
     catalogue = load_catalogue(repo_root)
-    claims: list[ResolvedClaim] = []
-    for card in manifest.get("cards", []):
-        claims.extend(resolve_card(card, catalogue=catalogue.entries))
+    claims = resolve_manifest(manifest, catalogue.entries)
     out_path = repo_root / OUTPUT_PATH
     out_path.parent.mkdir(parents=True, exist_ok=True)
     output = build_output(manifest, claims, len(catalogue.entries), catalogue.dropped_rows)
