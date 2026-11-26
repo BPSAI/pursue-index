@@ -55,7 +55,7 @@ _REQUIRED_TERMS = (
     "partially_resolved_files",
     "reconciliation_4a",
     "unit",
-    "claims_without_row_key",
+    "unkeyed_claim_count",
     "row_key_migrated_from",
     "card_row_count",
     "file_count",

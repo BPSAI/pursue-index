@@ -16,7 +16,7 @@ from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 
 _REPO = Path(__file__).resolve().parents[2]
 _DOC = (_REPO / "docs" / "provenance-artifacts-schema.md").read_text()
-_AMBIGUOUS = "ntrs_claims_migration_ambiguous_count"
+_AMBIGUOUS = "ntrs_migration_ambiguous_claim_count"
 _F1 = "a0a0a0a0a0a0a012"
 _F2 = "b0b0b0b0b0b0b012"
 

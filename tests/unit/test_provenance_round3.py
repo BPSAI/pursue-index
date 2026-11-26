@@ -51,7 +51,7 @@ def test_ntrs_claim_count_is_the_stored_claim_records_not_rows() -> None:
     ]
     out = ntrs_output({"cards": [_row("aaaa", "x")] * 3}, searches, {})
     assert out["claim_count"] == len(out["claims"]) == 1
-    assert out["claim_count"] != out["searched_count"] == len(out["searches"]) == 3
+    assert out["claim_count"] != out["searched_row_count"] == len(out["searches"]) == 3
 
 
 def test_the_doc_ntrs_table_gives_claim_count_its_unit() -> None:

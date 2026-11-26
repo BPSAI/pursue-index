@@ -78,11 +78,11 @@ def test_an_empty_row_key_resolves_neither_row_and_is_counted() -> None:
     report = build_report(manifest, extra_claims=[_claim("aaaa", "")])
     assert report.resolved_by_claim == 0
     assert report.row_counts["claim"] == 0
-    assert report.claims_without_row_key == 1
+    assert report.unkeyed_claim_count == 1
     result = bucket(manifest, extra_claims=[_claim("aaaa", "")])
     assert result.superseded == []
-    assert result.claims_without_row_key == 1
-    assert build_output(manifest, result)["claims_without_row_key"] == 1
+    assert result.unkeyed_claim_count == 1
+    assert build_output(manifest, result)["unkeyed_claim_count"] == 1
 
 
 def test_a_keyed_claim_resolves_exactly_its_row() -> None:
@@ -96,7 +96,7 @@ def test_a_keyed_claim_resolves_exactly_its_row() -> None:
     assert sorted(by_key) == ["aaaa#0", "aaaa#1"]
     assert by_key["aaaa#0"]["claim_inherited_from"] == "aaaa#1"
     assert "claim_inherited_from" not in by_key["aaaa#1"]
-    assert getattr(result, "claims_without_row_key", None) == 0
+    assert getattr(result, "unkeyed_claim_count", None) == 0
 
 
 # --- item 3: a reconciled row inherits its sibling's status -----------------
