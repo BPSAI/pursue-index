@@ -1,5 +1,5 @@
 {
-  "schema": "identifier-resolver-claims/v1",
+  "schema": "identifier-resolver-claims/v2",
   "corpus_manifest_url": "https://www.war.gov/Portals/1/Interactive/2026/UFO/uap-data.csv",
   "csv_sha256": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247",
   "catalogue_entries": 0,
@@ -7,7 +7,7 @@
     "count": 0,
     "reason": "Dropped: a sitemap <loc> is a third-party string and a catalogue row is one hop from a citation, so a row whose URL is not plain http(s) is excluded rather than carried into the artifact."
   },
-  "card_count": 521,
+  "card_row_count": 521,
   "claim_count": 1,
   "tier_counts": {
     "content_previously_published": 1
@@ -17,6 +17,7 @@
     {
       "kind": "resolved_claim",
       "card_id": "973c1f75f55d0d39",
+      "row_key": "973c1f75f55d0d39#0",
       "tier": "content_previously_published",
       "source": "government_description",
       "identifier_kind": "",
