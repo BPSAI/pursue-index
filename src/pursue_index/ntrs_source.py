@@ -31,7 +31,7 @@ import json
 import sys
 from collections import Counter
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -53,7 +53,7 @@ from pursue_index.paths import repo_root as _resolve_repo_root
 from pursue_index.provenance import NO_PRIOR_RELEASE_DISCLAIMER, ProvenanceTier
 from pursue_index.provenance_report import build_report
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
-from pursue_index.row_key import row_keys
+from pursue_index.row_key import file_part, row_keys
 from pursue_index.source_index import SourceEntry
 
 __all__ = [
@@ -104,8 +104,10 @@ class CardSearch:
     claim: ResolvedClaim | None = None
     copies: tuple[dict[str, Any], ...] = field(default_factory=tuple)
     row_key: str = ""
+    search_shared_from: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        shared = {"search_shared_from": self.search_shared_from} if self.search_shared_from else {}
         return {
             "card_id": self.card_id,
             "row_key": self.row_key,
@@ -115,6 +117,7 @@ class CardSearch:
             "result": self.result,
             "note": _NOTES[self.result],
             "copies": list(self.copies),
+            **shared,
         }
 
 
@@ -122,7 +125,7 @@ def evaluate_card(
     card: dict[str, Any], response: dict[str, Any], searched_date: date, row_key: str
 ) -> CardSearch:
     """Turn one search response into the card's claim or search record."""
-    card_id = str(card.get("card_id") or "")
+    card_id = str(card.get("card_id") or "") or file_part(row_key)
     query = normalize_query(str(card.get("title") or ""))
     copies = matched_copies(str(card.get("title") or ""), response)
     rows = tuple(c.to_dict() for c in copies)
@@ -171,15 +174,30 @@ def run_searches(
     searched_date: date,
     catalogue: Sequence[SourceEntry] = (),
 ) -> list[CardSearch]:
-    """Search NTRS once per unresolved NASA card. A fetch abort propagates."""
+    """Search NTRS once per source file with an unresolved NASA row. A fetch abort propagates.
+
+    Rows sharing a file (``file_key_of``) are one document, so the first row's request
+    is made once and its response is fanned out to every row of the file: each row
+    evaluates it against its own card, and every row after the first says so in
+    ``search_shared_from`` (the row whose request it is). A row whose title is empty
+    after normalisation makes no request.
+    """
     searches: list[CardSearch] = []
+    responses: dict[str, tuple[str, dict[str, Any]]] = {}
     for key, card in unresolved_nasa_rows(manifest, catalogue):
         query = normalize_query(str(card.get("title") or ""))
+        card_id = str(card.get("card_id") or "")
         if not query:
-            card_id = str(card.get("card_id") or "")
-            searches.append(CardSearch(card_id, query, searched_date, RESULT_NOT_SEARCHED, row_key=key))
+            searches.append(CardSearch(card_id or file_part(key), query, searched_date, RESULT_NOT_SEARCHED, row_key=key))
             continue
-        searches.append(evaluate_card(card, fetcher.search(query), searched_date, key))
+        file = card_id or file_part(key)
+        shared_from = ""
+        if file in responses:
+            shared_from = responses[file][0]
+        else:
+            responses[file] = (key, fetcher.search(query))
+        search = evaluate_card(card, responses[file][1], searched_date, key)
+        searches.append(replace(search, search_shared_from=shared_from))
     return searches
 
 

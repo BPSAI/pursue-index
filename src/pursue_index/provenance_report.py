@@ -44,6 +44,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any
 
+from pursue_index.card_outcome import CardOutcome, outcome_of
 from pursue_index.catalogue_load import LoadedCatalogue, load_catalogue
 from pursue_index.claim_precedence import (
     POSITIVE_TIER_PRECEDENCE,
@@ -53,14 +54,12 @@ from pursue_index.era_bucketing import classify_reconciled, classify_rows
 from pursue_index.era_reconcile import FileEras
 from pursue_index.file_basis import (
     Route,
-    RowBasis,
     assess,
     file_routes,
     partially_resolved_files,
 )
 from pursue_index.file_counts import file_eras, file_key
-from pursue_index.provenance import ProvenanceTier
-from pursue_index.resolved_claim import ResolvedClaim
+from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 from pursue_index.source_index import INVALID_URL_EXCLUSION_REASON, SourceEntry
 
 __all__ = [
@@ -82,32 +81,6 @@ RESOLVED_BY_CLAIM = "claim"
 _CLAIM_INHERITED = "claim_inherited"
 RESOLVED_BY_ERA = "era"
 UNRESOLVED = "unresolved"
-
-@dataclass(frozen=True)
-class CardOutcome:
-    """One card's place in the coverage report: its route, tier and era."""
-
-    card_id: str
-    title: str
-    agency: str
-    era: str
-    primary_tier: str | None
-    resolved_by: str
-    needs_page_image_comparison: bool
-    row_key: str = ""
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "card_id": self.card_id,
-            "row_key": self.row_key,
-            "title": self.title,
-            "agency": self.agency,
-            "era": self.era,
-            "primary_tier": self.primary_tier,
-            "resolved_by": self.resolved_by,
-            "needs_page_image_comparison": self.needs_page_image_comparison,
-        }
-
 
 def classify(
     card: dict[str, Any],
@@ -132,12 +105,24 @@ def classify(
     many rows passes the ``report`` it built once from that manifest; it is then not
     rebuilt, and its own catalogue and claims are the ones used. Passing ``catalogue``
     or ``external`` together with ``report`` is ambiguous and raises ``ValueError``.
+
+    A ``report`` is stamped with the ``csv_sha256`` of the manifest it was built from and
+    is refused (``ValueError``) when the stamp differs from the ``manifest`` passed, or
+    when its length differs; a ``report`` without a ``manifest`` is refused too.
+
+    The card-equality check runs only with a ``manifest``: the single-card path has no
+    manifest row to compare the card with, since the card the caller passes is the only
+    source of the row, so it cannot be checked, only taken as the file's only row.
     """
     if report is not None and (catalogue or external):
         raise ValueError("report carries its own catalogue and claims; do not pass catalogue or external with it")
+    if report is not None and manifest is None:
+        raise ValueError("a report is checked against the manifest it was built from; pass the manifest")
     if manifest is not None:
         built = report if report is not None else build_report(manifest, catalogue, external)
         cards = manifest.get("cards", [])
+        if built.csv_sha256 != manifest.get("csv_sha256"):
+            raise ValueError("the report was built from another csv_sha256 than this manifest")
         if len(built.outcomes) != len(cards):
             raise ValueError("the report was not built from this manifest")
         for outcome, row in zip(built.outcomes, cards, strict=True):
@@ -148,22 +133,7 @@ def classify(
         raise KeyError(f"row_key {row_key!r} is not a row of the manifest")
     card_era = replace(classify_rows([card])[0], row_key=row_key)
     (row,) = assess([card], FileEras([card_era], {}), catalogue, external)
-    return _outcome(row)
-
-
-def _outcome(row: RowBasis) -> CardOutcome:
-    """Place one reconciled, keyed row in exactly one route, as :func:`assess` routed it."""
-    card_era, primary = row.era, (row.claim.tier if row.claim is not None else None)
-    return CardOutcome(
-        card_id=card_era.card_id,
-        title=card_era.title,
-        agency=card_era.agency,
-        era=card_era.era.value,
-        primary_tier=primary.value if primary is not None else None,
-        resolved_by=row.route.value,
-        needs_page_image_comparison=primary is ProvenanceTier.PREVIOUSLY_RELEASED_IN_PART,
-        row_key=card_era.row_key,
-    )
+    return outcome_of(row)
 
 
 _SCHEMA = "provenance-coverage-report/v2"
@@ -196,6 +166,7 @@ class CoverageReport:
     unresolved_files: tuple[str, ...] = ()
     page_image_flagged_files: tuple[str, ...] = ()
     ntrs_claims_applied_row_count: int = 0
+    csv_sha256: str | None = None
     partially_resolved_files: tuple[str, ...] = ()
     resolved_by_claim_inherited: int = 0
 
@@ -206,6 +177,7 @@ class CoverageReport:
     def to_dict(self) -> dict[str, Any]:
         return {
             "schema": _SCHEMA,
+            "csv_sha256": self.csv_sha256,
             "card_row_count": self.card_row_count,
             "file_count": self.file_count,
             "row_counts": self.row_counts,
@@ -242,6 +214,12 @@ def _rank(outcome: CardOutcome) -> tuple[int, int]:
     return _ROUTE_RANK[outcome.resolved_by], tier
 
 
+def _ntrs_rows_reached(claims: Sequence[ResolvedClaim], eras: Sequence[Any]) -> int:
+    """Distinct manifest rows named by an NTRS-sourced claim; other sources are not counted."""
+    named = {c.row_key for c in claims if c.source is ResolutionSource.NTRS_METADATA}
+    return len(named & {era.row_key for era in eras})
+
+
 def build_report(
     manifest: dict[str, Any],
     catalogue: Sequence[SourceEntry] | LoadedCatalogue = (),
@@ -270,7 +248,7 @@ def build_report(
     reconciled = classify_reconciled(cards)
     rows = assess(cards, reconciled, loaded.entries, extra_claims)
     eras = reconciled.cards
-    outcomes = [_outcome(row) for row in rows]
+    outcomes = [outcome_of(row) for row in rows]
     row_routes = Counter(o.resolved_by for o in outcomes)
     routes = file_routes(rows)
     file_era = file_eras(eras, reconciled.conflicts)
@@ -303,7 +281,8 @@ def build_report(
         unkeyed_claim_count=unkeyed_claims(extra_claims),
         unresolved_files=unresolved_files,
         page_image_flagged_files=tuple(flagged),
-        ntrs_claims_applied_row_count=len({claim.row_key for claim in extra_claims} & {era.row_key for era in eras}),
+        ntrs_claims_applied_row_count=_ntrs_rows_reached(extra_claims, eras),
+        csv_sha256=manifest.get("csv_sha256"),
         partially_resolved_files=tuple(
             partially_resolved_files([row.route for row in rows], [file_key(row.era) for row in rows])
         ),

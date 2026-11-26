@@ -13,7 +13,7 @@ from typing import Any
 import pytest
 
 from pursue_index.ntrs_claims_load import NtrsOutcome, load_ntrs_claims, resolve_ntrs_claims
-from pursue_index.ntrs_source import evaluate_card, run_searches
+from pursue_index.ntrs_source import run_searches
 from pursue_index.provenance import DateBasis, ProvenanceTier
 from pursue_index.provenance_report import build_report, classify
 from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
@@ -219,4 +219,4 @@ def test_classify_refuses_a_report_without_the_manifest_it_was_built_from() -> N
 
 def test_classify_documents_why_the_single_card_path_cannot_compare_the_card() -> None:
     doc = classify.__doc__ or ""
-    assert "no manifest row to compare" in " ".join(doc.split())
+    assert "no manifest row to compare the card with" in " ".join(doc.split())

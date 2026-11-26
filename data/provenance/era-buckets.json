@@ -11095,5 +11095,6 @@
   ],
   "ntrs_claims_applied": true,
   "ntrs_claims_csv_sha256": "bae7455d6b5dff3ab84beb22607bc119db27cfb45a2746cec3c39e8a7662b247",
-  "ntrs_migration_ambiguous_claim_count": 0
+  "ntrs_migration_ambiguous_claim_count": 0,
+  "ntrs_migration_unmatched_claim_count": 0
 }

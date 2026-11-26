@@ -26,6 +26,7 @@ from typing import Any, NamedTuple
 from pursue_index.identifier_resolver import resolve_card
 from pursue_index.provenance import ProvenanceTier
 from pursue_index.resolved_claim import ResolvedClaim
+from pursue_index.row_key import file_part
 from pursue_index.source_index import SourceEntry
 from pursue_index.tier0_sweep import Tier0Claim
 from pursue_index.tier0_sweep import detect_claim as detect_tier0_claim
@@ -98,12 +99,12 @@ def positive_claims(
     if tier0 is not None:
         claims.append(_from_tier0(tier0))
     claims.extend(_from_resolved(claim) for claim in resolve_card(card, catalogue=catalogue))
-    card_id = str(card.get("card_id") or "")
-    if card_id:
+    file = str(card.get("card_id") or "") or file_part(row_key)
+    if file:
         claims.extend(
             _from_resolved(claim)
             for claim in external
-            if claim.card_id == card_id and claim.row_key and claim.row_key == row_key
+            if claim.card_id == file and claim.row_key and claim.row_key == row_key
         )
     return claims
 
