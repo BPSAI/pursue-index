@@ -179,5 +179,9 @@ class EraNoPriorRelease:
             "established_date": self.established_date,
             "rationale": self.rationale,
             "disclaimer": NO_PRIOR_RELEASE_DISCLAIMER,
-            **({"era_reconciled_from": self.era_reconciled_from} if self.era_reconciled_from else {}),
+            **(
+                {"reconciled": True, "era_reconciled_from": self.era_reconciled_from}
+                if self.era_reconciled_from
+                else {}
+            ),
         }

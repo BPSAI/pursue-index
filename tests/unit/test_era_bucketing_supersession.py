@@ -230,13 +230,14 @@ def test_a_modern_negative_needs_a_document_date_and_says_so_without_assert() ->
         _no_prior_release(undated)
 
 
-def _external_claim(card_id: str):
+def _external_claim(card_id: str, row_key: str | None = None):
     from datetime import date
 
     from pursue_index.resolved_claim import ResolutionSource, ResolvedClaim
 
     return ResolvedClaim(
         card_id=card_id,
+        row_key=row_key if row_key is not None else f"{card_id}#0",
         tier=ProvenanceTier.CONTENT_PREVIOUSLY_PUBLISHED,
         source=ResolutionSource.NTRS_METADATA,
         identifier_kind="ntrs_citation_id",

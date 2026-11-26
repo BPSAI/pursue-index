@@ -8,7 +8,15 @@
     "count": 0,
     "reason": "Dropped: a sitemap <loc> is a third-party string and a catalogue row is one hop from a citation, so a row whose URL is not plain http(s) is excluded rather than carried into the artifact."
   },
+  "file_count": 509,
   "era_counts": {
+    "2015_plus": 222,
+    "1990_2014": 76,
+    "1970_1989": 19,
+    "pre_1970": 120,
+    "undated": 72
+  },
+  "era_row_counts": {
     "2015_plus": 234,
     "1990_2014": 76,
     "1970_1989": 19,
@@ -37,14 +45,14 @@
       "undated": 36
     },
     "current": {
-      "2015_plus": 234,
+      "2015_plus": 222,
       "1990_2014": 76,
       "1970_1989": 19,
       "pre_1970": 120,
       "undated": 72
     },
     "delta": {
-      "2015_plus": 28,
+      "2015_plus": 16,
       "1990_2014": 63,
       "1970_1989": 0,
       "pre_1970": 60,
@@ -53,7 +61,9 @@
     "matches_reference": false,
     "note": "Two causes account for the undated delta, and they are separate. (1) Display-date curation: \u00a74a was computed against a manifest with that curation applied, and this manifest carries a curated display_date for only a handful of cards, so cards \u00a74a dated via display_date surface here as triage. (2) Two-digit years: a two-digit year states no century, so this stage reads one through a pivot and accepts the result only when a four-digit year elsewhere on the same card states the same year \u2014 a card whose only date is an uncorroborated two-digit year is undated here for that reason rather than for the first. In both cases release_date (the war.gov publication date) is never used as a document era."
   },
-  "no_prior_release_count": 232,
+  "no_prior_release_count": 220,
+  "no_prior_release_row_count": 232,
+  "claims_without_row_key": 0,
   "no_prior_release": [
     {
       "kind": "era_no_prior_release",
@@ -744,6 +754,7 @@
       "established_date": "5/6/2022",
       "rationale": "This document is dated 2022 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as c1c59236394f7b14#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "c1c59236394f7b14#0"
     },
     {
@@ -760,6 +771,7 @@
       "established_date": "5/29/2022",
       "rationale": "This document is dated 2022 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as 43db2719407a7897#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "43db2719407a7897#0"
     },
     {
@@ -776,6 +788,7 @@
       "established_date": "7/31/2022",
       "rationale": "This document is dated 2022 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as 4555d94dd6067f57#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "4555d94dd6067f57#0"
     },
     {
@@ -792,6 +805,7 @@
       "established_date": "12/1/2022",
       "rationale": "This document is dated 2022 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as 9961adf6adf1010b#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "9961adf6adf1010b#0"
     },
     {
@@ -823,6 +837,7 @@
       "established_date": "10/31/2023",
       "rationale": "This document is dated 2023 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as d8e5687dc870892d#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "d8e5687dc870892d#0"
     },
     {
@@ -839,6 +854,7 @@
       "established_date": "10/31/2023",
       "rationale": "This document is dated 2023 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as d8e5687dc870892d#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "d8e5687dc870892d#0"
     },
     {
@@ -870,6 +886,7 @@
       "established_date": "10/20/2024",
       "rationale": "This document is dated 2024 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as ea029a05470b8f4e#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "ea029a05470b8f4e#0"
     },
     {
@@ -886,6 +903,7 @@
       "established_date": "10/20/2024",
       "rationale": "This document is dated 2024 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as ea029a05470b8f4e#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "ea029a05470b8f4e#0"
     },
     {
@@ -902,6 +920,7 @@
       "established_date": "10/20/2024",
       "rationale": "This document is dated 2024 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as ea029a05470b8f4e#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "ea029a05470b8f4e#0"
     },
     {
@@ -918,6 +937,7 @@
       "established_date": "10/27/2023",
       "rationale": "This document is dated 2023 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as 3746998b8c506e5c#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "3746998b8c506e5c#0"
     },
     {
@@ -934,6 +954,7 @@
       "established_date": "10/29/2023",
       "rationale": "This document is dated 2023 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as c788c17e8cc32230#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "c788c17e8cc32230#0"
     },
     {
@@ -950,6 +971,7 @@
       "established_date": "5/14/2020",
       "rationale": "This document is dated 2020 (2015+ (modern operational)), inferred from another row of the same source file. A record cannot appear in an archive assembled before it existed. A modern operational record has no plausible prior-release surface. Absence of a prior release is not established. This row names the same source file as 88a20bf256ccce7a#0, whose date it takes.",
       "disclaimer": "absence of a prior release is not established",
+      "reconciled": true,
       "era_reconciled_from": "88a20bf256ccce7a#0"
     },
     {

@@ -203,7 +203,8 @@ def test_real_manifest_every_card_bucketed() -> None:
     manifest = _manifest()
     result = bucket(manifest)
     assert len(result.cards) == len(manifest["cards"])
-    assert sum(result.era_counts.values()) == len(manifest["cards"])
+    assert sum(result.era_row_counts.values()) == len(manifest["cards"])
+    assert sum(result.era_counts.values()) == len({c["card_id"] for c in manifest["cards"]})
 
 
 def test_real_manifest_historical_anchors_match_4a() -> None:
@@ -228,5 +229,6 @@ def test_build_output_shape_and_reconciliation() -> None:
     recon = out["reconciliation_4a"]
     assert recon["reference_4a"] == REFERENCE_4A
     assert set(recon["delta"]) == set(REFERENCE_4A)
-    assert out["no_prior_release_count"] == len(out["no_prior_release"])
+    assert out["no_prior_release_row_count"] == len(out["no_prior_release"])
+    assert out["no_prior_release_count"] == len({r["card_id"] for r in out["no_prior_release"]})
     assert out["undated_triage_count"] == len(out["undated_triage"])

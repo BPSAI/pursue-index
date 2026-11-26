@@ -119,7 +119,7 @@ class CardSearch:
 
 
 def evaluate_card(
-    card: dict[str, Any], response: dict[str, Any], searched_date: date, row_key: str = ""
+    card: dict[str, Any], response: dict[str, Any], searched_date: date, row_key: str
 ) -> CardSearch:
     """Turn one search response into the card's claim or search record."""
     card_id = str(card.get("card_id") or "")

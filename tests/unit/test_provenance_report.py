@@ -58,7 +58,7 @@ def test_every_card_is_resolved_by_exactly_one_route() -> None:
     assert report.card_count == len(_manifest()["cards"])
     assert (
         report.resolved_by_claim + report.resolved_by_era + report.unresolved
-        == report.card_count
+        == report.file_count
     )
     assert len(report.outcomes) == report.card_count
 
@@ -80,7 +80,7 @@ def test_real_manifest_satisfies_partition_invariants() -> None:
     report = build_report(_manifest())
     assert (
         report.resolved_by_claim + report.resolved_by_era + report.unresolved
-        == report.card_count
+        == report.file_count
     )
     assert all(count >= 0 for count in [
         report.resolved_by_claim,
@@ -228,7 +228,7 @@ def test_cli_optional_json_out_writes_outside_web(tmp_path) -> None:
     assert payload["card_count"] == len(_manifest()["cards"])
     assert payload["resolved_by_claim"] + payload["resolved_by_era"] + payload[
         "unresolved"
-    ] == payload["card_count"]
+    ] == payload["file_count"]
 
 
 # --------------------------------------------------------------------------- #
@@ -266,7 +266,7 @@ def test_fixture_with_added_card_still_satisfies_invariants() -> None:
     assert report.card_count == 5
     assert (
         report.resolved_by_claim + report.resolved_by_era + report.unresolved
-        == report.card_count
+        == report.file_count
     )
     assert all(count >= 0 for count in [
         report.resolved_by_claim,
