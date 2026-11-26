@@ -35,9 +35,11 @@ def redirect_target(
     get_list = getattr(headers, "get_list", None)
     if get_list is not None and len(get_list("location")) > 1:
         raise RedirectRefusedError("more than one Location header")
-    location = next((v for k, v in headers.items() if k.lower() == "location"), "").strip()
-    if not location:
+    location = next((v for k, v in headers.items() if k.lower() == "location"), "")
+    if not location.strip():
         raise RedirectRefusedError("missing Location")
+    if "@" in location or "\\" in location or any(ord(c) <= 0x20 or ord(c) >= 0x7F for c in location):
+        raise RedirectRefusedError(f"{location!r} could be read as a different host by different parsers")
     target = urljoin(url, location)
     parts = urlparse(target)
     host = (parts.hostname or "").lower().rstrip(".")
