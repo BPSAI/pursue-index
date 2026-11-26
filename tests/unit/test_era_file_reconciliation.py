@@ -171,3 +171,21 @@ def test_same_era_with_the_same_year_is_reconciled() -> None:
     assert result.cards[2].year == 2022
     assert result.cards[2].era_reconciled_from == "aaaa#0"
     assert result.triage == []
+
+
+def test_a_reconciled_row_names_the_inference_as_its_date_source() -> None:
+    manifest = {"cards": [_dated(), _row("aaaa", "PR1")]}
+    result = bucket(manifest)
+    dated, undated = result.cards
+    assert dated.date_source == "incident_date"
+    assert undated.date_source == "reconciled_from_sibling"
+    assert undated.era_reconciled_from == "aaaa#0"
+    assert undated.year == dated.year
+    out = build_output(manifest, result)
+    cards = {c["row_key"]: c for c in out["cards"]}
+    assert cards["aaaa#0"]["date_source"] == "incident_date"
+    assert cards["aaaa#1"]["date_source"] == "reconciled_from_sibling"
+    record = {r["row_key"]: r for r in out["no_prior_release"]}["aaaa#1"]
+    assert record["date_source"] == "reconciled_from_sibling"
+    assert record["era_reconciled_from"] == "aaaa#0"
+    assert "incident_date" not in record["rationale"]
