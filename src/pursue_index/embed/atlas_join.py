@@ -230,6 +230,28 @@ def _extract_source_url(rec: dict) -> str:
     return url
 
 
+def _check_corrupt_rate(parse_errors: int, total: int) -> None:
+    """Report corrupt-row rate; raise when it exceeds 5%."""
+    if parse_errors > 0:
+        # If more than 5% of rows are corrupt, the upstream corpus has a
+        # systemic problem we shouldn't quietly absorb. Raise so the
+        # operator can investigate instead of shipping a half-augmented
+        # index.
+        corrupt_rate = parse_errors / max(total, 1)
+        print(
+            f"atlas_join: {parse_errors}/{total} rows corrupt "
+            f"({corrupt_rate:.2%})",
+            flush=True,
+        )
+        if corrupt_rate > 0.05:
+            raise AtlasJoinError(
+                f"atlas corpus has {parse_errors}/{total} corrupt rows "
+                f"({corrupt_rate:.2%}) — refusing to embed; regenerate "
+                f"the corpus or set PURSUE_AUGMENT_SKIP_HASH_CHECK=1 "
+                f"if this is expected"
+            )
+
+
 def _parse_corpus_records(
     corpus_jsonl: Path,
     known_ids: set[str],
@@ -284,24 +306,7 @@ def _parse_corpus_records(
             if not tags:
                 continue
             out[(card_id, int(rec["page_num"]))] = tags
-    if parse_errors > 0:
-        # If more than 5% of rows are corrupt, the upstream corpus has a
-        # systemic problem we shouldn't quietly absorb. Raise so the
-        # operator can investigate instead of shipping a half-augmented
-        # index.
-        corrupt_rate = parse_errors / max(total, 1)
-        print(
-            f"atlas_join: {parse_errors}/{total} rows corrupt "
-            f"({corrupt_rate:.2%})",
-            flush=True,
-        )
-        if corrupt_rate > 0.05:
-            raise AtlasJoinError(
-                f"atlas corpus has {parse_errors}/{total} corrupt rows "
-                f"({corrupt_rate:.2%}) — refusing to embed; regenerate "
-                f"the corpus or set PURSUE_AUGMENT_SKIP_HASH_CHECK=1 "
-                f"if this is expected"
-            )
+    _check_corrupt_rate(parse_errors, total)
     return out, misses, total
 
 

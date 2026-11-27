@@ -105,6 +105,25 @@ def _run_one_card(card_id: str, model: str, budget_usd: float) -> qc_runner.Card
     )
 
 
+def _grade_cards(card_ids: list[str], model: str, budget_usd: float) -> None:
+    reports: list[qc_runner.CardQcReport] = []
+    total_cost = 0.0
+    try:
+        for cid in card_ids:
+            report = _run_one_card(cid, model, budget_usd - total_cost)
+            reports.append(report)
+            total_cost += report.cost_usd
+    except qc_runner.QcBudgetExceededError as exc:
+        console.print(f"[red]BUDGET EXCEEDED[/red]: {exc}")
+        _print_summary(reports, total_cost + exc.partial_cost_usd)
+        raise typer.Exit(code=2)
+    _print_summary(reports, total_cost)
+    console.print(
+        f"[green]done.[/green] graded "
+        f"{sum(r.pages_graded for r in reports)} pages"
+    )
+
+
 @clean_qc_app.command("run")
 def qc_run(
     manifest: Path = typer.Option(..., "--manifest", exists=True, dir_okay=False),
@@ -135,19 +154,4 @@ def qc_run(
     if dry_run:
         _print_dry_run(card_ids, budget_usd, model)
         return
-    reports: list[qc_runner.CardQcReport] = []
-    total_cost = 0.0
-    try:
-        for cid in card_ids:
-            report = _run_one_card(cid, model, budget_usd - total_cost)
-            reports.append(report)
-            total_cost += report.cost_usd
-    except qc_runner.QcBudgetExceededError as exc:
-        console.print(f"[red]BUDGET EXCEEDED[/red]: {exc}")
-        _print_summary(reports, total_cost + exc.partial_cost_usd)
-        raise typer.Exit(code=2)
-    _print_summary(reports, total_cost)
-    console.print(
-        f"[green]done.[/green] graded "
-        f"{sum(r.pages_graded for r in reports)} pages"
-    )
+    _grade_cards(card_ids, model, budget_usd)

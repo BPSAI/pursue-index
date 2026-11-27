@@ -15,7 +15,7 @@ if str(_SCRIPTS) not in sys.path:
 
 import r2_reconcile  # noqa: E402
 
-_WHEN = dt.datetime(2026, 5, 8, 12, 0, 0, tzinfo=dt.timezone.utc)
+_WHEN = dt.datetime(2026, 5, 8, 12, 0, 0, tzinfo=dt.UTC)
 
 
 class _FakeClient:

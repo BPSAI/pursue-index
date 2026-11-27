@@ -130,47 +130,36 @@ def summarize_orphans(orphans: list[str]) -> dict[str, int]:
     return dict(buckets)
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--bucket", default=DEFAULT_BUCKET)
-    parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
-    parser.add_argument("--json", action="store_true", help="machine-readable output")
-    args = parser.parse_args()
+def _print_json_report(
+    bucket, bucket_keys, reg_archive, reg_current,
+    classification, size_by_key, mtime_by_key,
+) -> None:
+    out = {
+        "bucket": bucket,
+        "bucket_object_count": len(bucket_keys),
+        "registry_archive_count": len(reg_archive),
+        "registry_current_count": len(reg_current),
+        "in_both": len(classification["in_both"]),
+        "missing_from_bucket": classification["missing_from_bucket"],
+        "orphan_in_bucket": [
+            {
+                "key": k,
+                "size": size_by_key.get(k),
+                "last_modified": mtime_by_key.get(k),
+            }
+            for k in classification["orphan_in_bucket"]
+        ],
+        "orphan_summary": summarize_orphans(classification["orphan_in_bucket"]),
+    }
+    print(json.dumps(out, indent=2))
+    return 0
 
-    client = make_r2_client()
-    if client is None:
-        return 2
 
-    objects = list_bucket(client, args.bucket)
-    bucket_keys = {o["key"] for o in objects}
-    size_by_key = {o["key"]: o["size"] for o in objects}
-    mtime_by_key = {o["key"]: o["last_modified"] for o in objects}
-
-    reg_archive, reg_current = load_registry(args.registry)
-    classification = classify(bucket_keys, reg_archive, reg_current)
-
-    if args.json:
-        out = {
-            "bucket": args.bucket,
-            "bucket_object_count": len(bucket_keys),
-            "registry_archive_count": len(reg_archive),
-            "registry_current_count": len(reg_current),
-            "in_both": len(classification["in_both"]),
-            "missing_from_bucket": classification["missing_from_bucket"],
-            "orphan_in_bucket": [
-                {
-                    "key": k,
-                    "size": size_by_key.get(k),
-                    "last_modified": mtime_by_key.get(k),
-                }
-                for k in classification["orphan_in_bucket"]
-            ],
-            "orphan_summary": summarize_orphans(classification["orphan_in_bucket"]),
-        }
-        print(json.dumps(out, indent=2))
-        return 0
-
-    print(f"=== R2 reconciliation: bucket={args.bucket} ===")
+def _print_text_report(
+    bucket, bucket_keys, reg_archive, reg_current,
+    classification, size_by_key, mtime_by_key,
+) -> None:
+    print(f"=== R2 reconciliation: bucket={bucket} ===")
     print(f"Bucket objects:                  {len(bucket_keys)}")
     print(f"Registry archive_keys:           {len(reg_archive)}")
     print(f"Registry current_keys:           {len(reg_current)}")
@@ -197,6 +186,37 @@ def main() -> int:
             mtime = mtime_by_key.get(k) or ""
             print(f"  {k:50s} {size_mb:9.2f} MB   {mtime}")
 
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--bucket", default=DEFAULT_BUCKET)
+    parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
+    parser.add_argument("--json", action="store_true", help="machine-readable output")
+    args = parser.parse_args()
+
+    client = make_r2_client()
+    if client is None:
+        return 2
+
+    objects = list_bucket(client, args.bucket)
+    bucket_keys = {o["key"] for o in objects}
+    size_by_key = {o["key"]: o["size"] for o in objects}
+    mtime_by_key = {o["key"]: o["last_modified"] for o in objects}
+
+    reg_archive, reg_current = load_registry(args.registry)
+    classification = classify(bucket_keys, reg_archive, reg_current)
+
+    if args.json:
+        _print_json_report(
+            args.bucket, bucket_keys, reg_archive, reg_current,
+            classification, size_by_key, mtime_by_key,
+        )
+        return 0
+
+    _print_text_report(
+        args.bucket, bucket_keys, reg_archive, reg_current,
+        classification, size_by_key, mtime_by_key,
+    )
     return 0
 
 
