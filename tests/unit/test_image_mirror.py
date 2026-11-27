@@ -13,11 +13,13 @@ from typer.testing import CliRunner
 from pursue_index.cli import storage_cli
 from pursue_index.cli.commands import app
 from pursue_index.release.image_mirror import (
-    render_image_mirror_report,
-    render_image_verify,
     run_image_mirror,
     select_image_cards,
     verify_image_mirror,
+)
+from pursue_index.release.image_mirror_render import (
+    render_image_mirror_report,
+    render_image_verify,
 )
 from pursue_index.scrape.types import CardMetadata
 from pursue_index.vision import img_source

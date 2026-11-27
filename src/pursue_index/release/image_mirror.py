@@ -15,8 +15,6 @@ Pure filesystem I/O only: no network, no credentials.
 
 from __future__ import annotations
 
-import hashlib
-import os
 import re
 import shutil
 from dataclasses import dataclass, field
@@ -25,6 +23,12 @@ from pathlib import Path
 from pursue_index.card_id import CARD_ID_PATTERN
 from pursue_index.config import settings
 from pursue_index.download.downloader import asset_path_for
+from pursue_index.release.exclusive_publish import (
+    EXISTING_MATCH,
+    PUBLISHED,
+    publish_exclusive,
+    sha256_file,
+)
 from pursue_index.row_key import row_keys
 from pursue_index.vision.img_source import (
     BadArchiveKeyError,
@@ -32,7 +36,6 @@ from pursue_index.vision.img_source import (
     mirror_path_for,
 )
 
-_CHUNK = 1 << 20
 _SHA256_RE = re.compile(r"[0-9a-f]{64}")
 _IMAGE_EXTS = frozenset({"jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"})
 _NON_IMG_ASSET_TYPES = frozenset({"PDF", "VID", "AUD"})
@@ -90,14 +93,6 @@ class ImageMirrorPreflight:
 
     ok: bool
     details: dict[str, str] = field(default_factory=dict)  # row key -> reason
-
-
-def _sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as fh:
-        while chunk := fh.read(_CHUNK):
-            h.update(chunk)
-    return h.hexdigest()
 
 
 def _expected(card, rows: dict[str, dict]) -> tuple[str, Path] | tuple[str, str]:
@@ -174,39 +169,14 @@ def select_image_cards(
     return in_scope, skipped
 
 
-def _copy_exclusive(tmp: Path, target: Path) -> None:
-    """Stream ``tmp`` into a new ``target``; ``FileExistsError`` if it exists."""
-    fd = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
-    try:
-        with os.fdopen(fd, "wb") as out, tmp.open("rb") as src:
-            shutil.copyfileobj(src, out, _CHUNK)
-    except BaseException:
-        target.unlink(missing_ok=True)  # our own partial file, created just above
-        raise
-
-
 def _publish_exclusive(tmp: Path, target: Path, sha: str) -> tuple[str, str]:
-    """Publish the verified ``tmp`` as ``target`` without ever overwriting.
-
-    A hard link fails if the target exists; where the filesystem refuses hard
-    links, an ``O_EXCL`` create plus a copy gives the same guarantee. A target
-    that appeared meanwhile is hashed, never touched. ``tmp`` is always removed.
-    """
-    try:
-        try:
-            os.link(tmp, target)
-        except FileExistsError:
-            raise
-        except OSError:
-            _copy_exclusive(tmp, target)
-    except FileExistsError:
-        actual = _sha256_file(target)
-        if actual == sha:
-            return ALREADY_PRESENT, ""
-        return TARGET_MISMATCH, f"{target.name} holds sha {actual[:12]}, expected {sha[:12]}"
-    finally:
-        tmp.unlink(missing_ok=True)
-    return MIRRORED, ""
+    """Publish ``tmp`` as ``target`` without overwriting; map to a mirror outcome."""
+    status, actual = publish_exclusive(tmp, target, sha)
+    if status == PUBLISHED:
+        return MIRRORED, ""
+    if status == EXISTING_MATCH:
+        return ALREADY_PRESENT, ""
+    return TARGET_MISMATCH, f"{target.name} holds sha {actual[:12]}, expected {sha[:12]}"
 
 
 def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, str]:
@@ -221,19 +191,19 @@ def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, 
     sha, key = exp
     target = mirror_root / key
     if target.is_file():
-        actual = _sha256_file(target)
+        actual = sha256_file(target)
         if actual == sha:
             return ALREADY_PRESENT, ""
         return TARGET_MISMATCH, f"{target.name} holds sha {actual[:12]}, expected {sha[:12]}"
     if not src or not src.is_file():
         return SOURCE_MISSING, f"no source at images/{card.card_id}/{card.asset_filename}"
-    actual = _sha256_file(src)
+    actual = sha256_file(src)
     if actual != sha:
         return SHA_MISMATCH, f"source sha {actual[:12]} != registry byte_sha256 {sha[:12]}"
     target.parent.mkdir(parents=True, exist_ok=True)
     tmp = target.with_name(target.name + ".tmp")
     shutil.copy2(src, tmp)
-    if _sha256_file(tmp) != sha:
+    if sha256_file(tmp) != sha:
         tmp.unlink(missing_ok=True)
         return SHA_MISMATCH, "post-copy sha verification failed"
     return _publish_exclusive(tmp, target, sha)
@@ -279,32 +249,6 @@ def verify_image_mirror(
             details[key] = f"card_id {str(card.card_id)[:40]!r} is not 16 lowercase hex characters"
         elif not (mirror_root / rel).is_file():
             details[key] = f"missing r2-mirror/{rel}"
-        elif _sha256_file(mirror_root / rel) != sha:
+        elif sha256_file(mirror_root / rel) != sha:
             details[key] = f"r2-mirror/{rel} sha mismatch"
     return ImageMirrorPreflight(ok=not details, details=details)
-
-
-def render_image_mirror_report(report: ImageMirrorReport) -> str:
-    """Operator-facing summary for ``pursue storage mirror-images``."""
-    lines = ["### Image r2-mirror stage", ""]
-    lines += [f"* {name}: {n}" for name, n in report.counts.items()]
-    for cid, (outcome, detail) in report.results.items():
-        if outcome in _FAILURES:
-            lines.append(f"    * `{cid}` — {outcome}: {detail}")
-    lines += ["", f"**All in-scope images mirrored:** {'yes' if report.ok else 'NO'}"]
-    return "\n".join(lines)
-
-
-def render_image_verify(pf: ImageMirrorPreflight) -> str:
-    """Operator-facing summary for ``pursue storage verify-image-mirror``."""
-    lines = ["### Image r2-mirror preflight", ""]
-    if pf.ok:
-        lines.append("**All in-scope image cards have their r2-mirror copy:** yes")
-        return "\n".join(lines)
-    lines.append(f"**MISSING or wrong mirror for {len(pf.details)} card(s):**")
-    lines += [f"* `{cid}` — {why}" for cid, why in pf.details.items()]
-    lines += [
-        "",
-        "> Run `pursue storage mirror-images --worklist <file>` to stage them, then re-verify.",
-    ]
-    return "\n".join(lines)

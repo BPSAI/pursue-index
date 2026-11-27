@@ -24,11 +24,13 @@ from pursue_index.cli.worklist import (
 from pursue_index.config import settings
 from pursue_index.release.image_mirror import (
     UnresolvedCard,
-    render_image_mirror_report,
-    render_image_verify,
     run_image_mirror,
     select_image_cards,
     verify_image_mirror,
+)
+from pursue_index.release.image_mirror_render import (
+    render_image_mirror_report,
+    render_image_verify,
 )
 from pursue_index.release.pdf_mirror import (
     render_mirror_report,
