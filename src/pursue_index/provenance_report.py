@@ -48,6 +48,7 @@ from pursue_index.card_outcome import CardOutcome, outcome_of
 from pursue_index.catalogue_load import LoadedCatalogue, load_catalogue
 from pursue_index.claim_precedence import (
     POSITIVE_TIER_PRECEDENCE,
+    claim_applies,
     unkeyed_claims,
 )
 from pursue_index.era_bucketing import classify_reconciled, classify_rows
@@ -215,9 +216,9 @@ def _rank(outcome: CardOutcome) -> tuple[int, int]:
 
 
 def _ntrs_rows_reached(claims: Sequence[ResolvedClaim], eras: Sequence[Any]) -> int:
-    """Distinct manifest rows named by an NTRS-sourced claim; other sources are not counted."""
-    named = {c.row_key for c in claims if c.source is ResolutionSource.NTRS_METADATA}
-    return len(named & {era.row_key for era in eras})
+    """Manifest rows an NTRS-sourced claim applies to, by the join ``positive_claims`` uses."""
+    ntrs = [c for c in claims if c.source is ResolutionSource.NTRS_METADATA]
+    return sum(1 for era in eras if any(claim_applies(c, file_key(era), era.row_key) for c in ntrs))
 
 
 def build_report(

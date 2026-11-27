@@ -79,6 +79,11 @@ def _from_resolved(claim: ResolvedClaim) -> PositiveClaim:
     )
 
 
+def claim_applies(claim: ResolvedClaim, file: str, row_key: str) -> bool:
+    """Whether an external claim is about this row: same file key and the very same row key."""
+    return bool(file) and claim.card_id == file and bool(claim.row_key) and claim.row_key == row_key
+
+
 def positive_claims(
     card: dict[str, Any],
     catalogue: Sequence[SourceEntry] = (),
@@ -100,12 +105,7 @@ def positive_claims(
         claims.append(_from_tier0(tier0))
     claims.extend(_from_resolved(claim) for claim in resolve_card(card, catalogue=catalogue))
     file = str(card.get("card_id") or "") or file_part(row_key)
-    if file:
-        claims.extend(
-            _from_resolved(claim)
-            for claim in external
-            if claim.card_id == file and claim.row_key and claim.row_key == row_key
-        )
+    claims.extend(_from_resolved(claim) for claim in external if claim_applies(claim, file, row_key))
     return claims
 
 

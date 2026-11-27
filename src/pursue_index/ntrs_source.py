@@ -177,13 +177,14 @@ def run_searches(
     """Search NTRS once per source file with an unresolved NASA row. A fetch abort propagates.
 
     Rows sharing a file (``file_key_of``) are one document, so the first row's request
-    is made once and its response is fanned out to every row of the file: each row
-    evaluates it against its own card, and every row after the first says so in
+    is made once per distinct query and its response is fanned out to the rows of the
+    file that ask the same thing: each row evaluates it against its own card, and every
+    row after the first on that query says so in
     ``search_shared_from`` (the row whose request it is). A row whose title is empty
     after normalisation makes no request.
     """
     searches: list[CardSearch] = []
-    responses: dict[str, tuple[str, dict[str, Any]]] = {}
+    responses: dict[tuple[str, str], tuple[str, dict[str, Any]]] = {}
     for key, card in unresolved_nasa_rows(manifest, catalogue):
         query = normalize_query(str(card.get("title") or ""))
         card_id = str(card.get("card_id") or "")
@@ -192,11 +193,12 @@ def run_searches(
             continue
         file = card_id or file_part(key)
         shared_from = ""
-        if file in responses:
-            shared_from = responses[file][0]
+        slot = (file, query)
+        if slot in responses:
+            shared_from = responses[slot][0]
         else:
-            responses[file] = (key, fetcher.search(query))
-        search = evaluate_card(card, responses[file][1], searched_date, key)
+            responses[slot] = (key, fetcher.search(query))
+        search = evaluate_card(card, responses[slot][1], searched_date, key)
         searches.append(replace(search, search_shared_from=shared_from))
     return searches
 

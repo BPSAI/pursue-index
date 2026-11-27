@@ -158,7 +158,7 @@ def test_sibling_rows_with_different_titles_each_send_their_own_query() -> None:
     searches = run_searches(manifest, net.fetcher(), TODAY)
     assert len(net.urls) == 2
     assert all("search_shared_from" not in s.to_dict() for s in searches)
-    assert [s.result for s in searches] == ["no_copy", "claim"]
+    assert [s.result for s in searches] == ["no_copy_found", "claim"]
 
 
 def test_distinct_files_each_search() -> None:
