@@ -100,7 +100,7 @@ def _read_sidecar(path: Path) -> dict[str, Any] | str:
 
 def _items_for_sidecar(
     card_id: str, sidecar: dict[str, Any], rows: dict[str, Any],
-    registry: dict[str, str],
+    registry: dict[str, dict],
 ) -> tuple[list[EligibleItem], list[str]]:
     """One item per page the sidecar describes, plus any reasons one cannot be built."""
     items: list[EligibleItem] = []

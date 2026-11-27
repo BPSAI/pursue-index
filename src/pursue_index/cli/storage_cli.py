@@ -22,6 +22,16 @@ from pursue_index.cli.worklist import (
     require_worklist_tranche,
 )
 from pursue_index.config import settings
+from pursue_index.release.image_mirror import (
+    UnresolvedCard,
+    run_image_mirror,
+    select_image_cards,
+    verify_image_mirror,
+)
+from pursue_index.release.image_mirror_render import (
+    render_image_mirror_report,
+    render_image_verify,
+)
 from pursue_index.release.pdf_mirror import (
     render_mirror_report,
     render_preflight,
@@ -40,12 +50,21 @@ from pursue_index.storage.data_root import (
     probe_data_root,
     render_data_root_lines,
 )
+from pursue_index.vision.img_source import default_registry_path
 
 _WORKLIST_OPT = typer.Option(
     ...,
     "--worklist",
     help="Path to the tranche worklist (card_ids, one per line; #-comments ok).",
 )
+
+_ALL_IMAGES_OPT = typer.Option(
+    False,
+    "--all-image-cards",
+    help="Every IMG card in the manifest, no tranche gate; for the "
+    "operator-attended backfill. Exclusive with --worklist.",
+)
+_OPT_WORKLIST = typer.Option(None, "--worklist", help=_WORKLIST_OPT.help)
 
 storage_app = typer.Typer(
     name="storage",
@@ -88,6 +107,19 @@ def _coverage(probe: DataRootProbe) -> tuple[int, int] | None:
     return ocr_coverage(probe.root / "ocr", cards)
 
 
+def _worklist_card_ids(worklist: Path, manifest) -> list[str]:
+    """Tranche-gated, validated card_ids of ``worklist`` (exits on refusal)."""
+    try:
+        require_worklist_tranche(worklist, manifest.csv_sha256)
+    except WorklistTrancheError as exc:
+        exit_on_tranche_error(exc)
+    try:
+        return require_card_ids(read_worklist(worklist))
+    except InvalidCardIdError as exc:
+        typer.echo(f"refusing — worklist {worklist}: {exc}", err=True)
+        raise typer.Exit(2) from exc
+
+
 def _pdf_scope(worklist: Path) -> list[str]:
     """Worklist card_ids narrowed to PDF cards, echoing every exclusion.
 
@@ -97,15 +129,7 @@ def _pdf_scope(worklist: Path) -> list[str]:
     exactly like coverage.
     """
     manifest = load_manifest(settings.manifests_dir / "latest.json")
-    try:
-        require_worklist_tranche(worklist, manifest.csv_sha256)
-    except WorklistTrancheError as exc:
-        exit_on_tranche_error(exc)
-    try:
-        card_ids = require_card_ids(read_worklist(worklist))
-    except InvalidCardIdError as exc:
-        typer.echo(f"refusing — worklist {worklist}: {exc}", err=True)
-        raise typer.Exit(2) from exc
+    card_ids = _worklist_card_ids(worklist, manifest)
     in_scope, skipped = select_pdf_cards(
         card_ids, [c.model_dump() for c in manifest.cards]
     )
@@ -151,6 +175,72 @@ def verify_mirror_cmd(worklist: Path = _WORKLIST_OPT) -> None:
         mirror_root=settings.r2_mirror_dir,
     )
     typer.echo(render_preflight(pf))
+    raise typer.Exit(0 if pf.ok else 1)
+
+
+def _image_cards(worklist: Path | None, all_image_cards: bool) -> list:
+    """The IMG manifest cards in scope (worklist-narrowed, or every IMG card)."""
+    if all_image_cards == (worklist is not None):
+        typer.echo("refusing — give exactly one of --worklist / --all-image-cards", err=True)
+        raise typer.Exit(2)
+    manifest = load_manifest(settings.manifests_dir / "latest.json")
+    img_cards = [c for c in manifest.cards if c.asset_type == "IMG"]
+    if all_image_cards:
+        typer.echo(
+            f"[scope] --all-image-cards: {len(img_cards)} IMG cards from the manifest "
+            "(no tranche gate)"
+        )
+        return img_cards
+    assert worklist is not None
+    card_ids = _worklist_card_ids(worklist, manifest)
+    in_scope, skipped = select_image_cards(
+        card_ids, [c.model_dump() for c in manifest.cards]
+    )
+    if skipped:
+        typer.echo(
+            f"[scope] {len(in_scope)}/{len(card_ids)} worklist cards are IMG; "
+            f"skipped {len(skipped)} non-IMG — no image to mirror."
+        )
+    wanted = set(in_scope)
+    img_ids = {c.card_id for c in img_cards}
+    cards: list = [c for c in img_cards if c.card_id in wanted]
+    # An in-scope id with no IMG row (absent, or its row has no asset_type)
+    # stays gated: verify and mirror fail for it.
+    cards += [UnresolvedCard(cid) for cid in in_scope if cid not in img_ids]
+    return cards
+
+
+@storage_app.command("mirror-images")
+def mirror_images_cmd(
+    worklist: Path | None = _OPT_WORKLIST, all_image_cards: bool = _ALL_IMAGES_OPT
+) -> None:
+    """Content-address each IMG card's images/ file into ``r2-mirror/archive/``.
+
+    Idempotent + sha-verified against the registry's newest byte_sha256; never
+    overwrites. Exit non-zero if any card fails. The first run after this stage
+    landed should use --all-image-cards (operator-attended backfill).
+    """
+    report = run_image_mirror(
+        _image_cards(worklist, all_image_cards),
+        images_root=settings.image_dir,
+        mirror_root=settings.r2_mirror_dir,
+        registry_path=default_registry_path(),
+    )
+    typer.echo(render_image_mirror_report(report))
+    raise typer.Exit(0 if report.ok else 1)
+
+
+@storage_app.command("verify-image-mirror")
+def verify_image_mirror_cmd(
+    worklist: Path | None = _OPT_WORKLIST, all_image_cards: bool = _ALL_IMAGES_OPT
+) -> None:
+    """Fail-fast: every in-scope IMG card has its sha-matching archive copy."""
+    pf = verify_image_mirror(
+        _image_cards(worklist, all_image_cards),
+        mirror_root=settings.r2_mirror_dir,
+        registry_path=default_registry_path(),
+    )
+    typer.echo(render_image_verify(pf))
     raise typer.Exit(0 if pf.ok else 1)
 
 
