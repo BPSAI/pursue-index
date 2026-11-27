@@ -136,51 +136,6 @@ def _save_proposals(path: Path, rows: list[dict[str, Any]]) -> None:
     tmp.replace(path)
 
 
-def _as_omnibus_abstention(p: dict[str, Any], reason: str) -> dict[str, Any]:
-    # Rewrite as abstention with templated reason. Preserve the agent's
-    # original proposal in _proposal_metadata for audit.
-    original = {
-        "display_date": p.get("display_date"),
-        "display_date_range": p.get("display_date_range"),
-        "display_date_evidence": p.get("display_date_evidence"),
-        "display_date_evidence_card_ref": p.get("display_date_evidence_card_ref"),
-    }
-    new_p = {
-        "card_id": p["card_id"],
-        "display_date": None,
-        "display_date_range": None,
-        "display_date_evidence": p.get("display_date_evidence"),
-        "display_date_evidence_card_ref": p.get("display_date_evidence_card_ref"),
-        "display_date_abstention": reason,
-        "display_date_curator": p.get("display_date_curator"),
-        "display_date_approved_at": None,
-        "_proposal_metadata": {
-            **(p.get("_proposal_metadata") or {}),
-            "reclassified_as_omnibus": True,
-            "agent_original_proposal": original,
-        },
-    }
-    return new_p
-
-
-def _print_summary(
-    total: int,
-    rewritten: int,
-    already_abstain: int,
-    untouched: int,
-    changes: list[tuple[str, str, str]],
-) -> None:
-    print(f"Proposals: {total} total")
-    print(f"  rewritten as omnibus abstentions: {rewritten}")
-    print(f"  already abstaining (left alone):  {already_abstain}")
-    print(f"  untouched (single-document):       {untouched}")
-    print()
-    if changes:
-        print("Rewritten cards:")
-        for cid, original_date, title in changes:
-            print(f"  {cid}  was: {original_date:12s}  {title}")
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--proposals", type=Path, default=DEFAULT_PROPOSALS)
@@ -220,12 +175,42 @@ def main(argv: list[str] | None = None) -> int:
             out_rows.append(p)
             continue
 
-        new_p = _as_omnibus_abstention(p, reason)
+        # Rewrite as abstention with templated reason. Preserve the agent's
+        # original proposal in _proposal_metadata for audit.
+        original = {
+            "display_date": p.get("display_date"),
+            "display_date_range": p.get("display_date_range"),
+            "display_date_evidence": p.get("display_date_evidence"),
+            "display_date_evidence_card_ref": p.get("display_date_evidence_card_ref"),
+        }
+        new_p = {
+            "card_id": cid,
+            "display_date": None,
+            "display_date_range": None,
+            "display_date_evidence": p.get("display_date_evidence"),
+            "display_date_evidence_card_ref": p.get("display_date_evidence_card_ref"),
+            "display_date_abstention": reason,
+            "display_date_curator": p.get("display_date_curator"),
+            "display_date_approved_at": None,
+            "_proposal_metadata": {
+                **(p.get("_proposal_metadata") or {}),
+                "reclassified_as_omnibus": True,
+                "agent_original_proposal": original,
+            },
+        }
         out_rows.append(new_p)
         rewritten += 1
         changes.append((cid, p.get("display_date") or "(none)", title[:50]))
 
-    _print_summary(len(proposals), rewritten, already_abstain, untouched, changes)
+    print(f"Proposals: {len(proposals)} total")
+    print(f"  rewritten as omnibus abstentions: {rewritten}")
+    print(f"  already abstaining (left alone):  {already_abstain}")
+    print(f"  untouched (single-document):       {untouched}")
+    print()
+    if changes:
+        print("Rewritten cards:")
+        for cid, original_date, title in changes:
+            print(f"  {cid}  was: {original_date:12s}  {title}")
 
     if args.dry_run:
         print("\n(dry-run; no file written)")

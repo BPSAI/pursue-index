@@ -310,7 +310,7 @@ def _parse_corpus_records(
     return out, misses, total
 
 
-def load_atlas_index(
+def _load_atlas_index(
     corpus_jsonl: Path,
     manifest: Manifest,
     *,

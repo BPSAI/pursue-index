@@ -24,8 +24,8 @@ import pytest
 
 from pursue_index.embed.atlas_join import (
     AtlasJoinError,
+    _load_atlas_index,
     canonicalize_url,
-    load_atlas_index,
 )
 from pursue_index.scrape.types import CardMetadata, Manifest
 
@@ -35,7 +35,7 @@ FIXTURE = Path(__file__).parent.parent / "fixtures" / "atlas_join_sample.jsonl"
 def _write_jsonl_with_sha256(path: Path, body: str) -> None:
     """Write a JSONL fixture and its companion ``.sha256`` sidecar.
 
-    ``load_atlas_index`` verifies the sha256 sidecar before parsing
+    ``_load_atlas_index`` verifies the sha256 sidecar before parsing
     (fail-closed), so any test fixture written at
     runtime needs both files alongside.
     """
@@ -93,7 +93,7 @@ def _full_manifest() -> Manifest:
 def test_load_atlas_index_returns_pages_for_direct_hash_matches() -> None:
     """Records whose source_url hashes to a known card_id join directly."""
     manifest = _full_manifest()
-    index = load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.5)
+    index = _load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.5)
 
     # 059uap00011 has 2 pages, 065uap00099 has 1 page.
     assert ("ff30c985595153f3", 1) in index
@@ -132,7 +132,7 @@ def test_load_atlas_index_joins_via_canonicalization_when_hash_misses() -> None:
     direct hash misses because of %20 vs underscore.
     """
     manifest = _full_manifest()
-    index = load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.5)
+    index = _load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.5)
     # bbf7124aa3691fc4 is OUR card_id; the join must surface their tags
     # under our id even though their hash differs.
     assert ("bbf7124aa3691fc4", 7) in index
@@ -147,7 +147,7 @@ def test_load_atlas_index_aborts_when_miss_rate_exceeds_threshold() -> None:
     """
     manifest = _full_manifest()
     with pytest.raises(AtlasJoinError, match="miss rate"):
-        load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.01)
+        _load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.01)
 
 
 def test_load_atlas_index_records_misses_below_threshold() -> None:
@@ -157,7 +157,7 @@ def test_load_atlas_index_records_misses_below_threshold() -> None:
     50% miss) to test the surface explicitly.
     """
     manifest = _full_manifest()
-    index = load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.5)
+    index = _load_atlas_index(FIXTURE, manifest, miss_rate_threshold=0.5)
     # The orphan page is dropped — there's no card_id to attach it to.
     # Only the 4 matched pages are in the index.
     assert len(index) == 4
@@ -189,7 +189,7 @@ def test_load_atlas_index_skips_records_with_no_image_tags() -> None:
                 ),
             ]
         )
-        index = load_atlas_index(fixture, manifest, miss_rate_threshold=0.5)
+        index = _load_atlas_index(fixture, manifest, miss_rate_threshold=0.5)
         assert ("ff30c985595153f3", 1) not in index
     finally:
         _unlink_jsonl_with_sha256(fixture)
@@ -218,7 +218,7 @@ def test_load_atlas_index_deduplicates_repeated_tags() -> None:
                 ),
             ]
         )
-        index = load_atlas_index(fixture, manifest, miss_rate_threshold=0.5)
+        index = _load_atlas_index(fixture, manifest, miss_rate_threshold=0.5)
         assert index[("ff30c985595153f3", 1)] == ["A.", "B."]
     finally:
         _unlink_jsonl_with_sha256(fixture)

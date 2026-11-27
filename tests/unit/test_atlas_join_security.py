@@ -18,7 +18,7 @@ import pytest
 
 from pursue_index.embed.atlas_join import (
     AtlasJoinError,
-    load_atlas_index,
+    _load_atlas_index,
 )
 from pursue_index.scrape.types import CardMetadata, Manifest
 
@@ -76,11 +76,11 @@ def test_load_atlas_index_rejects_threshold_above_half() -> None:
     corpus = _write_corpus_with_sidecar(Path("/tmp"), body)
     try:
         with pytest.raises(ValueError, match="miss_rate_threshold"):
-            load_atlas_index(
+            _load_atlas_index(
                 corpus, _manifest_with_one_card(), miss_rate_threshold=1.0
             )
         with pytest.raises(ValueError, match="miss_rate_threshold"):
-            load_atlas_index(
+            _load_atlas_index(
                 corpus, _manifest_with_one_card(), miss_rate_threshold=0.51
             )
     finally:
@@ -94,7 +94,7 @@ def test_load_atlas_index_rejects_negative_threshold() -> None:
     corpus = _write_corpus_with_sidecar(Path("/tmp"), body)
     try:
         with pytest.raises(ValueError, match="miss_rate_threshold"):
-            load_atlas_index(
+            _load_atlas_index(
                 corpus, _manifest_with_one_card(), miss_rate_threshold=-0.1
             )
     finally:
@@ -111,7 +111,7 @@ def test_load_atlas_index_accepts_threshold_at_upper_bound(
         '059uap00011.pdf","page_num":1,"image_tags":["a"]}\n'
     )
     corpus = _write_corpus_with_sidecar(tmp_path, body)
-    index = load_atlas_index(
+    index = _load_atlas_index(
         corpus, _manifest_with_one_card(), miss_rate_threshold=0.5
     )
     assert ("ff30c985595153f3", 1) in index
@@ -130,7 +130,7 @@ def test_load_atlas_index_raises_on_empty_source_url(tmp_path: Path) -> None:
     body = '{"source_url":"","page_num":1,"image_tags":["a"]}\n'
     corpus = _write_corpus_with_sidecar(tmp_path, body)
     with pytest.raises(AtlasJoinError, match="source_url"):
-        load_atlas_index(
+        _load_atlas_index(
             corpus, _manifest_with_one_card(), miss_rate_threshold=0.5
         )
 
@@ -140,7 +140,7 @@ def test_load_atlas_index_raises_on_missing_source_url(tmp_path: Path) -> None:
     body = '{"page_num":1,"image_tags":["a"]}\n'
     corpus = _write_corpus_with_sidecar(tmp_path, body)
     with pytest.raises(AtlasJoinError, match="source_url"):
-        load_atlas_index(
+        _load_atlas_index(
             corpus, _manifest_with_one_card(), miss_rate_threshold=0.5
         )
 
@@ -163,7 +163,7 @@ def test_load_atlas_index_verifies_sha256_sidecar(tmp_path: Path) -> None:
         tmp_path, body, sha_override="0" * 64
     )
     with pytest.raises(AtlasJoinError, match="sha256"):
-        load_atlas_index(
+        _load_atlas_index(
             corpus, _manifest_with_one_card(), miss_rate_threshold=0.5
         )
 
@@ -180,7 +180,7 @@ def test_load_atlas_index_raises_when_sha256_sidecar_missing(
     corpus.write_text(body)
     # No sidecar created.
     with pytest.raises(AtlasJoinError, match="sha256"):
-        load_atlas_index(
+        _load_atlas_index(
             corpus, _manifest_with_one_card(), miss_rate_threshold=0.5
         )
 
@@ -200,7 +200,7 @@ def test_load_atlas_index_skip_hash_check_via_settings(
     corpus = tmp_path / "alex-zhang42-corpus.jsonl"
     corpus.write_text(body)
     monkeypatch.setenv("PURSUE_AUGMENT_SKIP_HASH_CHECK", "1")
-    index = load_atlas_index(
+    index = _load_atlas_index(
         corpus, _manifest_with_one_card(), miss_rate_threshold=0.5
     )
     assert ("ff30c985595153f3", 1) in index
@@ -213,7 +213,7 @@ def test_load_atlas_index_passes_when_sha256_matches(tmp_path: Path) -> None:
         '059uap00011.pdf","page_num":1,"image_tags":["a"]}\n'
     )
     corpus = _write_corpus_with_sidecar(tmp_path, body)
-    index = load_atlas_index(
+    index = _load_atlas_index(
         corpus, _manifest_with_one_card(), miss_rate_threshold=0.5
     )
     assert ("ff30c985595153f3", 1) in index
