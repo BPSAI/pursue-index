@@ -178,6 +178,11 @@ def verify_mirror_cmd(worklist: Path = _WORKLIST_OPT) -> None:
     raise typer.Exit(0 if pf.ok else 1)
 
 
+def _require_worklist(worklist: Path | None) -> Path:
+    assert worklist is not None
+    return worklist
+
+
 def _image_cards(worklist: Path | None, all_image_cards: bool) -> list:
     """The IMG manifest cards in scope (worklist-narrowed, or every IMG card)."""
     if all_image_cards == (worklist is not None):

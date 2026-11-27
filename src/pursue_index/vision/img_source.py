@@ -76,6 +76,10 @@ def mirror_path_for(mirror_root: Path, row: dict) -> Path:
     return mirror_root / key
 
 
+def img_mirror_path_for(mirror_root: Path, row: dict, asset_filename: str = "") -> Path:
+    return mirror_path_for(mirror_root, row)
+
+
 def load_registry(registry_path: Path | None = None) -> dict[str, dict]:
     """``{card_id: row}`` of each card's newest (last) registry row.
 
