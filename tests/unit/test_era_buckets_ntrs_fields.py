@@ -80,7 +80,7 @@ def test_other_keys_and_entries_are_unchanged_and_output_is_deterministic(
     first = (tmp_path / era_bucketing.OUTPUT_PATH).read_text()
     assert era_bucketing.main() == 0
     assert (tmp_path / era_bucketing.OUTPUT_PATH).read_text() == first
-    extra = {"ntrs_claims_applied", "ntrs_claims_csv_sha256", "ntrs_migration_ambiguous_claim_count"}
+    extra = {"ntrs_claims_applied", "ntrs_claims_csv_sha256", "ntrs_migration_ambiguous_claim_count", "ntrs_migration_unmatched_claim_count"}
     assert list(out)[: len(out) - len(extra & set(out))] == [k for k in out if k not in extra]
     assert [k for k in out if k not in extra] == [
         "schema", "corpus_manifest_url", "csv_sha256", "card_row_count", "catalogue_entries",

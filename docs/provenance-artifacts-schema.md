@@ -164,6 +164,16 @@ and `era_row_counts`.
 | `undated_triage_count` | `undated_triage_row_count` | row | Equals `len(undated_triage)`. |
 | (new) | `unkeyed_claim_count` | claim | Loaded external claims that name no row. They match no row and are counted here. |
 | (new) | `ntrs_migration_ambiguous_claim_count` | claim | Old unkeyed NTRS claims the migration could not place on one file; see *`ntrs-claims.json`*. Always present (`0` when none). |
+| (new) | `ntrs_migration_unmatched_claim_count` | claim | Old unkeyed claims whose file (`card_id`) has no row in the manifest. Each migrates to **nothing** and is counted once, here, and in no other count (not in `unkeyed_claim_count`, not in `ntrs_migration_ambiguous_claim_count`). Classified the same way in `era-buckets.json` and in the coverage report. `0` when none; `null` when the claims were discarded (below). |
+| (new, per search) | `search_shared_from` | row | Present only on a search whose file (`card_id`, else its `no-card-id-<i>` key) had an earlier row: it names the `row_key` whose request was made. The NTRS search issues one request per **file**, not per row, and fans the response out to every row of the file, each evaluated against its own card. Absent on the row that made the request. |
+
+**`null` means not applicable.** When the stored claims are discarded because their `csv_sha256` is missing or differs from the manifest's (`ntrs_claims_applied` is `false`), the migration result is not used, so `ntrs_migration_ambiguous_claim_count` and `ntrs_migration_unmatched_claim_count` are `null`, not `0`. A file that is absent has no claims to migrate and publishes `0`.
+
+**Unkeyed, ambiguous and unmatched are disjoint.** A claim is *ambiguous* only if it had a file and the file's fan-out was ambiguous; *unmatched* only if it had a file the manifest does not contain; *unkeyed* only if it had no usable key at all (it is loaded with an empty `row_key`, as in a keyed file). A claim counts in at most one of the three.
+
+**A row with no `card_id`.** Its search claim is stored with `card_id` set to the row's file key, `no-card-id-<i>`, and its own `row_key` (`no-card-id-<i>#0`); it joins that row only.
+
+**One manifest revision.** Every artifact that publishes `row_key`s carries the `csv_sha256` of the manifest it was built from, including the coverage report. The NTRS claims join into `era-buckets.json` and into the report only through one gate that compares the two values: when they differ, no claim is applied and the notice says so. `classify(report=...)` likewise refuses a report whose `csv_sha256` differs from the manifest passed.
 | (new, per record) | `row_key` | row | See above. |
 | (new, per `cards[]` record) | `era_reconciled_from` | row | The `row_key` of the dated row an undated row took its era from; `null` otherwise. See *The era of a source file*. |
 | (new, per `superseded_by_claim[]` record) | `claim_inherited_from` | row | Present only when the row has no claim of its own: the `row_key` of the row in its file whose claim it takes. See *The row route*. |
@@ -196,14 +206,14 @@ and `era_row_counts`.
 | `claim_count` | `claim_count` | claim | Unchanged from v1: the number of claim records **stored** in `claims[]`, one per searched row that found a claim. It is not a count of rows or files and not the number of claims applied (see below). |
 | (new, per claim and per search) | `row_key` | row | The row searched, and the row a claim resolves. |
 | (new) | `unkeyed_claim_count` | claim | A count of claims, not of files or rows of the corpus, so its name ends `_claim_count` (the third unit). Not stored in `ntrs-claims.json`; emitted by `era-buckets.json` and by the coverage report, which count the loaded claims that name no row. |
-| (new, per claim, migration only) | `row_key_migrated_from` | claim | Present, with value `"card_id"`, on a claim loaded from a v1 file, which has no `row_key`. The loader applies each such claim to **every** row of its file (same `file_key()`), one labelled copy per row, and only when the file is unambiguous (see below). A claim whose file has no row in the manifest stays unkeyed. |
+| (new, per claim, migration only) | `row_key_migrated_from` | claim | Present, with value `"card_id"`, on a claim loaded from a v1 file, which has no `row_key`. The loader applies each such claim to **every** row of its file (same `file_key()`), one labelled copy per row, and only when the file is unambiguous (see below). A claim whose file has no row in the manifest is **unmatched** (next row). |
 | (new) | `ntrs_migration_ambiguous_claim_count` | claim | Old unkeyed claims the migration could not place on one file, so it applied **nothing** for them: the rows of the claim's `card_id` name more than one asset (`asset_url`, else `asset_filename`) and the claim names none, or the claim names an asset no row of the file has. Never guessed, never counted in `unkeyed_claim_count`. Emitted by `era-buckets.json` and by the coverage report, always present (`0` when none). A claim that names an asset (`asset_url` or `asset_filename`) that exactly matches some of the file's rows is applied to those rows only. |
 
 `searched_row_count` (searches made, one per row; v1 name `searched_count`) counts rows. In `ntrs-claims.json` `claim_count` counts the claim records **stored** in `claims[]` (the same unit in a v1 and a v2 file). The migration above can apply one
 stored claim to several rows, so the number of claims **applied** can be larger. That
 reach is `ntrs_claims_applied_row_count` in the coverage report: the number of
 **distinct rows** of the manifest that have at least one applied (loaded, row-keyed)
-NTRS claim. It keeps the `_row_count` name because it counts rows of the corpus, not
+NTRS claim (a claim whose source is not `ntrs_metadata` is not counted). It keeps the `_row_count` name because it counts rows of the corpus, not
 claims; two claims on one row count that row once. For an old-shape file holding 1
 claim for a file of 2 rows, `claim_count` is 1 and `ntrs_claims_applied_row_count` is 2.
 
@@ -225,7 +235,9 @@ below), so a reader gates on that id.
 | `page_image_flagged` | same | file | **Re-semanticized**: files with **any** row flagged for page-image comparison. Equals `len(page_image_flagged_files)`. |
 | (new) | `page_image_flagged_files` | file | The `file_key()`s `page_image_flagged` counts. |
 | (new) | `ntrs_claims_applied_row_count` | row | Distinct manifest rows with at least one applied NTRS claim (see above); not the stored `claim_count`. |
-| (new) | `ntrs_migration_ambiguous_claim_count` | claim | As above. |
+| (new) | `ntrs_migration_ambiguous_claim_count` | claim | As above; `null` when the claims were discarded. |
+| (new) | `ntrs_migration_unmatched_claim_count` | claim | As above; `null` when the claims were discarded. |
+| (new) | `csv_sha256` | (marker) | The manifest revision the report was built from; the same value as every other artifact's. |
 | `unresolved_by_era` | same | file | **Re-semanticized**: per-file era of each unresolved file (no `mixed`). |
 | (new) | `row_counts` | row | The same route split per row (`row_route`). Sums to `card_row_count`. |
 | (new) | `partially_resolved_file_count` | file | Equals `len(partially_resolved_files)`. The console `report` prints the file partition and the row partition, each labelled by unit, and this count. |
