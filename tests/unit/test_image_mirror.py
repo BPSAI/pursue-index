@@ -76,6 +76,7 @@ def _archive(tmp_path: Path) -> Path:
 
 
 A = "a000000000000001"
+B = "b000000000000002"
 
 
 def test_mirrored(tmp_path):
@@ -382,3 +383,82 @@ def test_two_rows_of_one_card_both_reported(tmp_path):
         [_card(A), _card(A)], mirror_root=tmp_path / "r2-mirror", registry_path=reg
     )
     assert pf.ok
+
+
+# --- scoping fails closed -------------------------------------------------
+
+
+def test_select_unknown_and_untyped_cards_stay_in_scope():
+    rows = [
+        {"card_id": "i1", "asset_type": "IMG"},
+        {"card_id": "n1"},
+        {"card_id": "p1", "asset_type": "PDF"},
+    ]
+    in_scope, skipped = select_image_cards(["i1", "ghost", "n1", "p1"], rows)
+    assert in_scope == ["i1", "ghost", "n1"]
+    assert skipped == {"p1": "PDF"}
+
+
+def test_cli_unknown_card_stays_in_scope_and_verify_fails(cli_env):
+    tmp_path, _ = cli_env
+    ghost = "e000000000000009"
+    wl = tmp_path / "wl2.txt"
+    wl.write_text(f"# tranche: {'f' * 64}\n{I1}\n{ghost}\n")
+    for verb in ("mirror-images", "verify-image-mirror"):
+        r = runner.invoke(app, ["storage", verb, "--worklist", str(wl)])
+        assert r.exit_code == 1, r.output
+        assert ghost in r.output
+
+
+def test_cli_known_pdf_is_skipped_and_counted(cli_env):
+    tmp_path, wl = cli_env
+    r = runner.invoke(app, ["storage", "mirror-images", "--worklist", str(wl)])
+    assert r.exit_code == 0, r.output
+    assert "skipped 1" in r.output
+
+
+# --- per-row guards -------------------------------------------------------
+
+
+def test_row_outside_images_dir_is_unsafe_and_batch_continues(tmp_path, monkeypatch):
+    from pursue_index.release import image_mirror as im
+
+    reg = _registry(
+        tmp_path / "reg.jsonl",
+        (A, JPG_SHA, f"archive/{JPG_SHA}.jpg"),
+        (B, PNG_SHA, f"archive/{PNG_SHA}.png"),
+    )
+    _put(tmp_path / "images", B, "q.png", PNG)
+    real = im.asset_path_for
+    monkeypatch.setattr(
+        im,
+        "asset_path_for",
+        lambda c: Path("/elsewhere/x.jpg") if c.card_id == A else real(c),
+    )
+    rep = run_image_mirror([_card(A), _card(B, "q.png")], **_kw(tmp_path, reg))
+    assert rep.counts["unsafe_source"] == 1
+    assert rep.counts["mirrored"] == 1
+
+
+@pytest.mark.parametrize("ext", ["pdf", "exe", "PDF", "svg"])
+def test_non_image_extension_is_bad_archive_key(tmp_path, ext):
+    reg = _registry(tmp_path / "reg.jsonl", (A, JPG_SHA, f"archive/{JPG_SHA}.{ext}"))
+    _put(tmp_path / "images", A, "p.jpg", JPG)
+    rep = run_image_mirror([_card(A)], **_kw(tmp_path, reg))
+    assert rep.counts["bad_archive_key"] == 1
+    assert not _archive(tmp_path).exists()
+    pf = verify_image_mirror([_card(A)], mirror_root=tmp_path / "r2-mirror", registry_path=reg)
+    assert not pf.ok
+
+
+@pytest.mark.parametrize("ext", ["JPG", "jpeg", "gif", "webp", "tif", "tiff", "PNG"])
+def test_image_extensions_accepted_case_insensitively(tmp_path, ext):
+    reg = _registry(tmp_path / "reg.jsonl", (A, JPG_SHA, f"archive/{JPG_SHA}.{ext}"))
+    _put(tmp_path / "images", A, "p.jpg", JPG)
+    rep = run_image_mirror([_card(A)], **_kw(tmp_path, reg))
+    assert rep.ok and rep.counts["mirrored"] == 1
+
+
+def test_cli_all_image_cards_prints_scope_line(cli_env):
+    r = runner.invoke(app, ["storage", "mirror-images", "--all-image-cards"])
+    assert "[scope] --all-image-cards: 2 IMG cards from the manifest (no tranche gate)" in r.output
