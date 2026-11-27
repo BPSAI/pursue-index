@@ -116,7 +116,7 @@ def _grade_cards(card_ids: list[str], model: str, budget_usd: float) -> None:
     except qc_runner.QcBudgetExceededError as exc:
         console.print(f"[red]BUDGET EXCEEDED[/red]: {exc}")
         _print_summary(reports, total_cost + exc.partial_cost_usd)
-        raise typer.Exit(code=2)
+        raise typer.Exit(code=2) from exc
     _print_summary(reports, total_cost)
     console.print(
         f"[green]done.[/green] graded "
