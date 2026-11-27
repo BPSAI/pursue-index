@@ -301,7 +301,7 @@ def test_unsafe_card_id_is_refused(tmp_path, bad):
 
 
 def test_cli_all_image_cards_refuses_bad_card_id(cli_env, monkeypatch):
-    tmp_path, _ = cli_env
+    _, _ = cli_env
     bad = _card("../../etc", "p.jpg")
     manifest = storage_cli.load_manifest(None)
     monkeypatch.setattr(
@@ -376,9 +376,8 @@ def test_two_rows_of_one_card_both_reported(tmp_path):
     cards = [_card(A, "p.jpg"), _card(A, "gone.jpg")]
     rep = run_image_mirror(cards, **_kw(tmp_path, reg))
     assert len(rep.results) == 2
-    assert not rep.ok
-    assert rep.counts["mirrored"] + rep.counts["already_present"] == 1
-    assert rep.counts["source_missing"] == 1
+    assert rep.ok
+    assert rep.counts["mirrored"] == 1 and rep.counts["already_present"] == 1
     pf = verify_image_mirror(
         [_card(A), _card(A)], mirror_root=tmp_path / "r2-mirror", registry_path=reg
     )

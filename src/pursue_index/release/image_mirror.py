@@ -6,8 +6,8 @@ PDFs are content-addressed into ``r2-mirror/archive/<sha>.pdf`` by
 
 For each IMG card the expected sha is the registry's newest ``byte_sha256``
 (the same trust rule the vision path uses, via ``load_registry_rows``) and
-the target is ``archive/<sha>.<ext>`` with ``ext`` taken from the registry
-``archive_key`` so the name matches R2. Idempotent and sha-verified; a
+the target is the registry ``archive_key`` under the mirror root, resolved by
+``mirror_path_for`` (the one rule the preflight and the vision reader share). Idempotent and sha-verified; a
 mismatch never writes and an existing differing target is never overwritten.
 
 Pure filesystem I/O only: no network, no credentials.
@@ -21,9 +21,16 @@ import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from pursue_index.vision.img_source import load_registry_rows
+from pursue_index.card_id import CARD_ID_PATTERN
+from pursue_index.config import settings
+from pursue_index.download.downloader import asset_path_for
+from pursue_index.row_key import row_keys
+from pursue_index.vision.img_source import (
+    BadArchiveKeyError,
+    load_registry_rows,
+    mirror_path_for,
+)
 
-_ARCHIVE_SUBDIR = "archive"
 _CHUNK = 1 << 20
 _SHA256_RE = re.compile(r"[0-9a-f]{64}")
 
@@ -33,6 +40,8 @@ SOURCE_MISSING = "source_missing"
 SHA_MISMATCH = "sha_mismatch"
 TARGET_MISMATCH = "target_mismatch"
 NO_REGISTRY_ROW = "no_registry_row"
+UNSAFE_SOURCE = "unsafe_source"
+BAD_ARCHIVE_KEY = "bad_archive_key"
 MISSING = "missing"
 OUTCOMES = (
     MIRRORED,
@@ -41,13 +50,15 @@ OUTCOMES = (
     SHA_MISMATCH,
     TARGET_MISMATCH,
     NO_REGISTRY_ROW,
+    UNSAFE_SOURCE,
+    BAD_ARCHIVE_KEY,
 )
 _FAILURES = frozenset(OUTCOMES) - {MIRRORED, ALREADY_PRESENT}
 
 
 @dataclass
 class ImageMirrorReport:
-    """Outcome of ``run_image_mirror``: per-card ``(outcome, detail)``."""
+    """Outcome of ``run_image_mirror``: per-row ``(outcome, detail)``, keyed by row key."""
 
     results: dict[str, tuple[str, str]] = field(default_factory=dict)
 
@@ -68,7 +79,7 @@ class ImageMirrorPreflight:
     """Outcome of ``verify_image_mirror``; ``details`` holds failing cards."""
 
     ok: bool
-    details: dict[str, str] = field(default_factory=dict)  # card_id -> reason
+    details: dict[str, str] = field(default_factory=dict)  # row key -> reason
 
 
 def _sha256_file(path: Path) -> str:
@@ -79,20 +90,45 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def _expected(card, rows: dict[str, dict]) -> tuple[str, str] | str:
-    """``(sha, ext)`` from the newest registry row, else a reason string."""
+def _expected(card, rows: dict[str, dict]) -> tuple[str, Path] | tuple[str, str]:
+    """``(sha, mirror-relative key)`` or ``(outcome, reason)`` for a refusal."""
     row = rows.get(card.card_id)
     if row is None:
-        return "no registry row"
+        return NO_REGISTRY_ROW, "no registry row"
     sha = str(row["byte_sha256"])
     if not _SHA256_RE.fullmatch(sha):
-        return f"registry byte_sha256 {sha!r} is not 64 lowercase hex digits"
-    ext = Path(str(row.get("archive_key") or "")).suffix or Path(card.asset_filename or "").suffix
-    return sha, ext
+        return NO_REGISTRY_ROW, f"registry byte_sha256 {sha!r} is not 64 lowercase hex digits"
+    try:
+        return sha, mirror_path_for(Path(), row)
+    except BadArchiveKeyError as exc:
+        return BAD_ARCHIVE_KEY, str(exc)
 
 
-def _target(mirror_root: Path, sha: str, ext: str) -> Path:
-    return mirror_root / _ARCHIVE_SUBDIR / f"{sha}{ext}"
+def _source_path(card, images_root: Path) -> Path | str:
+    """The card's ``images/`` file, or the reason it is unsafe.
+
+    The layout is the downloader's (``asset_path_for``); the id and file name
+    come from an upstream scrape, so they are checked before any path is built.
+    """
+    name = card.asset_filename or ""
+    if not CARD_ID_PATTERN.fullmatch(str(card.card_id)):
+        return f"card_id {str(card.card_id)[:40]!r} is not 16 lowercase hex characters"
+    if (
+        not name
+        or name in {".", ".."}
+        or "/" in name
+        or "\\" in name
+        or Path(name).name != name
+        or Path(name).is_absolute()
+    ):
+        return f"asset_filename {name[:80]!r} is not a bare file name"
+    canonical = asset_path_for(card)
+    if canonical is None:
+        return ""  # no downloadable asset: nothing to copy
+    src = images_root / canonical.relative_to(settings.image_dir)
+    if not src.resolve().is_relative_to(images_root.resolve()):
+        return f"source {name[:80]!r} resolves outside the images root"
+    return src
 
 
 def select_image_cards(
@@ -121,18 +157,20 @@ def select_image_cards(
 
 
 def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, str]:
+    src = _source_path(card, images_root)
+    if isinstance(src, str) and src:
+        return UNSAFE_SOURCE, src
     exp = _expected(card, rows)
-    if isinstance(exp, str):
-        return NO_REGISTRY_ROW, exp
-    sha, ext = exp
-    target = _target(mirror_root, sha, ext)
+    if exp[0] in (NO_REGISTRY_ROW, BAD_ARCHIVE_KEY):
+        return exp[0], str(exp[1])
+    sha, key = exp
+    target = mirror_root / key
     if target.is_file():
         actual = _sha256_file(target)
         if actual == sha:
             return ALREADY_PRESENT, ""
         return TARGET_MISMATCH, f"{target.name} holds sha {actual[:12]}, expected {sha[:12]}"
-    src = images_root / card.card_id / (card.asset_filename or "")
-    if not card.asset_filename or not src.is_file():
+    if not src or not src.is_file():
         return SOURCE_MISSING, f"no source at images/{card.card_id}/{card.asset_filename}"
     actual = _sha256_file(src)
     if actual != sha:
@@ -147,37 +185,45 @@ def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, 
     return MIRRORED, ""
 
 
+def _keyed(cards) -> list[tuple[str, object]]:
+    """``(row key, card)`` per in-scope row; rows sharing a card_id stay distinct."""
+    cards = list(cards)
+    keys = row_keys([{"card_id": c.card_id} for c in cards])
+    return list(zip(keys, cards, strict=True))
+
+
 def run_image_mirror(
     cards, *, images_root: Path, mirror_root: Path, registry_path: Path | None
 ) -> ImageMirrorReport:
-    """Mirror each IMG card into ``r2-mirror/archive/<sha>.<ext>``.
+    """Mirror each IMG row into ``r2-mirror/archive/<sha>.<ext>``.
 
-    Never aborts mid-batch: each card gets an outcome and the rest continue.
+    Never aborts mid-batch: each row gets an outcome and the rest continue.
     """
     rows = load_registry_rows(registry_path)
     report = ImageMirrorReport()
-    for card in cards:
-        report.results[card.card_id] = _mirror_one(card, rows, images_root, mirror_root)
+    for key, card in _keyed(cards):
+        report.results[key] = _mirror_one(card, rows, images_root, mirror_root)
     return report
 
 
 def verify_image_mirror(
     cards, *, mirror_root: Path, registry_path: Path | None
 ) -> ImageMirrorPreflight:
-    """Fail-fast preflight: every IMG card's archive copy exists and matches."""
+    """Fail-fast preflight: every IMG row's archive copy exists and matches."""
     rows = load_registry_rows(registry_path)
     details: dict[str, str] = {}
-    for card in cards:
+    for key, card in _keyed(cards):
         exp = _expected(card, rows)
-        if isinstance(exp, str):
-            details[card.card_id] = exp
+        if exp[0] in (NO_REGISTRY_ROW, BAD_ARCHIVE_KEY):
+            details[key] = str(exp[1])
             continue
-        sha, ext = exp
-        target = _target(mirror_root, sha, ext)
-        if not target.is_file():
-            details[card.card_id] = f"missing r2-mirror/archive/{sha[:12]}…{ext}"
-        elif _sha256_file(target) != sha:
-            details[card.card_id] = f"r2-mirror/archive/{sha[:12]}…{ext} sha mismatch"
+        sha, rel = exp
+        if not CARD_ID_PATTERN.fullmatch(str(card.card_id)):
+            details[key] = f"card_id {str(card.card_id)[:40]!r} is not 16 lowercase hex characters"
+        elif not (mirror_root / rel).is_file():
+            details[key] = f"missing r2-mirror/{rel}"
+        elif _sha256_file(mirror_root / rel) != sha:
+            details[key] = f"r2-mirror/{rel} sha mismatch"
     return ImageMirrorPreflight(ok=not details, details=details)
 
 

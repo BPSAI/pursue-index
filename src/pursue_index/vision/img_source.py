@@ -20,6 +20,7 @@ from pursue_index.scrape.types import CardMetadata
 
 _CHUNK = 1 << 20
 _SHA256_RE = re.compile(r"[0-9a-f]{64}")
+_ARCHIVE_KEY_RE = re.compile(r"archive/([0-9a-f]{64})\.[A-Za-z0-9]+")
 
 
 def default_registry_path() -> Path:
@@ -54,22 +55,34 @@ def load_registry_rows(registry_path: Path | None = None) -> dict[str, dict]:
 
 
 class BadArchiveKeyError(ValueError):
-    """Stub."""
+    """A registry row whose ``archive_key`` is not ``archive/<its sha>.<ext>``."""
 
 
 def mirror_path_for(mirror_root: Path, row: dict) -> Path:
-    """Stub: no validation yet."""
-    return mirror_root / str(row.get("archive_key"))
+    """The one rule for where a registry row's bytes sit in the mirror.
+
+    ``mirror_root / archive_key``, after checking the key is
+    ``archive/<64 hex>.<ext>`` and that its sha is the row's ``byte_sha256``.
+    The image writer, the preflight and the vision reader all resolve through
+    this, so they cannot disagree. Raises ``BadArchiveKeyError``.
+    """
+    key = row.get("archive_key")
+    sha = row.get("byte_sha256")
+    m = _ARCHIVE_KEY_RE.fullmatch(key) if isinstance(key, str) else None
+    if m is None:
+        raise BadArchiveKeyError(f"archive_key {str(key)[:80]!r} is not archive/<sha256>.<ext>")
+    if m.group(1) != sha:
+        raise BadArchiveKeyError(f"archive_key sha {m.group(1)[:12]} != byte_sha256 {str(sha)[:12]}")
+    return mirror_root / key
 
 
-def load_registry(registry_path: Path | None = None) -> dict[str, str]:
-    """``{card_id: byte_sha256}`` of each card's newest (last) registry row.
+def load_registry(registry_path: Path | None = None) -> dict[str, dict]:
+    """``{card_id: row}`` of each card's newest (last) registry row.
 
     Read once per planning call and handed to ``resolve_img_path``, so the
     cost is one pass over the registry however many cards are resolved.
     """
-    rows = load_registry_rows(registry_path)
-    return {cid: str(row["byte_sha256"]) for cid, row in rows.items()}
+    return load_registry_rows(registry_path)
 
 
 def _file_sha256(path: Path) -> str:
@@ -99,7 +112,7 @@ def _cached_file_sha256(path: Path) -> str:
 
 
 def expected_sha_for(
-    card: CardMetadata, path: Path | None, registry: dict[str, str]
+    card: CardMetadata, path: Path | None, registry: dict[str, dict]
 ) -> str | None:
     """The sha256 ``path`` must still match at load time, or None.
 
@@ -109,20 +122,28 @@ def expected_sha_for(
     """
     if path is None or path == asset_path_for(card):
         return None
-    return registry.get(card.card_id)
+    row = registry.get(card.card_id)
+    return None if row is None else str(row["byte_sha256"])
 
 
 def _mirror_path(
-    card: CardMetadata, registry: dict[str, str]
+    card: CardMetadata, registry: dict[str, dict]
 ) -> tuple[Path | None, str | None]:
     """The verified mirror copy for ``card``, else ``(None, why not)``."""
-    sha = registry.get(card.card_id)
-    if sha is None:
+    row = registry.get(card.card_id)
+    if row is None:
         return None, "no registry row for the mirror fallback"
+    sha = str(row["byte_sha256"])
     if not _SHA256_RE.fullmatch(sha):
         return None, f"registry byte_sha256 {sha!r} is not 64 lowercase hex digits"
-    ext = Path(card.asset_filename or "").suffix
-    mirror = settings.r2_mirror_dir / "archive" / f"{sha}{ext}"
+    if "archive_key" not in row:
+        # A legacy row with no key at all: the canonical name, still validated.
+        ext = Path(card.asset_filename or "").suffix
+        row = {**row, "archive_key": f"archive/{sha}{ext}"}
+    try:
+        mirror = mirror_path_for(settings.r2_mirror_dir, row)
+    except BadArchiveKeyError as exc:
+        return None, str(exc)
     if not mirror.is_file():
         return None, f"no file at the mirror path {mirror}"
     actual = _cached_file_sha256(mirror)
@@ -132,7 +153,7 @@ def _mirror_path(
 
 
 def resolve_img_path(
-    card: CardMetadata, registry: dict[str, str] | None = None
+    card: CardMetadata, registry: dict[str, dict] | None = None
 ) -> tuple[Path | None, str | None]:
     """``(path, None)`` for the bytes to read, or ``(None, reason)``.
 
