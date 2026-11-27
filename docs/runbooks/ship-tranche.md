@@ -138,10 +138,18 @@ $ARGUMENTS
    ```
    pursue storage mirror-pdfs  --worklist data/ingest-worklist.txt   # idempotent, sha-verified copy
    pursue storage verify-mirror --worklist data/ingest-worklist.txt  # fail-fast; exits non-zero if any missing
+   pursue storage mirror-images --worklist data/ingest-worklist.txt  # IMG cards: images/ -> archive/<sha>.<ext>, sha-verified vs the registry
+   pursue storage verify-image-mirror --worklist data/ingest-worklist.txt  # fail-fast; exits non-zero if any missing or mismatched
    ```
    `mirror-pdfs` is a no-op for already-mirrored cards. If `verify-mirror`
    fails, STOP — do not run clean-qc until every in-scope PDF card resolves its
-   `r2-mirror/archive/<sha>.pdf`, or the judge produces silent misses.
+   `r2-mirror/archive/<sha>.pdf`, or the judge produces silent misses. The same
+   STOP rule applies to `verify-image-mirror` (every in-scope IMG card must
+   resolve its `r2-mirror/archive/<sha>.<ext>`); `mirror-images` never
+   overwrites and never writes on a sha mismatch, so a failure there is a real
+   data problem to investigate, not to force.
+   The first run after the image stage lands should use `--all-image-cards`
+   instead of `--worklist` to backfill existing image cards (operator-attended).
    Both commands print a `[scope] …` line when the worklist contains non-PDF
    cards (`IMG`/`VID`/`AUD` have no PDF and are excluded by design). Scoping
    fails closed — an unknown card or one with no `asset_type` stays gated. If

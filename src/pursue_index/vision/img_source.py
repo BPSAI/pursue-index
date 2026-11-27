@@ -28,14 +28,15 @@ def default_registry_path() -> Path:
     return repo_root() / "data" / "asset-bytes-registry.jsonl"
 
 
-def load_registry(registry_path: Path | None = None) -> dict[str, str]:
-    """``{card_id: byte_sha256}`` of each card's newest (last) registry row.
+def load_registry_rows(registry_path: Path | None = None) -> dict[str, dict]:
+    """``{card_id: row}`` of each card's newest (last) usable registry row.
 
-    Read once per planning call and handed to ``resolve_img_path``, so the
-    cost is one pass over the registry however many cards are resolved.
+    A usable row names a ``card_id`` and a ``byte_sha256``. This is the one
+    trust rule for "which bytes is this card": the vision path and the image
+    mirror stage both read it.
     """
     path = registry_path if registry_path is not None else default_registry_path()
-    newest: dict[str, str] = {}
+    newest: dict[str, dict] = {}
     if not path.exists():
         return newest
     with path.open(encoding="utf-8") as fh:
@@ -48,8 +49,18 @@ def load_registry(registry_path: Path | None = None) -> dict[str, str]:
             except json.JSONDecodeError:
                 continue
             if isinstance(row, dict) and row.get("card_id") and row.get("byte_sha256"):
-                newest[str(row["card_id"])] = str(row["byte_sha256"])
+                newest[str(row["card_id"])] = row
     return newest
+
+
+def load_registry(registry_path: Path | None = None) -> dict[str, str]:
+    """``{card_id: byte_sha256}`` of each card's newest (last) registry row.
+
+    Read once per planning call and handed to ``resolve_img_path``, so the
+    cost is one pass over the registry however many cards are resolved.
+    """
+    rows = load_registry_rows(registry_path)
+    return {cid: str(row["byte_sha256"]) for cid, row in rows.items()}
 
 
 def _file_sha256(path: Path) -> str:
