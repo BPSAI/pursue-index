@@ -16,6 +16,7 @@ Pure filesystem I/O only: no network, no credentials.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import shutil
 from dataclasses import dataclass, field
@@ -173,6 +174,41 @@ def select_image_cards(
     return in_scope, skipped
 
 
+def _copy_exclusive(tmp: Path, target: Path) -> None:
+    """Stream ``tmp`` into a new ``target``; ``FileExistsError`` if it exists."""
+    fd = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+    try:
+        with os.fdopen(fd, "wb") as out, tmp.open("rb") as src:
+            shutil.copyfileobj(src, out, _CHUNK)
+    except BaseException:
+        target.unlink(missing_ok=True)  # our own partial file, created just above
+        raise
+
+
+def _publish_exclusive(tmp: Path, target: Path, sha: str) -> tuple[str, str]:
+    """Publish the verified ``tmp`` as ``target`` without ever overwriting.
+
+    A hard link fails if the target exists; where the filesystem refuses hard
+    links, an ``O_EXCL`` create plus a copy gives the same guarantee. A target
+    that appeared meanwhile is hashed, never touched. ``tmp`` is always removed.
+    """
+    try:
+        try:
+            os.link(tmp, target)
+        except FileExistsError:
+            raise
+        except OSError:
+            _copy_exclusive(tmp, target)
+    except FileExistsError:
+        actual = _sha256_file(target)
+        if actual == sha:
+            return ALREADY_PRESENT, ""
+        return TARGET_MISMATCH, f"{target.name} holds sha {actual[:12]}, expected {sha[:12]}"
+    finally:
+        tmp.unlink(missing_ok=True)
+    return MIRRORED, ""
+
+
 def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, str]:
     if isinstance(card, UnresolvedCard):
         return UNSAFE_SOURCE, "card is not an IMG row in the manifest"
@@ -200,8 +236,7 @@ def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, 
     if _sha256_file(tmp) != sha:
         tmp.unlink(missing_ok=True)
         return SHA_MISMATCH, "post-copy sha verification failed"
-    tmp.replace(target)
-    return MIRRORED, ""
+    return _publish_exclusive(tmp, target, sha)
 
 
 def _keyed(cards) -> list[tuple[str, object]]:

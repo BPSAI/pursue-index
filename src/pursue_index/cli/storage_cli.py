@@ -200,10 +200,11 @@ def _image_cards(worklist: Path | None, all_image_cards: bool) -> list:
             f"skipped {len(skipped)} non-IMG — no image to mirror."
         )
     wanted = set(in_scope)
-    known = {c.card_id for c in manifest.cards}
+    img_ids = {c.card_id for c in img_cards}
     cards: list = [c for c in img_cards if c.card_id in wanted]
-    # An id the manifest cannot resolve stays gated (verify and mirror fail).
-    cards += [UnresolvedCard(cid) for cid in in_scope if cid not in known]
+    # An in-scope id with no IMG row (absent, or its row has no asset_type)
+    # stays gated: verify and mirror fail for it.
+    cards += [UnresolvedCard(cid) for cid in in_scope if cid not in img_ids]
     return cards
 
 
