@@ -87,3 +87,16 @@ def test_no_temp_file_left_after_a_normal_publish(tmp_path):
     _put(tmp_path / "images", A, "p.jpg", JPG)
     run_image_mirror([_card(A)], **_kw(tmp_path, reg))
     assert [p.name for p in _archive(tmp_path).iterdir()] == [f"{JPG_SHA}.jpg"]
+
+
+def test_symlink_at_the_old_predictable_temp_path_is_never_followed(tmp_path):
+    reg = _registry(tmp_path / "reg.jsonl", (A, JPG_SHA, f"archive/{JPG_SHA}.jpg"))
+    _put(tmp_path / "images", A, "p.jpg", JPG)
+    victim = tmp_path / "victim.txt"
+    victim.write_bytes(b"do not touch")
+    _archive(tmp_path).mkdir(parents=True)
+    (_archive(tmp_path) / f"{JPG_SHA}.jpg.tmp").symlink_to(victim)
+    rep = run_image_mirror([_card(A)], **_kw(tmp_path, reg))
+    assert victim.read_bytes() == b"do not touch"
+    assert rep.ok and rep.counts["mirrored"] == 1
+    assert (_archive(tmp_path) / f"{JPG_SHA}.jpg").read_bytes() == JPG
