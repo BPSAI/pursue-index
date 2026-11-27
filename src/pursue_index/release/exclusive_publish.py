@@ -16,6 +16,7 @@ import shutil
 from pathlib import Path
 
 _CHUNK = 1 << 20
+FILE_MODE = 0o644  # one mode for a published file, whichever path publishes it
 
 PUBLISHED = "published"
 EXISTING_MATCH = "existing_match"
@@ -31,10 +32,22 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def _set_mode(target) -> None:
+    """Best effort ``FILE_MODE`` (a path or fd); some network mounts ignore or refuse chmod."""
+    try:
+        if isinstance(target, int):
+            os.fchmod(target, FILE_MODE)
+        else:
+            os.chmod(target, FILE_MODE)
+    except OSError:
+        pass
+
+
 def _copy_exclusive(tmp: Path, target: Path) -> None:
     """Stream ``tmp`` into a new ``target``; ``FileExistsError`` if it exists."""
-    fd = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+    fd = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY, FILE_MODE)
     try:
+        _set_mode(fd)
         with os.fdopen(fd, "wb") as out, tmp.open("rb") as src:
             shutil.copyfileobj(src, out, _CHUNK)
     except BaseException:
@@ -49,6 +62,7 @@ def publish_exclusive(tmp: Path, target: Path, sha: str) -> tuple[str, str]:
     ``EXISTING_MATCH`` / ``EXISTING_MISMATCH`` with the existing file's sha.
     """
     try:
+        _set_mode(tmp)  # the link shares tmp's inode, and mkstemp makes it 0o600
         try:
             os.link(tmp, target)
         except FileExistsError:

@@ -130,9 +130,7 @@ def _pdf_scope(worklist: Path) -> list[str]:
     """
     manifest = load_manifest(settings.manifests_dir / "latest.json")
     card_ids = _worklist_card_ids(worklist, manifest)
-    in_scope, skipped = select_pdf_cards(
-        card_ids, [c.model_dump() for c in manifest.cards]
-    )
+    in_scope, skipped = select_pdf_cards(card_ids, [c.model_dump() for c in manifest.cards])
     if skipped:
         by_type: dict[str, int] = {}
         for asset_type in skipped.values():
@@ -179,7 +177,10 @@ def verify_mirror_cmd(worklist: Path = _WORKLIST_OPT) -> None:
 
 
 def _require_worklist(worklist: Path | None) -> Path:
-    assert worklist is not None
+    """The worklist path, or a clean exit 2 when scope resolution left none."""
+    if worklist is None:
+        typer.echo("refusing — no worklist and not --all-image-cards", err=True)
+        raise typer.Exit(2)
     return worklist
 
 
@@ -196,11 +197,8 @@ def _image_cards(worklist: Path | None, all_image_cards: bool) -> list:
             "(no tranche gate)"
         )
         return img_cards
-    assert worklist is not None
-    card_ids = _worklist_card_ids(worklist, manifest)
-    in_scope, skipped = select_image_cards(
-        card_ids, [c.model_dump() for c in manifest.cards]
-    )
+    card_ids = _worklist_card_ids(_require_worklist(worklist), manifest)
+    in_scope, skipped = select_image_cards(card_ids, [c.model_dump() for c in manifest.cards])
     if skipped:
         typer.echo(
             f"[scope] {len(in_scope)}/{len(card_ids)} worklist cards are IMG; "
