@@ -411,7 +411,7 @@ def test_cli_unknown_card_stays_in_scope_and_verify_fails(cli_env):
 
 
 def test_cli_known_pdf_is_skipped_and_counted(cli_env):
-    tmp_path, wl = cli_env
+    _tmp_path, wl = cli_env
     r = runner.invoke(app, ["storage", "mirror-images", "--worklist", str(wl)])
     assert r.exit_code == 0, r.output
     assert "skipped 1" in r.output
