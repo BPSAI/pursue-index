@@ -23,6 +23,7 @@ from pursue_index.cli.worklist import (
 )
 from pursue_index.config import settings
 from pursue_index.release.image_mirror import (
+    UnresolvedCard,
     render_image_mirror_report,
     render_image_verify,
     run_image_mirror,
@@ -58,8 +59,8 @@ _WORKLIST_OPT = typer.Option(
 _ALL_IMAGES_OPT = typer.Option(
     False,
     "--all-image-cards",
-    help="Scope to every IMG card in the manifest (one-time backfill); "
-    "exclusive with --worklist.",
+    help="Every IMG card in the manifest, no tranche gate; for the "
+    "operator-attended backfill. Exclusive with --worklist.",
 )
 _OPT_WORKLIST = typer.Option(None, "--worklist", help=_WORKLIST_OPT.help)
 
@@ -183,6 +184,10 @@ def _image_cards(worklist: Path | None, all_image_cards: bool) -> list:
     manifest = load_manifest(settings.manifests_dir / "latest.json")
     img_cards = [c for c in manifest.cards if c.asset_type == "IMG"]
     if all_image_cards:
+        typer.echo(
+            f"[scope] --all-image-cards: {len(img_cards)} IMG cards from the manifest "
+            "(no tranche gate)"
+        )
         return img_cards
     assert worklist is not None
     card_ids = _worklist_card_ids(worklist, manifest)
@@ -195,7 +200,11 @@ def _image_cards(worklist: Path | None, all_image_cards: bool) -> list:
             f"skipped {len(skipped)} non-IMG — no image to mirror."
         )
     wanted = set(in_scope)
-    return [c for c in img_cards if c.card_id in wanted]
+    known = {c.card_id for c in manifest.cards}
+    cards: list = [c for c in img_cards if c.card_id in wanted]
+    # An id the manifest cannot resolve stays gated (verify and mirror fail).
+    cards += [UnresolvedCard(cid) for cid in in_scope if cid not in known]
+    return cards
 
 
 @storage_app.command("mirror-images")

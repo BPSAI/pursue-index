@@ -111,7 +111,7 @@ def _row_keys(rows: list[CardMetadata]) -> list[str]:
 
 
 def _img_card_item(
-    card: CardMetadata, row_key: str, registry: dict[str, str]
+    card: CardMetadata, row_key: str, registry: dict[str, dict]
 ) -> EligibleItem | None:
     """One eligible item for an IMG card, or ``None`` if it has no asset bytes."""
     path = asset_path_for(card)
@@ -144,7 +144,7 @@ def _pdf_card_items(
 
 
 def _items_for_row(
-    card: CardMetadata, row_key: str, ocr_dir: Path, registry: dict[str, str]
+    card: CardMetadata, row_key: str, ocr_dir: Path, registry: dict[str, dict]
 ) -> list[EligibleItem]:
     """Every eligible item contributed by one manifest row."""
     if card.asset_type == "IMG":

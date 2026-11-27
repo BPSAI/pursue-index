@@ -33,6 +33,8 @@ from pursue_index.vision.img_source import (
 
 _CHUNK = 1 << 20
 _SHA256_RE = re.compile(r"[0-9a-f]{64}")
+_IMAGE_EXTS = frozenset({"jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"})
+_NON_IMG_ASSET_TYPES = frozenset({"PDF", "VID", "AUD"})
 
 MIRRORED = "mirrored"
 ALREADY_PRESENT = "already_present"
@@ -42,7 +44,6 @@ TARGET_MISMATCH = "target_mismatch"
 NO_REGISTRY_ROW = "no_registry_row"
 UNSAFE_SOURCE = "unsafe_source"
 BAD_ARCHIVE_KEY = "bad_archive_key"
-MISSING = "missing"
 OUTCOMES = (
     MIRRORED,
     ALREADY_PRESENT,
@@ -54,6 +55,14 @@ OUTCOMES = (
     BAD_ARCHIVE_KEY,
 )
 _FAILURES = frozenset(OUTCOMES) - {MIRRORED, ALREADY_PRESENT}
+
+
+@dataclass(frozen=True)
+class UnresolvedCard:
+    """A worklist id the manifest cannot resolve to an IMG row; always a failure."""
+
+    card_id: str
+    asset_filename: str = ""
 
 
 @dataclass
@@ -99,9 +108,12 @@ def _expected(card, rows: dict[str, dict]) -> tuple[str, Path] | tuple[str, str]
     if not _SHA256_RE.fullmatch(sha):
         return NO_REGISTRY_ROW, f"registry byte_sha256 {sha!r} is not 64 lowercase hex digits"
     try:
-        return sha, mirror_path_for(Path(), row)
+        key = mirror_path_for(Path(), row)
     except BadArchiveKeyError as exc:
         return BAD_ARCHIVE_KEY, str(exc)
+    if key.suffix.lstrip(".").lower() not in _IMAGE_EXTS:
+        return BAD_ARCHIVE_KEY, f"archive_key extension {key.suffix[:12]!r} is not an image type"
+    return sha, key
 
 
 def _source_path(card, images_root: Path) -> Path | str:
@@ -125,7 +137,10 @@ def _source_path(card, images_root: Path) -> Path | str:
     canonical = asset_path_for(card)
     if canonical is None:
         return ""  # no downloadable asset: nothing to copy
-    src = images_root / canonical.relative_to(settings.image_dir)
+    try:
+        src = images_root / canonical.relative_to(settings.image_dir)
+    except ValueError:
+        return f"source {name[:80]!r} is outside the images dir"
     if not src.resolve().is_relative_to(images_root.resolve()):
         return f"source {name[:80]!r} resolves outside the images root"
     return src
@@ -137,26 +152,30 @@ def select_image_cards(
     """Split a worklist into IMG cards and reported non-IMG skips.
 
     Returns ``(in_scope, skipped)``; ``skipped`` maps card_id -> the asset
-    types it carries (``unknown`` for an id absent from the manifest). An id
-    is in scope when any of its manifest rows is IMG.
+    types it carries. Fails closed: an id absent from the manifest, or with a
+    row lacking ``asset_type``, stays in scope and is gated normally.
     """
-    types: dict[str, set[str]] = {}
+    types: dict[str, set[str | None]] = {}
     for card in manifest_cards:
         cid = card.get("card_id")
         if cid:
-            types.setdefault(cid, set()).add(str(card.get("asset_type")))
+            types.setdefault(cid, set()).add(card.get("asset_type"))
     in_scope: list[str] = []
     skipped: dict[str, str] = {}
     for cid in card_ids:
         seen = types.get(cid)
-        if seen and "IMG" in seen:
-            in_scope.append(cid)
+        # Fails closed like select_pdf_cards: skip only an id whose every row
+        # is a known non-IMG type; unknown or untyped ids stay gated.
+        if seen and seen <= _NON_IMG_ASSET_TYPES:
+            skipped[cid] = "+".join(sorted(str(t) for t in seen))
         else:
-            skipped[cid] = "+".join(sorted(seen)) if seen else "unknown"
+            in_scope.append(cid)
     return in_scope, skipped
 
 
 def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, str]:
+    if isinstance(card, UnresolvedCard):
+        return UNSAFE_SOURCE, "card is not an IMG row in the manifest"
     src = _source_path(card, images_root)
     if isinstance(src, str) and src:
         return UNSAFE_SOURCE, src
@@ -213,6 +232,9 @@ def verify_image_mirror(
     rows = load_registry_rows(registry_path)
     details: dict[str, str] = {}
     for key, card in _keyed(cards):
+        if isinstance(card, UnresolvedCard):
+            details[key] = "card is not an IMG row in the manifest"
+            continue
         exp = _expected(card, rows)
         if exp[0] in (NO_REGISTRY_ROW, BAD_ARCHIVE_KEY):
             details[key] = str(exp[1])
