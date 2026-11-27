@@ -53,6 +53,15 @@ def load_registry_rows(registry_path: Path | None = None) -> dict[str, dict]:
     return newest
 
 
+class BadArchiveKeyError(ValueError):
+    """Stub."""
+
+
+def mirror_path_for(mirror_root: Path, row: dict) -> Path:
+    """Stub: no validation yet."""
+    return mirror_root / str(row.get("archive_key"))
+
+
 def load_registry(registry_path: Path | None = None) -> dict[str, str]:
     """``{card_id: byte_sha256}`` of each card's newest (last) registry row.
 

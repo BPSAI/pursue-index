@@ -20,6 +20,12 @@ from pursue_index.release.image_mirror import (
     verify_image_mirror,
 )
 from pursue_index.scrape.types import CardMetadata
+from pursue_index.vision import img_source
+from pursue_index.vision.img_source import (
+    BadArchiveKeyError,
+    load_registry,
+    mirror_path_for,
+)
 
 runner = CliRunner()
 
@@ -166,11 +172,11 @@ def test_verify_passes_and_fails(tmp_path):
     _archive(tmp_path).mkdir(parents=True)
     (_archive(tmp_path) / f"{JPG_SHA}.jpg").write_bytes(JPG)
     pf = verify_image_mirror(cards, **kw)
-    assert not pf.ok and list(pf.details) == [b]
-    assert b in render_image_verify(pf)
+    assert not pf.ok and list(pf.details) == [f"{b}#0"]
+    assert f"{b}#0" in render_image_verify(pf)
     (_archive(tmp_path) / f"{PNG_SHA}.png").write_bytes(b"wrong")
     pf = verify_image_mirror(cards, **kw)
-    assert not pf.ok and list(pf.details) == [b]
+    assert not pf.ok and list(pf.details) == [f"{b}#0"]
     (_archive(tmp_path) / f"{PNG_SHA}.png").write_bytes(PNG)
     pf = verify_image_mirror(cards, **kw)
     assert pf.ok
@@ -256,3 +262,124 @@ def test_cli_all_image_cards_with_worklist_is_an_error(cli_env):
         assert r.exit_code == 2, r.output
     r = runner.invoke(app, ["storage", "mirror-images"])
     assert r.exit_code == 2, r.output
+
+
+# --- unsafe source fields -------------------------------------------------
+
+
+def _outside(tmp_path: Path) -> Path:
+    out = tmp_path / "outside.jpg"
+    out.write_bytes(JPG)
+    return out
+
+
+@pytest.mark.parametrize("kind", ["absolute", "dotdot", "slash", "backslash", "empty", "dot"])
+def test_unsafe_asset_filename_is_refused(tmp_path, kind):
+    name = {
+        "absolute": str(_outside(tmp_path)),
+        "dotdot": "../../outside.jpg",
+        "slash": "a/b.jpg",
+        "backslash": "a\\b.jpg",
+        "empty": "",
+        "dot": "..",
+    }[kind]
+    reg = _registry(tmp_path / "reg.jsonl", (A, JPG_SHA, f"archive/{JPG_SHA}.jpg"))
+    _put(tmp_path / "images", A, "p.jpg", JPG)
+    card = _card(A, "p.jpg").model_copy(update={"asset_filename": name})
+    rep = run_image_mirror([card], **_kw(tmp_path, reg))
+    assert not rep.ok and rep.counts["unsafe_source"] == 1
+    assert not _archive(tmp_path).exists()
+
+
+@pytest.mark.parametrize("bad", ["../x", "/abs", "A000000000000001", "short", ""])
+def test_unsafe_card_id_is_refused(tmp_path, bad):
+    reg = _registry(tmp_path / "reg.jsonl", (bad, JPG_SHA, f"archive/{JPG_SHA}.jpg"))
+    (tmp_path / "images").mkdir()
+    rep = run_image_mirror([_card(bad)], **_kw(tmp_path, reg))
+    assert not rep.ok and rep.counts["unsafe_source"] == 1
+    assert not _archive(tmp_path).exists()
+
+
+def test_cli_all_image_cards_refuses_bad_card_id(cli_env, monkeypatch):
+    tmp_path, _ = cli_env
+    bad = _card("../../etc", "p.jpg")
+    manifest = storage_cli.load_manifest(None)
+    monkeypatch.setattr(
+        storage_cli,
+        "load_manifest",
+        lambda _p: SimpleNamespace(csv_sha256="f" * 64, cards=[*manifest.cards, bad]),
+    )
+    r = runner.invoke(app, ["storage", "mirror-images", "--all-image-cards"])
+    assert r.exit_code == 1, r.output
+    assert "unsafe_source" in r.output
+
+
+# --- one mirror path rule -------------------------------------------------
+
+
+def test_mirror_path_for_good_key(tmp_path):
+    key = f"archive/{JPG_SHA}.jpg"
+    row = {"byte_sha256": JPG_SHA, "archive_key": key}
+    assert mirror_path_for(tmp_path, row) == tmp_path / key
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        f"archive/{PNG_SHA}.jpg",  # sha differs from the row's
+        f"other/{JPG_SHA}.jpg",  # wrong prefix
+        f"archive/{JPG_SHA}",  # no extension
+        f"archive/{JPG_SHA}.",  # empty extension
+        f"archive/../{JPG_SHA}.jpg",
+        f"archive/{JPG_SHA.upper()}.jpg",
+        "",
+        None,
+    ],
+)
+def test_mirror_path_for_rejects_bad_keys(tmp_path, key):
+    with pytest.raises(BadArchiveKeyError):
+        mirror_path_for(tmp_path, {"byte_sha256": JPG_SHA, "archive_key": key})
+
+
+def test_bad_archive_key_outcome_writes_nothing(tmp_path):
+    reg = _registry(tmp_path / "reg.jsonl", (A, JPG_SHA, f"archive/{PNG_SHA}.jpg"))
+    _put(tmp_path / "images", A, "p.jpg", JPG)
+    rep = run_image_mirror([_card(A)], **_kw(tmp_path, reg))
+    assert not rep.ok and rep.counts["bad_archive_key"] == 1
+    assert not _archive(tmp_path).exists()
+    pf = verify_image_mirror([_card(A)], mirror_root=tmp_path / "r2-mirror", registry_path=reg)
+    assert not pf.ok
+
+
+def test_writer_verifier_and_vision_reader_agree(tmp_path, monkeypatch):
+    # asset_filename says .JPG; the registry's archive_key says .jpg.
+    reg = _registry(tmp_path / "reg.jsonl", (A, JPG_SHA, f"archive/{JPG_SHA}.jpg"))
+    _put(tmp_path / "images", A, "P.JPG", JPG)
+    card = _card(A, "P.JPG")
+    rep = run_image_mirror([card], **_kw(tmp_path, reg))
+    assert rep.ok
+    expected = tmp_path / "r2-mirror" / "archive" / f"{JPG_SHA}.jpg"
+    assert expected.is_file()
+    pf = verify_image_mirror([card], mirror_root=tmp_path / "r2-mirror", registry_path=reg)
+    assert pf.ok
+    monkeypatch.setattr(img_source.settings, "data_root", tmp_path)
+    path, why = img_source._mirror_path(card, load_registry(reg))
+    assert why is None and path == expected
+
+
+# --- results are per row --------------------------------------------------
+
+
+def test_two_rows_of_one_card_both_reported(tmp_path):
+    reg = _registry(tmp_path / "reg.jsonl", (A, JPG_SHA, f"archive/{JPG_SHA}.jpg"))
+    _put(tmp_path / "images", A, "p.jpg", JPG)
+    cards = [_card(A, "p.jpg"), _card(A, "gone.jpg")]
+    rep = run_image_mirror(cards, **_kw(tmp_path, reg))
+    assert len(rep.results) == 2
+    assert not rep.ok
+    assert rep.counts["mirrored"] + rep.counts["already_present"] == 1
+    assert rep.counts["source_missing"] == 1
+    pf = verify_image_mirror(
+        [_card(A), _card(A)], mirror_root=tmp_path / "r2-mirror", registry_path=reg
+    )
+    assert pf.ok
