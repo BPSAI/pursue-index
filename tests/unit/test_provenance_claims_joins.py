@@ -131,6 +131,14 @@ def test_applied_row_count_ignores_non_ntrs_extra_claims() -> None:
     assert build_report(manifest, extra_claims=[ntrs, other]).ntrs_claims_applied_row_count == 1
 
 
+def test_applied_row_count_needs_the_file_key_to_match_too() -> None:
+    manifest = {"cards": [_row("aaaaaaaaaaaaaaaa", "A0"), _row("bbbbbbbbbbbbbbbb", "B0")]}
+    wrong_file = _claim("bbbbbbbbbbbbbbbb", "aaaaaaaaaaaaaaaa#0")
+    assert build_report(manifest, extra_claims=[wrong_file]).ntrs_claims_applied_row_count == 0
+    right = _claim("aaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaa#0")
+    assert build_report(manifest, extra_claims=[right]).ntrs_claims_applied_row_count == 1
+
+
 # --- 5 and 6: one search per file; a row without a card_id ----------------------
 
 
@@ -142,6 +150,15 @@ def test_sibling_rows_of_one_file_search_once_and_are_labelled() -> None:
     assert [s.row_key for s in searches] == ["a0a0a0a0a0a0a012#0", "a0a0a0a0a0a0a012#1"]
     assert "search_shared_from" not in searches[0].to_dict()
     assert searches[1].to_dict()["search_shared_from"] == "a0a0a0a0a0a0a012#0"
+
+
+def test_sibling_rows_with_different_titles_each_send_their_own_query() -> None:
+    manifest = {"cards": [card(title="Unrelated Paper"), card(title="Apollo 12 Medical Debriefing")]}
+    net = Net(Resp(200, {"results": []}), Resp(200, _EARLY))
+    searches = run_searches(manifest, net.fetcher(), TODAY)
+    assert len(net.urls) == 2
+    assert all("search_shared_from" not in s.to_dict() for s in searches)
+    assert [s.result for s in searches] == ["no_copy", "claim"]
 
 
 def test_distinct_files_each_search() -> None:
