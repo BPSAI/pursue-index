@@ -7,8 +7,12 @@ PDFs are content-addressed into ``r2-mirror/archive/<sha>.pdf`` by
 For each IMG card the expected sha is the registry's newest ``byte_sha256``
 (the same trust rule the vision path uses, via ``load_registry_rows``) and
 the target is the registry ``archive_key`` under the mirror root, resolved by
-``mirror_path_for`` (the one rule the preflight and the vision reader share). Idempotent and sha-verified; a
-mismatch never writes and an existing differing target is never overwritten.
+``img_mirror_path_for`` (the one rule the writer, the preflight and the vision
+reader share: image extensions only; a legacy row with no ``archive_key`` gets
+the same synthesized ``archive/<sha><ext>`` the reader uses). Idempotent and
+sha-verified; a mismatch never writes and an existing differing target is
+never overwritten. A symlink that dangles, at the source or the target, is a
+failed row and is never followed or written through.
 
 Pure filesystem I/O only: no network, no credentials.
 """
@@ -31,16 +35,17 @@ from pursue_index.release.exclusive_publish import (
     publish_exclusive,
     sha256_file,
 )
+from pursue_index.release.image_mirror_scope import (
+    select_image_cards as select_image_cards,  # re-export: the CLI and tests import it here
+)
 from pursue_index.row_key import row_keys
 from pursue_index.vision.img_source import (
     BadArchiveKeyError,
+    img_mirror_path_for,
     load_registry_rows,
-    mirror_path_for,
 )
 
 _SHA256_RE = re.compile(r"[0-9a-f]{64}")
-_IMAGE_EXTS = frozenset({"jpg", "jpeg", "png", "gif", "webp", "tif", "tiff"})
-_NON_IMG_ASSET_TYPES = frozenset({"PDF", "VID", "AUD"})
 
 MIRRORED = "mirrored"
 ALREADY_PRESENT = "already_present"
@@ -50,6 +55,7 @@ TARGET_MISMATCH = "target_mismatch"
 NO_REGISTRY_ROW = "no_registry_row"
 UNSAFE_SOURCE = "unsafe_source"
 BAD_ARCHIVE_KEY = "bad_archive_key"
+IO_ERROR = "io_error"
 OUTCOMES = (
     MIRRORED,
     ALREADY_PRESENT,
@@ -59,6 +65,7 @@ OUTCOMES = (
     NO_REGISTRY_ROW,
     UNSAFE_SOURCE,
     BAD_ARCHIVE_KEY,
+    IO_ERROR,
 )
 _FAILURES = frozenset(OUTCOMES) - {MIRRORED, ALREADY_PRESENT}
 
@@ -97,21 +104,29 @@ class ImageMirrorPreflight:
     details: dict[str, str] = field(default_factory=dict)  # row key -> reason
 
 
-def _expected(card, rows: dict[str, dict]) -> tuple[str, Path] | tuple[str, str]:
-    """``(sha, mirror-relative key)`` or ``(outcome, reason)`` for a refusal."""
+@dataclass(frozen=True)
+class _Expected:
+    """A row's expected ``sha`` and mirror-relative ``key``, or a refusal."""
+
+    sha: str = ""
+    key: Path = Path()
+    refusal: str = ""  # an outcome name when the row is refused
+    reason: str = ""
+
+
+def _expected(card, rows: dict[str, dict]) -> _Expected:
     row = rows.get(card.card_id)
     if row is None:
-        return NO_REGISTRY_ROW, "no registry row"
+        return _Expected(refusal=NO_REGISTRY_ROW, reason="no registry row")
     sha = str(row["byte_sha256"])
     if not _SHA256_RE.fullmatch(sha):
-        return NO_REGISTRY_ROW, f"registry byte_sha256 {sha!r} is not 64 lowercase hex digits"
+        reason = f"registry byte_sha256 {sha!r} is not 64 lowercase hex digits"
+        return _Expected(refusal=NO_REGISTRY_ROW, reason=reason)
     try:
-        key = mirror_path_for(Path(), row)
+        key = img_mirror_path_for(Path(), row, card.asset_filename or "")
     except BadArchiveKeyError as exc:
-        return BAD_ARCHIVE_KEY, str(exc)
-    if key.suffix.lstrip(".").lower() not in _IMAGE_EXTS:
-        return BAD_ARCHIVE_KEY, f"archive_key extension {key.suffix[:12]!r} is not an image type"
-    return sha, key
+        return _Expected(refusal=BAD_ARCHIVE_KEY, reason=str(exc))
+    return _Expected(sha=sha, key=key)
 
 
 def _source_path(card, images_root: Path) -> Path | str:
@@ -139,36 +154,11 @@ def _source_path(card, images_root: Path) -> Path | str:
         src = images_root / canonical.relative_to(settings.image_dir)
     except ValueError:
         return f"source {name[:80]!r} is outside the images dir"
+    if src.is_symlink() and not src.exists():
+        return f"source {name[:80]!r} is a dangling symlink"
     if not src.resolve().is_relative_to(images_root.resolve()):
         return f"source {name[:80]!r} resolves outside the images root"
     return src
-
-
-def select_image_cards(
-    card_ids: list[str], manifest_cards: list[dict]
-) -> tuple[list[str], dict[str, str]]:
-    """Split a worklist into IMG cards and reported non-IMG skips.
-
-    Returns ``(in_scope, skipped)``; ``skipped`` maps card_id -> the asset
-    types it carries. Fails closed: an id absent from the manifest, or with a
-    row lacking ``asset_type``, stays in scope and is gated normally.
-    """
-    types: dict[str, set[str | None]] = {}
-    for card in manifest_cards:
-        cid = card.get("card_id")
-        if cid:
-            types.setdefault(cid, set()).add(card.get("asset_type"))
-    in_scope: list[str] = []
-    skipped: dict[str, str] = {}
-    for cid in card_ids:
-        seen = types.get(cid)
-        # Fails closed like select_pdf_cards: skip only an id whose every row
-        # is a known non-IMG type; unknown or untyped ids stay gated.
-        if seen and seen <= _NON_IMG_ASSET_TYPES:
-            skipped[cid] = "+".join(sorted(str(t) for t in seen))
-        else:
-            in_scope.append(cid)
-    return in_scope, skipped
 
 
 def _publish_exclusive(tmp: Path, target: Path, sha: str) -> tuple[str, str]:
@@ -201,10 +191,12 @@ def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, 
     if isinstance(src, str) and src:
         return UNSAFE_SOURCE, src
     exp = _expected(card, rows)
-    if exp[0] in (NO_REGISTRY_ROW, BAD_ARCHIVE_KEY):
-        return exp[0], str(exp[1])
-    sha, key = exp
-    target = mirror_root / key
+    if exp.refusal:
+        return exp.refusal, exp.reason
+    sha = exp.sha
+    target = mirror_root / exp.key
+    if target.is_symlink() and not target.exists():
+        return TARGET_MISMATCH, f"{target.name} is a dangling symlink; never written through"
     if target.is_file():
         actual = sha256_file(target)
         if actual == sha:
@@ -240,8 +232,28 @@ def run_image_mirror(
     rows = load_registry_rows(registry_path)
     report = ImageMirrorReport()
     for key, card in _keyed(cards):
-        report.results[key] = _mirror_one(card, rows, images_root, mirror_root)
+        try:
+            report.results[key] = _mirror_one(card, rows, images_root, mirror_root)
+        except OSError as exc:  # a failed row, not an aborted batch
+            report.results[key] = (IO_ERROR, f"{type(exc).__name__}: {exc}"[:200])
     return report
+
+
+def _verify_one(card, rows, mirror_root: Path) -> str:
+    """Why this row's archive copy is missing or wrong, or ``""``."""
+    if isinstance(card, UnresolvedCard):
+        return "card is not an IMG row in the manifest"
+    exp = _expected(card, rows)
+    if exp.refusal:
+        return exp.reason
+    if not CARD_ID_PATTERN.fullmatch(str(card.card_id)):
+        return f"card_id {str(card.card_id)[:40]!r} is not 16 lowercase hex characters"
+    target = mirror_root / exp.key
+    if not target.is_file():
+        return f"missing r2-mirror/{exp.key}"
+    if sha256_file(target) != exp.sha:
+        return f"r2-mirror/{exp.key} sha mismatch"
+    return ""
 
 
 def verify_image_mirror(
@@ -251,18 +263,10 @@ def verify_image_mirror(
     rows = load_registry_rows(registry_path)
     details: dict[str, str] = {}
     for key, card in _keyed(cards):
-        if isinstance(card, UnresolvedCard):
-            details[key] = "card is not an IMG row in the manifest"
-            continue
-        exp = _expected(card, rows)
-        if exp[0] in (NO_REGISTRY_ROW, BAD_ARCHIVE_KEY):
-            details[key] = str(exp[1])
-            continue
-        sha, rel = exp
-        if not CARD_ID_PATTERN.fullmatch(str(card.card_id)):
-            details[key] = f"card_id {str(card.card_id)[:40]!r} is not 16 lowercase hex characters"
-        elif not (mirror_root / rel).is_file():
-            details[key] = f"missing r2-mirror/{rel}"
-        elif sha256_file(mirror_root / rel) != sha:
-            details[key] = f"r2-mirror/{rel} sha mismatch"
+        try:
+            why = _verify_one(card, rows, mirror_root)
+        except OSError as exc:  # a failing row, not an aborted preflight
+            why = f"{IO_ERROR}: {type(exc).__name__}: {exc}"[:200]
+        if why:
+            details[key] = why
     return ImageMirrorPreflight(ok=not details, details=details)
