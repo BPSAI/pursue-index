@@ -15,8 +15,10 @@ Pure filesystem I/O only: no network, no credentials.
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -179,6 +181,19 @@ def _publish_exclusive(tmp: Path, target: Path, sha: str) -> tuple[str, str]:
     return TARGET_MISMATCH, f"{target.name} holds sha {actual[:12]}, expected {sha[:12]}"
 
 
+def _stage_temp(src: Path, target: Path) -> Path:
+    """Copy ``src`` into a fresh, exclusively created temp file beside ``target``."""
+    fd, name = tempfile.mkstemp(dir=target.parent, prefix=".", suffix=".tmp")
+    tmp = Path(name)
+    try:
+        with os.fdopen(fd, "wb") as out, src.open("rb") as inp:
+            shutil.copyfileobj(inp, out)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
+    return tmp
+
+
 def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, str]:
     if isinstance(card, UnresolvedCard):
         return UNSAFE_SOURCE, "card is not an IMG row in the manifest"
@@ -201,8 +216,7 @@ def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, 
     if actual != sha:
         return SHA_MISMATCH, f"source sha {actual[:12]} != registry byte_sha256 {sha[:12]}"
     target.parent.mkdir(parents=True, exist_ok=True)
-    tmp = target.with_name(target.name + ".tmp")
-    shutil.copy2(src, tmp)
+    tmp = _stage_temp(src, target)
     if sha256_file(tmp) != sha:
         tmp.unlink(missing_ok=True)
         return SHA_MISMATCH, "post-copy sha verification failed"

@@ -19,21 +19,19 @@ from tests.unit._image_mirror_helpers import (
 
 def _race_setup(tmp_path, monkeypatch, planted: bytes):
     """Create the target between the existence check and the publish."""
-    import shutil
-
     from pursue_index.release import image_mirror as im
 
     reg = _registry(tmp_path / "reg.jsonl", (A, JPG_SHA, f"archive/{JPG_SHA}.jpg"))
     _put(tmp_path / "images", A, "p.jpg", JPG)
     target = _archive(tmp_path) / f"{JPG_SHA}.jpg"
-    real_copy = shutil.copy2
+    real_stage = im._stage_temp
 
-    def copy_then_plant(src, dst, *a, **k):
-        out = real_copy(src, dst, *a, **k)
+    def stage_then_plant(src, dst):
+        out = real_stage(src, dst)
         target.write_bytes(planted)
         return out
 
-    monkeypatch.setattr(im.shutil, "copy2", copy_then_plant)
+    monkeypatch.setattr(im, "_stage_temp", stage_then_plant)
     return reg, target
 
 
