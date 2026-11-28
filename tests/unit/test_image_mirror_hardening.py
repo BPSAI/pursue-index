@@ -67,7 +67,7 @@ def test_dangling_source_symlink_is_unsafe_source_and_batch_continues(tmp_path):
     assert not (tmp_path / "nowhere.jpg").exists()
 
 
-def test_dangling_target_symlink_is_target_mismatch_and_never_written_through(tmp_path):
+def test_dangling_target_symlink_is_unsafe_target_and_never_written_through(tmp_path):
     reg = _registry(
         tmp_path / "reg.jsonl",
         (A, JPG_SHA, f"archive/{JPG_SHA}.jpg"),
@@ -79,7 +79,7 @@ def test_dangling_target_symlink_is_target_mismatch_and_never_written_through(tm
     link = _archive(tmp_path) / f"{JPG_SHA}.jpg"
     link.symlink_to(tmp_path / "nowhere.jpg")
     rep = _run([_card(A), _card(B, "q.png")], tmp_path, reg)
-    assert rep.counts["target_mismatch"] == 1 and rep.counts["mirrored"] == 1
+    assert rep.counts["unsafe_target"] == 1 and rep.counts["mirrored"] == 1
     assert "symlink" in _row(rep.results, A)[1]
     assert link.is_symlink() and not (tmp_path / "nowhere.jpg").exists()
     assert not list(_archive(tmp_path).glob("*.tmp"))
@@ -98,14 +98,14 @@ def test_oserror_on_one_row_is_io_error_and_the_next_row_mirrors(tmp_path, monke
     )
     _put(tmp_path / "images", A, "p.jpg", JPG)
     _put(tmp_path / "images", B, "q.png", PNG)
-    real = im._stage_temp
+    real = im.stage_temp
 
     def flaky(src, target):
-        if src.parent.name == A:
+        if target.name.startswith(JPG_SHA):  # row A; the stage now takes the open source
             raise OSError(5, "Input/output error")
         return real(src, target)
 
-    monkeypatch.setattr(im, "_stage_temp", flaky)
+    monkeypatch.setattr(im, "stage_temp", flaky)
     rep = _run([_card(A), _card(B, "q.png")], tmp_path, reg)
     assert rep.counts["io_error"] == 1 and rep.counts["mirrored"] == 1
     assert not rep.ok
@@ -143,7 +143,7 @@ def test_a_programming_error_still_raises(tmp_path, monkeypatch):
     def boom(src, target):
         raise ValueError("a bug")
 
-    monkeypatch.setattr(im, "_stage_temp", boom)
+    monkeypatch.setattr(im, "stage_temp", boom)
     with pytest.raises(ValueError):
         run_image_mirror([_card(A)], **_kw(tmp_path, reg))
 

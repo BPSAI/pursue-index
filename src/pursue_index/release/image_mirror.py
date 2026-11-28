@@ -11,18 +11,19 @@ the target is the registry ``archive_key`` under the mirror root, resolved by
 reader share: image extensions only; a legacy row with no ``archive_key`` gets
 the same synthesized ``archive/<sha><ext>`` the reader uses). Idempotent and
 sha-verified; a mismatch never writes and an existing differing target is
-never overwritten. A symlink that dangles, at the source or the target, is a
-failed row and is never followed or written through.
+never overwritten. A symlink at the source is ``unsafe_source`` (checked before
+the open, and refused again at open time via ``O_NOFOLLOW``, so one swapped in
+between is not followed); a symlink at the target, dangling or live, is
+``unsafe_target``. Neither is ever followed or written through. A real target
+file whose sha differs stays ``target_mismatch``. The bytes hashed are the
+bytes copied: both come from the one source descriptor.
 
 Pure filesystem I/O only: no network, no credentials.
 """
 
 from __future__ import annotations
 
-import os
 import re
-import shutil
-import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -34,6 +35,11 @@ from pursue_index.release.exclusive_publish import (
     PUBLISHED,
     publish_exclusive,
     sha256_file,
+)
+from pursue_index.release.image_mirror_io import (
+    open_source_nofollow,
+    sha256_stream,
+    stage_temp,
 )
 from pursue_index.release.image_mirror_scope import (
     select_image_cards as select_image_cards,  # re-export: the CLI and tests import it here
@@ -52,6 +58,7 @@ ALREADY_PRESENT = "already_present"
 SOURCE_MISSING = "source_missing"
 SHA_MISMATCH = "sha_mismatch"
 TARGET_MISMATCH = "target_mismatch"
+UNSAFE_TARGET = "unsafe_target"
 NO_REGISTRY_ROW = "no_registry_row"
 UNSAFE_SOURCE = "unsafe_source"
 BAD_ARCHIVE_KEY = "bad_archive_key"
@@ -62,6 +69,7 @@ OUTCOMES = (
     SOURCE_MISSING,
     SHA_MISMATCH,
     TARGET_MISMATCH,
+    UNSAFE_TARGET,
     NO_REGISTRY_ROW,
     UNSAFE_SOURCE,
     BAD_ARCHIVE_KEY,
@@ -171,19 +179,6 @@ def _publish_exclusive(tmp: Path, target: Path, sha: str) -> tuple[str, str]:
     return TARGET_MISMATCH, f"{target.name} holds sha {actual[:12]}, expected {sha[:12]}"
 
 
-def _stage_temp(src: Path, target: Path) -> Path:
-    """Copy ``src`` into a fresh, exclusively created temp file beside ``target``."""
-    fd, name = tempfile.mkstemp(dir=target.parent, prefix=".", suffix=".tmp")
-    tmp = Path(name)
-    try:
-        with os.fdopen(fd, "wb") as out, src.open("rb") as inp:
-            shutil.copyfileobj(inp, out)
-    except BaseException:
-        tmp.unlink(missing_ok=True)
-        raise
-    return tmp
-
-
 def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, str]:
     if isinstance(card, UnresolvedCard):
         return UNSAFE_SOURCE, "card is not an IMG row in the manifest"
@@ -195,8 +190,8 @@ def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, 
         return exp.refusal, exp.reason
     sha = exp.sha
     target = mirror_root / exp.key
-    if target.is_symlink() and not target.exists():
-        return TARGET_MISMATCH, f"{target.name} is a dangling symlink; never written through"
+    if target.is_symlink():
+        return UNSAFE_TARGET, f"{target.name} is a symlink; never followed or written through"
     if target.is_file():
         actual = sha256_file(target)
         if actual == sha:
@@ -204,11 +199,16 @@ def _mirror_one(card, rows, images_root: Path, mirror_root: Path) -> tuple[str, 
         return TARGET_MISMATCH, f"{target.name} holds sha {actual[:12]}, expected {sha[:12]}"
     if not src or not src.is_file():
         return SOURCE_MISSING, f"no source at images/{card.card_id}/{card.asset_filename}"
-    actual = sha256_file(src)
-    if actual != sha:
-        return SHA_MISMATCH, f"source sha {actual[:12]} != registry byte_sha256 {sha[:12]}"
-    target.parent.mkdir(parents=True, exist_ok=True)
-    tmp = _stage_temp(src, target)
+    inp = open_source_nofollow(src)
+    if inp is None:
+        return UNSAFE_SOURCE, f"source {src.name[:80]!r} is a symlink at open time"
+    with inp:
+        actual = sha256_stream(inp)
+        if actual != sha:
+            return SHA_MISMATCH, f"source sha {actual[:12]} != registry byte_sha256 {sha[:12]}"
+        inp.seek(0)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        tmp = stage_temp(inp, target)
     if sha256_file(tmp) != sha:
         tmp.unlink(missing_ok=True)
         return SHA_MISMATCH, "post-copy sha verification failed"
