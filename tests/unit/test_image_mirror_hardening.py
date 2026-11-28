@@ -98,14 +98,14 @@ def test_oserror_on_one_row_is_io_error_and_the_next_row_mirrors(tmp_path, monke
     )
     _put(tmp_path / "images", A, "p.jpg", JPG)
     _put(tmp_path / "images", B, "q.png", PNG)
-    real = im._stage_temp
+    real = im.stage_temp
 
     def flaky(src, target):
-        if src.parent.name == A:
+        if target.name.startswith(JPG_SHA):  # row A; the stage now takes the open source
             raise OSError(5, "Input/output error")
         return real(src, target)
 
-    monkeypatch.setattr(im, "_stage_temp", flaky)
+    monkeypatch.setattr(im, "stage_temp", flaky)
     rep = _run([_card(A), _card(B, "q.png")], tmp_path, reg)
     assert rep.counts["io_error"] == 1 and rep.counts["mirrored"] == 1
     assert not rep.ok
@@ -143,7 +143,7 @@ def test_a_programming_error_still_raises(tmp_path, monkeypatch):
     def boom(src, target):
         raise ValueError("a bug")
 
-    monkeypatch.setattr(im, "_stage_temp", boom)
+    monkeypatch.setattr(im, "stage_temp", boom)
     with pytest.raises(ValueError):
         run_image_mirror([_card(A)], **_kw(tmp_path, reg))
 

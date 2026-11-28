@@ -5,6 +5,11 @@ links (CIFS can), an ``O_EXCL`` create plus a copy gives the same guarantee.
 A target that appeared meanwhile is hashed and reported, never touched, and
 the temp file is always removed.
 
+Published files get ``FILE_MODE`` (``0o644``) on purpose: they are
+content-addressed, public-record bytes that are already served publicly, so
+world-readable is the intent, not an oversight. On a CIFS mount the mount's
+``file_mode`` option may override it; the chmod is best effort.
+
 Pure filesystem I/O only: no network, no credentials.
 """
 

@@ -24,14 +24,14 @@ def _race_setup(tmp_path, monkeypatch, planted: bytes):
     reg = _registry(tmp_path / "reg.jsonl", (A, JPG_SHA, f"archive/{JPG_SHA}.jpg"))
     _put(tmp_path / "images", A, "p.jpg", JPG)
     target = _archive(tmp_path) / f"{JPG_SHA}.jpg"
-    real_stage = im._stage_temp
+    real_stage = im.stage_temp
 
     def stage_then_plant(src, dst):
         out = real_stage(src, dst)
         target.write_bytes(planted)
         return out
 
-    monkeypatch.setattr(im, "_stage_temp", stage_then_plant)
+    monkeypatch.setattr(im, "stage_temp", stage_then_plant)
     return reg, target
 
 
