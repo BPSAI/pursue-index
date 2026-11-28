@@ -67,7 +67,7 @@ def test_dangling_source_symlink_is_unsafe_source_and_batch_continues(tmp_path):
     assert not (tmp_path / "nowhere.jpg").exists()
 
 
-def test_dangling_target_symlink_is_target_mismatch_and_never_written_through(tmp_path):
+def test_dangling_target_symlink_is_unsafe_target_and_never_written_through(tmp_path):
     reg = _registry(
         tmp_path / "reg.jsonl",
         (A, JPG_SHA, f"archive/{JPG_SHA}.jpg"),
@@ -79,7 +79,7 @@ def test_dangling_target_symlink_is_target_mismatch_and_never_written_through(tm
     link = _archive(tmp_path) / f"{JPG_SHA}.jpg"
     link.symlink_to(tmp_path / "nowhere.jpg")
     rep = _run([_card(A), _card(B, "q.png")], tmp_path, reg)
-    assert rep.counts["target_mismatch"] == 1 and rep.counts["mirrored"] == 1
+    assert rep.counts["unsafe_target"] == 1 and rep.counts["mirrored"] == 1
     assert "symlink" in _row(rep.results, A)[1]
     assert link.is_symlink() and not (tmp_path / "nowhere.jpg").exists()
     assert not list(_archive(tmp_path).glob("*.tmp"))
